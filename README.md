@@ -7,14 +7,16 @@ A modern full-stack personal finance platform to manage accounts, track transact
 - [React 19](https://react.dev/) + [Vite](https://vite.dev/) + TypeScript
 - [Tailwind CSS v4](https://tailwindcss.com/) with the [shadcn](https://ui.shadcn.com/) CLI (`base-luma` style, built on [Base UI](https://base-ui.com/) primitives)
 - [react-router-dom](https://reactrouter.com/) for client-side routing
+- [i18next](https://www.i18next.com/) + [react-i18next](https://react.i18next.com/) for internationalization
 - [pnpm workspaces](https://pnpm.io/workspaces) to keep test tooling isolated from the app's own dependencies
 
 ## Features
 
-- Responsive dashboard with a collapsible sidebar (drawer), header with the app name and a light/dark mode toggle.
+- Responsive dashboard with a collapsible sidebar (drawer), header with the app name, a language switcher and a light/dark mode toggle.
 - Pages: Resumen (dashboard), Cuentas, Transacciones, Presupuestos, Analítica, Ajustes and a custom 404 page.
 - Simulated authentication: login with email/password validation, "remember me" (persisted in `localStorage`, otherwise `sessionStorage`), a "welcome back" quick sign-in card for remembered users, and a logout confirmation dialog.
 - Route protection: every page except `/login` requires an active session.
+- Internationalized UI (Spanish and English) with automatic detection of the browser's preferred language and a manual language switcher.
 - Accessibility-conscious UI, verified with automated axe-core scans (semantic landmarks, headings, color contrast, accessible names for interactive components).
 
 ## Prerequisites
@@ -73,6 +75,15 @@ pnpm --filter ./test_e2e install-browsers
 - **Unit tests** (`test/`): Vitest + React Testing Library, covering hooks (`useAuth`), utilities, and key pages/components (login validation, route protection).
 - **End-to-end tests** (`test_e2e/tests/*.spec.ts`): Playwright drives a real browser against the app (started automatically via `pnpm dev`), covering login, navigation, logout, "remember me" and the 404 page.
 - **Accessibility tests** (`test_e2e/tests/*.a11y.spec.ts`): Playwright + `@axe-core/playwright` scan every page and key interactive states (dialogs, cards) for automatically detectable WCAG issues.
+
+## Internationalization
+
+The UI copy lives in `src/i18n/locales/<lang>/translation.json` (currently `es` and `en`), loaded and configured in `src/i18n/config.ts`.
+
+- On first load, the language is resolved in this order: a previously saved preference (`localStorage`, key `finora_language`), then the browser's preferred language (`navigator.languages`), falling back to Spanish (`es`) if neither is supported.
+- Users can switch languages at any time with the language switcher in the dashboard header (next to the mode toggle); the choice is persisted in `localStorage` for the next visit.
+- To add a new language, create a new folder under `src/i18n/locales/<lang>/translation.json` mirroring the existing keys and register it in the `resources` object in `src/i18n/config.ts`.
+- Only actual UI copy (headings, labels, buttons, messages, table headers, accessible names) is translated; the mock/demo data shown in the app (sample accounts, transactions, budgets) is intentionally left as-is.
 
 ## Git hooks
 
