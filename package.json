@@ -1,7 +1,7 @@
 {
   "name": "personal-finance-manager",
   "private": true,
-  "version": "rc-0.1.0",
+  "version": "0.0.0",
   "description": "A modern full-stack personal finance platform to manage accounts, track transactions, set budgets, and analyze financial health.",
   "homepage": "https://github.com/agarciadk/personal-finance-manager#readme",
   "bugs": {
