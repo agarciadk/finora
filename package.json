@@ -16,12 +16,17 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "clear": "rm -rf node_modules pnpm-lock.yaml && pnpm install",
+    "clear": "rm -rf node_modules dist pnpm-lock.yaml && pnpm install",
+    "clean": "rm -rf node_modules dist test/node_modules test_e2e/node_modules pnpm-lock.yaml && pnpm install",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
+    "test": "pnpm --filter ./test test",
+    "test:e2e": "pnpm --filter ./test_e2e test:e2e",
+    "test:e2e:ui": "pnpm --filter ./test_e2e test:e2e:ui",
+    "test:a11y": "pnpm --filter ./test_e2e test:a11y",
     "prepare": "husky"
   },
   "dependencies": {

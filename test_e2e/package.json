@@ -1,0 +1,23 @@
+{
+  "name": "personal-finance-manager-e2e",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    ":test:e2e": "playwright test --project=e2e",
+    ":test:e2e:ui": "playwright test --project=e2e --ui",
+    ":test:a11y": "playwright test --project=accessibility",
+    "test:e2e": "run-s clean:results \":test:e2e -- {@}\" --",
+    "test:e2e:ui": "run-s clean:results \":test:e2e:ui -- {@}\" --",
+    "test:a11y": "run-s clean:results \":test:a11y -- {@}\" --",
+    "clean": "run-s clean:results clean:node_modules",
+    "clean:results": "rm -rf test-results",
+    "clean:node_modules": "rm -rf node_modules",
+    "install-browsers": "playwright install --with-deps chromium"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "@playwright/test": "^1.62.0",
+    "npm-run-all": "^4.1.5"
+  }
+}
