@@ -1,4 +1,6 @@
 # Finora — Personal Finance Manager
+[![CI](https://github.com/agarciadk/personal-finance-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/agarciadk/personal-finance-manager/actions/workflows/ci.yml)
+[![Vercel](https://vercelbadge.vercel.app/api/agarciadk/personal-finance-manager)]([https://vercel.com/agarciadk/personal-finance-manager](https://personal-finance-manager-qdie96umq-agarciadks-projects.vercel.app/login))
 
 A modern full-stack personal finance platform to manage accounts, track transactions, set budgets, and analyze financial health.
 
