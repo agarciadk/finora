@@ -41,7 +41,7 @@ This repository is a pnpm workspace made up of three packages:
 .
 ├── src/         # Application source code (the "personal-finance-manager" package)
 ├── test/        # Unit tests (Vitest + Testing Library) — own package.json
-└── test_e2e/    # End-to-end & accessibility tests (Playwright + axe-core) — own package.json
+└── e2e/    # End-to-end & accessibility tests (Playwright + axe-core) — own package.json
 ```
 
 Test dependencies are intentionally kept out of the root `package.json` so the app's production/dev dependencies stay lean; each test package declares only what it needs.
@@ -59,22 +59,22 @@ Run from the repository root:
 | `pnpm format` | Format `.ts`/`.tsx` files with Prettier. |
 | `pnpm typecheck` | Run TypeScript in `--noEmit` mode. |
 | `pnpm test` | Run unit tests (Vitest, in `test/`). |
-| `pnpm test:e2e` | Run end-to-end tests (Playwright, in `test_e2e/`). |
-| `pnpm test:a11y` | Run accessibility tests (axe-core + Playwright, in `test_e2e/`). |
+| `pnpm test:e2e` | Run end-to-end tests (Playwright, in `e2e/`). |
+| `pnpm test:a11y` | Run accessibility tests (axe-core + Playwright, in `e2e/`). |
 | `pnpm clean` | Remove `node_modules`, `dist` and `pnpm-lock.yaml` from every workspace package and reinstall. |
 | `pnpm clear` | Remove `node_modules`, `dist` and `pnpm-lock.yaml` from the root package only, and reinstall. |
 
 Before running `pnpm test:e2e` or `pnpm test:a11y` for the first time, install the required browser:
 
 ```bash
-pnpm --filter ./test_e2e install-browsers
+pnpm --filter ./e2e install-browsers
 ```
 
 ## Testing
 
 - **Unit tests** (`test/`): Vitest + React Testing Library, covering hooks (`useAuth`), utilities, and key pages/components (login validation, route protection).
-- **End-to-end tests** (`test_e2e/tests/*.spec.ts`): Playwright drives a real browser against the app (started automatically via `pnpm dev`), covering login, navigation, logout, "remember me" and the 404 page.
-- **Accessibility tests** (`test_e2e/tests/*.a11y.spec.ts`): Playwright + `@axe-core/playwright` scan every page and key interactive states (dialogs, cards) for automatically detectable WCAG issues.
+- **End-to-end tests** (`e2e/tests/*.spec.ts`): Playwright drives a real browser against the app (started automatically via `pnpm dev`), covering login, navigation, logout, "remember me" and the 404 page.
+- **Accessibility tests** (`e2e/tests/*.a11y.spec.ts`): Playwright + `@axe-core/playwright` scan every page and key interactive states (dialogs, cards) for automatically detectable WCAG issues.
 
 ## Internationalization
 

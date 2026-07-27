@@ -13,10 +13,10 @@ dist-ssr
 *.local
 
 # Playwright
-test_e2e/test-results
-test_e2e/playwright-report
-test_e2e/blob-report
-test_e2e/playwright/.cache
+e2e/test-results
+e2e/playwright-report
+e2e/blob-report
+e2e/playwright/.cache
 
 # Editor directories and files
 .vscode/*
