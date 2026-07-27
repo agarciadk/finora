@@ -6,7 +6,6 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -59,9 +58,9 @@ function WelcomeBackCard() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle className="font-heading text-xl">
+        <h1 className="font-heading text-xl font-medium">
           Bienvenido de nuevo, {rememberedUser.name}
-        </CardTitle>
+        </h1>
         <CardDescription>
           Inicia sesión para continuar en tu cuenta.
         </CardDescription>
@@ -116,9 +115,9 @@ function LoginForm() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle className="font-heading text-xl">
+        <h1 className="font-heading text-xl font-medium">
           Inicia sesión en finora
-        </CardTitle>
+        </h1>
         <CardDescription>
           Introduce tus credenciales para acceder a tu cuenta.
         </CardDescription>
@@ -178,8 +177,8 @@ export function LoginPage() {
   const { rememberedUser } = useAuth()
 
   return (
-    <div className="flex min-h-svh items-center justify-center p-6">
+    <main className="flex min-h-svh items-center justify-center p-6">
       {rememberedUser ? <WelcomeBackCard /> : <LoginForm />}
-    </div>
+    </main>
   )
 }

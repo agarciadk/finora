@@ -115,7 +115,7 @@ export function TransactionsPage() {
                     className={
                       "text-right font-medium " +
                       (transaction.type === "ingreso"
-                        ? "text-emerald-600 dark:text-emerald-400"
+                        ? "text-emerald-700 dark:text-emerald-400"
                         : "text-foreground")
                     }
                   >

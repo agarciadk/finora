@@ -30,16 +30,24 @@ const summaryCards = [
 
 export function DashboardPage() {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {summaryCards.map((card) => (
-        <Card key={card.title}>
-          <CardHeader>
-            <CardDescription>{card.title}</CardDescription>
-            <CardTitle className="text-2xl">{card.value}</CardTitle>
-            <CardDescription>{card.description}</CardDescription>
-          </CardHeader>
-        </Card>
-      ))}
+    <div className="flex flex-col gap-6">
+      <div>
+        <h1 className="font-heading text-2xl font-semibold">Resumen</h1>
+        <p className="text-sm text-muted-foreground">
+          Visión general de tus finanzas.
+        </p>
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {summaryCards.map((card) => (
+          <Card key={card.title}>
+            <CardHeader>
+              <CardDescription>{card.title}</CardDescription>
+              <CardTitle className="text-2xl">{card.value}</CardTitle>
+              <CardDescription>{card.description}</CardDescription>
+            </CardHeader>
+          </Card>
+        ))}
+      </div>
     </div>
   )
 }

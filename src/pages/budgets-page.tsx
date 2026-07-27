@@ -66,7 +66,10 @@ export function BudgetsPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>{budget.category}</CardTitle>
-                  <Badge variant={isOverBudget ? "destructive" : "secondary"}>
+                  <Badge
+                    variant={isOverBudget ? "destructive" : "secondary"}
+                    className={isOverBudget ? "bg-destructive text-white" : undefined}
+                  >
                     {percentage}%
                   </Badge>
                 </div>
@@ -75,7 +78,10 @@ export function BudgetsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Progress value={percentage} />
+                <Progress
+                  value={percentage}
+                  aria-label={`Progreso del presupuesto de ${budget.category}`}
+                />
               </CardContent>
             </Card>
           )

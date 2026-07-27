@@ -53,43 +53,47 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarContent>
+      <nav aria-label="Navegación principal" className="contents">
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Finora</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {navItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      render={<NavLink to={item.url} end={item.end} />}
+                      isActive={
+                        item.end
+                          ? pathname === item.url
+                          : pathname.startsWith(item.url)
+                      }
+                    >
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Finora</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    render={<NavLink to={item.url} end={item.end} />}
-                    isActive={
-                      item.end ? pathname === item.url : pathname.startsWith(item.url)
-                    }
-                  >
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  render={<NavLink to="/ajustes" />}
+                  isActive={pathname === "/ajustes"}
+                >
+                  <Settings />
+                  <span>Ajustes</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-      </SidebarContent>
-      <SidebarGroup>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                render={<NavLink to="/ajustes" />}
-                isActive={pathname === "/ajustes"}
-              >
-                <Settings />
-                <span>Ajustes</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
+      </nav>
     </Sidebar>
   )
 }

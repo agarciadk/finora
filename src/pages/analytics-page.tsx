@@ -59,7 +59,7 @@ export function AnalyticsPage() {
                   className={
                     "flex items-center gap-1 text-sm font-medium " +
                     (stat.trendDirection === "up"
-                      ? "text-emerald-600 dark:text-emerald-400"
+                      ? "text-emerald-700 dark:text-emerald-400"
                       : "text-destructive")
                   }
                 >
@@ -92,7 +92,10 @@ export function AnalyticsPage() {
                   €{item.amount.toLocaleString("es-ES")} · {item.percentage}%
                 </span>
               </div>
-              <Progress value={item.percentage} />
+              <Progress
+                value={item.percentage}
+                aria-label={`Gasto en ${item.category}`}
+              />
             </div>
           ))}
         </CardContent>

@@ -37,7 +37,7 @@ export function LogoutButton() {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>¿Cerrar sesión?</AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogDescription className="text-foreground/80">
             Tendrás que volver a iniciar sesión para acceder a tu cuenta de
             Finora.
           </AlertDialogDescription>
