@@ -1,0 +1,141 @@
+{
+  "sidebar": {
+    "ariaLabel": "Main navigation",
+    "brand": "Finora",
+    "nav": {
+      "dashboard": "Overview",
+      "accounts": "Accounts",
+      "transactions": "Transactions",
+      "budgets": "Budgets",
+      "analytics": "Analytics",
+      "settings": "Settings"
+    }
+  },
+  "languageToggle": {
+    "toggle": "Change language",
+    "es": "Spanish",
+    "en": "English"
+  },
+  "modeToggle": {
+    "toggle": "Toggle theme"
+  },
+  "logout": {
+    "trigger": "Sign out",
+    "title": "Sign out?",
+    "description": "You'll need to sign in again to access your Finora account.",
+    "cancel": "Cancel",
+    "confirm": "Sign out"
+  },
+  "notFound": {
+    "title": "404",
+    "message": "We couldn't find the page you're looking for.",
+    "backToDashboard": "Back to dashboard"
+  },
+  "dashboard": {
+    "title": "Overview",
+    "description": "A general view of your finances.",
+    "cards": {
+      "totalBalance": {
+        "title": "Total balance",
+        "description": "Updated today"
+      },
+      "monthlyIncome": {
+        "title": "Monthly income",
+        "description": "+8% compared to last month"
+      },
+      "monthlyExpenses": {
+        "title": "Monthly expenses",
+        "description": "-3% compared to last month"
+      },
+      "savings": {
+        "title": "Savings",
+        "description": "40% of your income"
+      }
+    }
+  },
+  "accounts": {
+    "title": "Accounts",
+    "description": "Check the balance of all your accounts and cards."
+  },
+  "transactions": {
+    "title": "Transactions",
+    "description": "Movement history across all your accounts.",
+    "recentTitle": "Recent movements",
+    "recentDescription_one": "{{count}} recent transaction.",
+    "recentDescription_other": "{{count}} recent transactions.",
+    "table": {
+      "date": "Date",
+      "description": "Description",
+      "category": "Category",
+      "account": "Account",
+      "amount": "Amount"
+    }
+  },
+  "budgets": {
+    "title": "Budgets",
+    "description": "Keep track of your spending limits by category this month.",
+    "progressLabel": "Budget progress for {{category}}",
+    "spentOfLimit": "{{spent}} of {{limit}}"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "description": "How your finances evolved over the last month.",
+    "stats": {
+      "income": "Income",
+      "expenses": "Expenses",
+      "savingsRate": "Savings rate"
+    },
+    "byCategoryTitle": "Spending by category",
+    "byCategoryDescription": "Distribution of total spending for the current month.",
+    "categoryProgressLabel": "Spending on {{category}}"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your profile, preferences and notifications.",
+    "profile": {
+      "title": "Profile",
+      "description": "Update your personal information.",
+      "nameLabel": "Name",
+      "emailLabel": "Email address",
+      "saveButton": "Save changes"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Choose which notifications you want to receive.",
+      "budgetAlerts": {
+        "label": "Budget alerts",
+        "description": "Get notified when you go over a spending limit."
+      },
+      "weeklySummary": {
+        "label": "Weekly summary",
+        "description": "An email with your finance summary every week."
+      },
+      "productNews": {
+        "label": "Finora news",
+        "description": "Find out about new features and improvements."
+      }
+    }
+  },
+  "login": {
+    "title": "Sign in to finora",
+    "description": "Enter your credentials to access your account.",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "youremail@example.com",
+    "passwordLabel": "Password",
+    "rememberMe": "Remember me",
+    "submit": "Sign in",
+    "errors": {
+      "emailRequired": "Enter your email address.",
+      "emailInvalid": "Enter a valid email address.",
+      "passwordRequired": "Enter your password.",
+      "passwordTooShort": "Your password must be at least 8 characters long."
+    },
+    "welcomeBack": {
+      "title": "Welcome back, {{name}}",
+      "description": "Sign in to continue to your account.",
+      "avatarAlt": "Avatar for {{name}}",
+      "submit": "Sign in",
+      "notYou": "Not you? Use a different account"
+    }
+  }
+}
