@@ -1,4 +1,5 @@
 import { Landmark, PiggyBank as PiggyBankIcon, Wallet } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import {
   Card,
@@ -41,12 +42,16 @@ const accounts = [
 ]
 
 export function AccountsPage() {
+  const { t } = useTranslation()
+
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-heading text-2xl font-semibold">Cuentas</h1>
+        <h1 className="font-heading text-2xl font-semibold">
+          {t("accounts.title")}
+        </h1>
         <p className="text-sm text-muted-foreground">
-          Consulta el saldo de todas tus cuentas y tarjetas.
+          {t("accounts.description")}
         </p>
       </div>
 

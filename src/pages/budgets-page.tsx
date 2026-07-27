@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next"
+
 import {
   Card,
   CardContent,
@@ -44,12 +46,16 @@ function formatEuros(value: number) {
 }
 
 export function BudgetsPage() {
+  const { t } = useTranslation()
+
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-heading text-2xl font-semibold">Presupuestos</h1>
+        <h1 className="font-heading text-2xl font-semibold">
+          {t("budgets.title")}
+        </h1>
         <p className="text-sm text-muted-foreground">
-          Controla tus límites de gasto por categoría este mes.
+          {t("budgets.description")}
         </p>
       </div>
 
@@ -74,13 +80,18 @@ export function BudgetsPage() {
                   </Badge>
                 </div>
                 <CardDescription>
-                  {formatEuros(budget.spent)} de {formatEuros(budget.limit)}
+                  {t("budgets.spentOfLimit", {
+                    spent: formatEuros(budget.spent),
+                    limit: formatEuros(budget.limit),
+                  })}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Progress
                   value={percentage}
-                  aria-label={`Progreso del presupuesto de ${budget.category}`}
+                  aria-label={t("budgets.progressLabel", {
+                    category: budget.category,
+                  })}
                 />
               </CardContent>
             </Card>

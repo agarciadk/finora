@@ -7,6 +7,7 @@ import {
   Settings,
 } from "lucide-react"
 import { NavLink, useLocation } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 import {
   Sidebar,
@@ -21,46 +22,51 @@ import {
 
 const navItems = [
   {
-    title: "Resumen",
+    key: "dashboard",
     url: "/",
     icon: LayoutDashboard,
     end: true,
   },
   {
-    title: "Cuentas",
+    key: "accounts",
     url: "/cuentas",
     icon: Wallet,
+    end: false,
   },
   {
-    title: "Transacciones",
+    key: "transactions",
     url: "/transacciones",
     icon: ArrowLeftRight,
+    end: false,
   },
   {
-    title: "Presupuestos",
+    key: "budgets",
     url: "/presupuestos",
     icon: PiggyBank,
+    end: false,
   },
   {
-    title: "Analítica",
+    key: "analytics",
     url: "/analitica",
     icon: BarChart3,
+    end: false,
   },
-]
+] as const
 
 export function AppSidebar() {
   const { pathname } = useLocation()
+  const { t } = useTranslation()
 
   return (
     <Sidebar collapsible="icon">
-      <nav aria-label="Navegación principal" className="contents">
+      <nav aria-label={t("sidebar.ariaLabel")} className="contents">
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Finora</SidebarGroupLabel>
+            <SidebarGroupLabel>{t("sidebar.brand")}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {navItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
+                  <SidebarMenuItem key={item.key}>
                     <SidebarMenuButton
                       render={<NavLink to={item.url} end={item.end} />}
                       isActive={
@@ -70,7 +76,7 @@ export function AppSidebar() {
                       }
                     >
                       <item.icon />
-                      <span>{item.title}</span>
+                      <span>{t(`sidebar.nav.${item.key}`)}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -87,7 +93,7 @@ export function AppSidebar() {
                   isActive={pathname === "/ajustes"}
                 >
                   <Settings />
-                  <span>Ajustes</span>
+                  <span>{t("sidebar.nav.settings")}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

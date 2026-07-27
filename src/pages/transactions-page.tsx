@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next"
+
 import {
   Card,
   CardContent,
@@ -67,33 +69,39 @@ const transactions = [
 ]
 
 export function TransactionsPage() {
+  const { t } = useTranslation()
+
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="font-heading text-2xl font-semibold">
-          Transacciones
+          {t("transactions.title")}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Historial de movimientos en todas tus cuentas.
+          {t("transactions.description")}
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Últimos movimientos</CardTitle>
+          <CardTitle>{t("transactions.recentTitle")}</CardTitle>
           <CardDescription>
-            {transactions.length} transacciones recientes.
+            {t("transactions.recentDescription", {
+              count: transactions.length,
+            })}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Fecha</TableHead>
-                <TableHead>Descripción</TableHead>
-                <TableHead>Categoría</TableHead>
-                <TableHead>Cuenta</TableHead>
-                <TableHead className="text-right">Importe</TableHead>
+                <TableHead>{t("transactions.table.date")}</TableHead>
+                <TableHead>{t("transactions.table.description")}</TableHead>
+                <TableHead>{t("transactions.table.category")}</TableHead>
+                <TableHead>{t("transactions.table.account")}</TableHead>
+                <TableHead className="text-right">
+                  {t("transactions.table.amount")}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

@@ -1,4 +1,5 @@
 import { TrendingDown, TrendingUp } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import {
   Card,
@@ -11,24 +12,24 @@ import { Progress } from "@/components/ui/progress"
 
 const monthlyStats = [
   {
-    title: "Ingresos",
+    key: "income",
     value: "€3.250,00",
     trend: "+8%",
     trendDirection: "up" as const,
   },
   {
-    title: "Gastos",
+    key: "expenses",
     value: "€1.940,15",
     trend: "-3%",
     trendDirection: "down" as const,
   },
   {
-    title: "Tasa de ahorro",
+    key: "savingsRate",
     value: "40%",
     trend: "+5%",
     trendDirection: "up" as const,
   },
-]
+] as const
 
 const spendingByCategory = [
   { category: "Vivienda", amount: 750, percentage: 39 },
@@ -39,20 +40,24 @@ const spendingByCategory = [
 ]
 
 export function AnalyticsPage() {
+  const { t } = useTranslation()
+
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-heading text-2xl font-semibold">Analítica</h1>
+        <h1 className="font-heading text-2xl font-semibold">
+          {t("analytics.title")}
+        </h1>
         <p className="text-sm text-muted-foreground">
-          Evolución de tus finanzas durante el último mes.
+          {t("analytics.description")}
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {monthlyStats.map((stat) => (
-          <Card key={stat.title}>
+          <Card key={stat.key}>
             <CardHeader>
-              <CardDescription>{stat.title}</CardDescription>
+              <CardDescription>{t(`analytics.stats.${stat.key}`)}</CardDescription>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-2xl">{stat.value}</CardTitle>
                 <span
@@ -78,9 +83,9 @@ export function AnalyticsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Gastos por categoría</CardTitle>
+          <CardTitle>{t("analytics.byCategoryTitle")}</CardTitle>
           <CardDescription>
-            Distribución del gasto total del mes actual.
+            {t("analytics.byCategoryDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -94,7 +99,9 @@ export function AnalyticsPage() {
               </div>
               <Progress
                 value={item.percentage}
-                aria-label={`Gasto en ${item.category}`}
+                aria-label={t("analytics.categoryProgressLabel", {
+                  category: item.category,
+                })}
               />
             </div>
           ))}

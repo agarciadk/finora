@@ -1,5 +1,6 @@
 import { LogOut } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 import {
   AlertDialog,
@@ -18,6 +19,7 @@ import { useAuth } from "@/hooks/use-auth"
 export function LogoutButton() {
   const navigate = useNavigate()
   const { logout } = useAuth()
+  const { t } = useTranslation()
 
   function handleLogout() {
     logout()
@@ -30,22 +32,21 @@ export function LogoutButton() {
         render={
           <Button variant="ghost" size="icon">
             <LogOut />
-            <span className="sr-only">Cerrar sesión</span>
+            <span className="sr-only">{t("logout.trigger")}</span>
           </Button>
         }
       />
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>¿Cerrar sesión?</AlertDialogTitle>
+          <AlertDialogTitle>{t("logout.title")}</AlertDialogTitle>
           <AlertDialogDescription className="text-foreground/80">
-            Tendrás que volver a iniciar sesión para acceder a tu cuenta de
-            Finora.
+            {t("logout.description")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel>{t("logout.cancel")}</AlertDialogCancel>
           <AlertDialogAction onClick={handleLogout}>
-            Cerrar sesión
+            {t("logout.confirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

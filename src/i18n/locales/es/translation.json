@@ -1,0 +1,141 @@
+{
+  "sidebar": {
+    "ariaLabel": "Navegación principal",
+    "brand": "Finora",
+    "nav": {
+      "dashboard": "Resumen",
+      "accounts": "Cuentas",
+      "transactions": "Transacciones",
+      "budgets": "Presupuestos",
+      "analytics": "Analítica",
+      "settings": "Ajustes"
+    }
+  },
+  "languageToggle": {
+    "toggle": "Cambiar idioma",
+    "es": "Español",
+    "en": "Inglés"
+  },
+  "modeToggle": {
+    "toggle": "Cambiar tema"
+  },
+  "logout": {
+    "trigger": "Cerrar sesión",
+    "title": "¿Cerrar sesión?",
+    "description": "Tendrás que volver a iniciar sesión para acceder a tu cuenta de Finora.",
+    "cancel": "Cancelar",
+    "confirm": "Cerrar sesión"
+  },
+  "notFound": {
+    "title": "404",
+    "message": "No hemos encontrado la página que buscas.",
+    "backToDashboard": "Volver al dashboard"
+  },
+  "dashboard": {
+    "title": "Resumen",
+    "description": "Visión general de tus finanzas.",
+    "cards": {
+      "totalBalance": {
+        "title": "Saldo total",
+        "description": "Actualizado hoy"
+      },
+      "monthlyIncome": {
+        "title": "Ingresos del mes",
+        "description": "+8% respecto al mes anterior"
+      },
+      "monthlyExpenses": {
+        "title": "Gastos del mes",
+        "description": "-3% respecto al mes anterior"
+      },
+      "savings": {
+        "title": "Ahorro",
+        "description": "40% de tus ingresos"
+      }
+    }
+  },
+  "accounts": {
+    "title": "Cuentas",
+    "description": "Consulta el saldo de todas tus cuentas y tarjetas."
+  },
+  "transactions": {
+    "title": "Transacciones",
+    "description": "Historial de movimientos en todas tus cuentas.",
+    "recentTitle": "Últimos movimientos",
+    "recentDescription_one": "{{count}} transacción reciente.",
+    "recentDescription_other": "{{count}} transacciones recientes.",
+    "table": {
+      "date": "Fecha",
+      "description": "Descripción",
+      "category": "Categoría",
+      "account": "Cuenta",
+      "amount": "Importe"
+    }
+  },
+  "budgets": {
+    "title": "Presupuestos",
+    "description": "Controla tus límites de gasto por categoría este mes.",
+    "progressLabel": "Progreso del presupuesto de {{category}}",
+    "spentOfLimit": "{{spent}} de {{limit}}"
+  },
+  "analytics": {
+    "title": "Analítica",
+    "description": "Evolución de tus finanzas durante el último mes.",
+    "stats": {
+      "income": "Ingresos",
+      "expenses": "Gastos",
+      "savingsRate": "Tasa de ahorro"
+    },
+    "byCategoryTitle": "Gastos por categoría",
+    "byCategoryDescription": "Distribución del gasto total del mes actual.",
+    "categoryProgressLabel": "Gasto en {{category}}"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "description": "Gestiona tu perfil, preferencias y notificaciones.",
+    "profile": {
+      "title": "Perfil",
+      "description": "Actualiza tu información personal.",
+      "nameLabel": "Nombre",
+      "emailLabel": "Correo electrónico",
+      "saveButton": "Guardar cambios"
+    },
+    "notifications": {
+      "title": "Notificaciones",
+      "description": "Elige qué notificaciones quieres recibir.",
+      "budgetAlerts": {
+        "label": "Alertas de presupuesto",
+        "description": "Recibe un aviso cuando superes un límite de gasto."
+      },
+      "weeklySummary": {
+        "label": "Resumen semanal",
+        "description": "Un correo con el resumen de tus finanzas cada semana."
+      },
+      "productNews": {
+        "label": "Novedades de Finora",
+        "description": "Entérate de nuevas funciones y mejoras."
+      }
+    }
+  },
+  "login": {
+    "title": "Inicia sesión en finora",
+    "description": "Introduce tus credenciales para acceder a tu cuenta.",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "tucorreo@ejemplo.com",
+    "passwordLabel": "Contraseña",
+    "rememberMe": "Recordar mi sesión",
+    "submit": "Iniciar sesión",
+    "errors": {
+      "emailRequired": "Introduce tu correo electrónico.",
+      "emailInvalid": "Introduce un correo electrónico válido.",
+      "passwordRequired": "Introduce tu contraseña.",
+      "passwordTooShort": "La contraseña debe tener al menos 8 caracteres."
+    },
+    "welcomeBack": {
+      "title": "Bienvenido de nuevo, {{name}}",
+      "description": "Inicia sesión para continuar en tu cuenta.",
+      "avatarAlt": "Avatar de {{name}}",
+      "submit": "Iniciar sesión",
+      "notYou": "¿No eres tú? Usa otra cuenta"
+    }
+  }
+}

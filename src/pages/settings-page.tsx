@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next"
+
 import {
   Card,
   CardContent,
@@ -14,61 +16,62 @@ import { Button } from "@/components/ui/button"
 const notificationPreferences = [
   {
     id: "budget-alerts",
-    label: "Alertas de presupuesto",
-    description: "Recibe un aviso cuando superes un límite de gasto.",
+    key: "budgetAlerts",
     defaultChecked: true,
   },
   {
     id: "weekly-summary",
-    label: "Resumen semanal",
-    description: "Un correo con el resumen de tus finanzas cada semana.",
+    key: "weeklySummary",
     defaultChecked: true,
   },
   {
     id: "product-news",
-    label: "Novedades de Finora",
-    description: "Entérate de nuevas funciones y mejoras.",
+    key: "productNews",
     defaultChecked: false,
   },
-]
+] as const
 
 export function SettingsPage() {
+  const { t } = useTranslation()
+
   return (
     <div className="flex max-w-2xl flex-col gap-6">
       <div>
-        <h1 className="font-heading text-2xl font-semibold">Ajustes</h1>
+        <h1 className="font-heading text-2xl font-semibold">
+          {t("settings.title")}
+        </h1>
         <p className="text-sm text-muted-foreground">
-          Gestiona tu perfil, preferencias y notificaciones.
+          {t("settings.description")}
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Perfil</CardTitle>
+          <CardTitle>{t("settings.profile.title")}</CardTitle>
           <CardDescription>
-            Actualiza tu información personal.
+            {t("settings.profile.description")}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="name">Nombre</Label>
+            <Label htmlFor="name">{t("settings.profile.nameLabel")}</Label>
             <Input id="name" defaultValue="Alberto García" />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="email">Correo electrónico</Label>
+            <Label htmlFor="email">{t("settings.profile.emailLabel")}</Label>
             <Input id="email" type="email" defaultValue="alberto@finora.app" />
           </div>
           <div>
-            <Button>Guardar cambios</Button>
+            <Button>{t("settings.profile.saveButton")}</Button>
           </div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Notificaciones</CardTitle>
+          <CardTitle>{t("settings.notifications.title")}</CardTitle>
           <CardDescription>
-            Elige qué notificaciones quieres recibir.
+            {t("settings.notifications.description")}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -76,9 +79,11 @@ export function SettingsPage() {
             <div key={preference.id}>
               <div className="flex items-center justify-between gap-4">
                 <div className="flex flex-col gap-1">
-                  <Label htmlFor={preference.id}>{preference.label}</Label>
+                  <Label htmlFor={preference.id}>
+                    {t(`settings.notifications.${preference.key}.label`)}
+                  </Label>
                   <p className="text-sm text-muted-foreground">
-                    {preference.description}
+                    {t(`settings.notifications.${preference.key}.description`)}
                   </p>
                 </div>
                 <Switch

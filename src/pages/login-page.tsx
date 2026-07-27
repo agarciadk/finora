@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 import {
   Card,
@@ -15,6 +16,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useAuth } from "@/hooks/use-auth"
 import { useGravatarUrl } from "@/hooks/use-gravatar-url"
+import i18n from "@/i18n/config"
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -27,15 +29,15 @@ function validate(email: string, password: string): LoginErrors {
   const errors: LoginErrors = {}
 
   if (!email.trim()) {
-    errors.email = "Introduce tu correo electrónico."
+    errors.email = i18n.t("login.errors.emailRequired")
   } else if (!EMAIL_REGEX.test(email.trim())) {
-    errors.email = "Introduce un correo electrónico válido."
+    errors.email = i18n.t("login.errors.emailInvalid")
   }
 
   if (!password) {
-    errors.password = "Introduce tu contraseña."
+    errors.password = i18n.t("login.errors.passwordRequired")
   } else if (password.length < 8) {
-    errors.password = "La contraseña debe tener al menos 8 caracteres."
+    errors.password = i18n.t("login.errors.passwordTooShort")
   }
 
   return errors
@@ -45,6 +47,7 @@ function WelcomeBackCard() {
   const navigate = useNavigate()
   const { rememberedUser, login, forgetRememberedUser } = useAuth()
   const avatarUrl = useGravatarUrl(rememberedUser?.email ?? "")
+  const { t } = useTranslation()
 
   if (!rememberedUser) {
     return null
@@ -59,11 +62,9 @@ function WelcomeBackCard() {
     <Card className="w-full max-w-sm">
       <CardHeader>
         <h1 className="font-heading text-xl font-medium">
-          Bienvenido de nuevo, {rememberedUser.name}
+          {t("login.welcomeBack.title", { name: rememberedUser.name })}
         </h1>
-        <CardDescription>
-          Inicia sesión para continuar en tu cuenta.
-        </CardDescription>
+        <CardDescription>{t("login.welcomeBack.description")}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <Badge
@@ -73,7 +74,9 @@ function WelcomeBackCard() {
           {avatarUrl ? (
             <img
               src={avatarUrl}
-              alt={`Avatar de ${rememberedUser.name}`}
+              alt={t("login.welcomeBack.avatarAlt", {
+                name: rememberedUser.name,
+              })}
               className="size-5 rounded-full"
             />
           ) : (
@@ -82,10 +85,10 @@ function WelcomeBackCard() {
           <span className="font-normal">{rememberedUser.email}</span>
         </Badge>
         <Button onClick={() => handleQuickLogin(rememberedUser.email)}>
-          Iniciar sesión
+          {t("login.welcomeBack.submit")}
         </Button>
         <Button variant="ghost" onClick={forgetRememberedUser}>
-          ¿No eres tú? Usa otra cuenta
+          {t("login.welcomeBack.notYou")}
         </Button>
       </CardContent>
     </Card>
@@ -95,6 +98,7 @@ function WelcomeBackCard() {
 function LoginForm() {
   const navigate = useNavigate()
   const { login } = useAuth()
+  const { t } = useTranslation()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [rememberMe, setRememberMe] = useState(false)
@@ -116,21 +120,19 @@ function LoginForm() {
     <Card className="w-full max-w-sm">
       <CardHeader>
         <h1 className="font-heading text-xl font-medium">
-          Inicia sesión en finora
+          {t("login.title")}
         </h1>
-        <CardDescription>
-          Introduce tus credenciales para acceder a tu cuenta.
-        </CardDescription>
+        <CardDescription>{t("login.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-4" noValidate onSubmit={handleSubmit}>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="email">Correo electrónico</Label>
+            <Label htmlFor="email">{t("login.emailLabel")}</Label>
             <Input
               id="email"
               type="email"
               autoComplete="email"
-              placeholder="tucorreo@ejemplo.com"
+              placeholder={t("login.emailPlaceholder")}
               value={email}
               aria-invalid={Boolean(errors.email)}
               onChange={(event) => setEmail(event.target.value)}
@@ -140,7 +142,7 @@ function LoginForm() {
             )}
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="password">Contraseña</Label>
+            <Label htmlFor="password">{t("login.passwordLabel")}</Label>
             <Input
               id="password"
               type="password"
@@ -161,11 +163,11 @@ function LoginForm() {
               onCheckedChange={(checked) => setRememberMe(checked === true)}
             />
             <Label htmlFor="remember-me" className="font-normal">
-              Recordar mi sesión
+              {t("login.rememberMe")}
             </Label>
           </div>
           <Button type="submit" className="mt-2">
-            Iniciar sesión
+            {t("login.submit")}
           </Button>
         </form>
       </CardContent>
