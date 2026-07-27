@@ -1,3 +1,7 @@
 packages:
-  - "test"
-  - "e2e"
+  - "apps/*"
+  - "apps/*/test"
+  - "apps/*/e2e"
+  - "eslint-config"
+allowBuilds:
+  unrs-resolver: false

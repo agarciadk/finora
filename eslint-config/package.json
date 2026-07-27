@@ -1,0 +1,11 @@
+{
+  "name": "@finora/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./common": "./common.mjs",
+    "./api": "./api.mjs",
+    "./web": "./web.mjs"
+  }
+}

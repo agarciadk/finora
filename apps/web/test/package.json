@@ -1,5 +1,5 @@
 {
-  "name": "personal-finance-manager-tests",
+  "name": "@finora/test",
   "private": true,
   "version": "0.0.0",
   "type": "module",
