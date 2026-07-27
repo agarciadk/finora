@@ -1,0 +1,47 @@
+name: Accessibility Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  accessibility:
+    name: Accessibility Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm --filter ./test_e2e exec playwright install --with-deps
+
+      - name: Run accessibility tests
+        run: pnpm test:a11y
+
+      - name: Upload Playwright accessibility report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-accessibility-report
+          path: playwright-report/
+          retention-days: 7
