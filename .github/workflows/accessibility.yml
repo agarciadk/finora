@@ -38,7 +38,7 @@ jobs:
 
       - name: Get installed Playwright version
         id: playwright-version
-        run: echo "version=$(node -p "require('./e2e/node_modules/@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+        run: echo "version=$(node -p "require('./apps/web/e2e/node_modules/@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Cache Playwright browsers
         id: playwright-cache
@@ -49,11 +49,11 @@ jobs:
 
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm --filter ./e2e exec playwright install --with-deps chromium
+        run: pnpm --filter @finora/e2e exec playwright install --with-deps chromium
 
       - name: Install Playwright OS dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm --filter ./e2e exec playwright install-deps chromium
+        run: pnpm --filter @finora/e2e exec playwright install-deps chromium
 
       - name: Run accessibility tests
         run: pnpm test:a11y
@@ -63,5 +63,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-accessibility-report
-          path: e2e/playwright-report/
+          path: apps/web/e2e/playwright-report/
           retention-days: 7

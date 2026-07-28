@@ -1,5 +1,5 @@
 {
-  "name": "personal-finance-manager-e2e",
+  "name": "@finora/e2e",
   "private": true,
   "version": "0.0.0",
   "type": "module",
