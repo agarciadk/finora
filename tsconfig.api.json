@@ -12,7 +12,7 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
     "incremental": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
