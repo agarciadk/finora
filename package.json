@@ -1,7 +1,7 @@
 {
   "name": "finora",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A modern full-stack personal finance platform to manage accounts, track transactions, set budgets, and analyze financial health.",
   "homepage": "https://github.com/agarciadk/finora#readme",
   "bugs": {
@@ -14,16 +14,17 @@
   "license": "Apache-2.0",
   "author": "Alberto Garcia de Paredes Cidoncha <agarciadk@gmail.com>",
   "scripts": {
-    "dev:web": "pnpm --filter @finora/web dev",
-    "dev:api": "pnpm --filter @finora/api start:dev",
-    "clean": "rm -rf node_modules apps/*/dist apps/*/node_modules apps/*/test/node_modules apps/*/e2e/node_modules pnpm-lock.yaml && pnpm install",
     "build": "pnpm -r build",
+    "clean": "rm -rf node_modules apps/*/dist apps/*/node_modules apps/*/test/node_modules apps/*/e2e/node_modules pnpm-lock.yaml && pnpm install",
+    "dev:api": "pnpm --filter @finora/api start:dev",
+    "dev:web": "pnpm --filter @finora/web dev",
     "lint": "pnpm -r lint",
+    "prepare": "husky",
     "test": "pnpm --filter @finora/test test",
+    "test:a11y": "pnpm --filter @finora/e2e test:a11y",
     "test:e2e": "pnpm --filter @finora/e2e test:e2e",
     "test:e2e:ui": "pnpm --filter @finora/e2e test:e2e:ui",
-    "test:a11y": "pnpm --filter @finora/e2e test:a11y",
-    "prepare": "husky"
+    "typecheck": "pnpm --filter @finora/web typecheck"
   },
   "devDependencies": {
     "husky": "^9.1.7"

@@ -16,10 +16,12 @@ A modern full-stack personal finance platform to manage accounts, track transact
 **Backend** (`apps/api`)
 
 - [NestJS](https://nestjs.com/) + TypeScript, scaffolded with [`@nestjs/cli`](https://docs.nestjs.com/cli/overview)
+- [`@nestjs/terminus`](https://docs.nestjs.com/recipes/terminus) powering the `GET /health` health check endpoint
 
 **Tooling**
 
 - [pnpm workspaces](https://pnpm.io/workspaces) to manage the `apps/web` and `apps/api` packages (plus their isolated `test`/`e2e` tooling packages) from a single monorepo
+- Shared ESLint config (`eslint-config/`, published internally as `@finora/eslint-config`) and shared root-level `tsconfig.*.json` files, reused by both apps
 
 ## Features
 
@@ -29,6 +31,7 @@ A modern full-stack personal finance platform to manage accounts, track transact
 - Route protection: every page except `/login` requires an active session.
 - Internationalized UI (Spanish and English) with automatic detection of the browser's preferred language and a manual language switcher.
 - Accessibility-conscious UI, verified with automated axe-core scans (semantic landmarks, headings, color contrast, accessible names for interactive components).
+- Backend health check endpoint (`GET /health`) reporting memory (heap/RSS) and disk usage status.
 
 ## Prerequisites
 
@@ -45,17 +48,21 @@ pnpm dev:api  # backend (NestJS)
 
 ## Project structure
 
-This repository is a pnpm workspace with two applications under `apps/`, each with its own `package.json`:
+This repository is a pnpm workspace with two applications under `apps/`, each with its own `package.json`, plus shared configuration at the root:
 
 ```
 .
+├── eslint-config/       # Shared ESLint rules (@finora/eslint-config): common, api and web configs
+├── tsconfig.base.json   # Shared base TypeScript compiler options
+├── tsconfig.api.json    # Shared TypeScript options for apps/api
+├── tsconfig.web.json    # Shared TypeScript options for apps/web
 └── apps/
     ├── web/           # Frontend app (React + Vite)
     │   ├── src/       # Application source code
     │   ├── test/      # Unit tests (Vitest + Testing Library) — own package.json
     │   └── e2e/       # End-to-end & accessibility tests (Playwright + axe-core) — own package.json
     └── api/           # Backend app (NestJS)
-        ├── src/       # Application source code
+        ├── src/       # Application source code (includes the `/health` module)
         └── test/      # e2e tests (Jest) — unit tests live alongside src as *.spec.ts
 ```
 
