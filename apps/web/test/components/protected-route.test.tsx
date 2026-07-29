@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
 
@@ -21,22 +21,38 @@ function renderWithRoute(initialPath: string) {
 }
 
 describe("ProtectedRoute", () => {
-  beforeEach(() => {
-    localStorage.clear()
-    sessionStorage.clear()
+  afterEach(() => {
+    vi.unstubAllGlobals()
   })
 
-  it("redirects to /login when there is no active session", () => {
-    renderWithRoute("/")
-
-    expect(screen.getByText("Login page")).toBeInTheDocument()
-  })
-
-  it("renders the protected content when there is an active session", () => {
-    sessionStorage.setItem("finora_session", "true")
+  it("redirects to /login when there is no active session", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(new Response(null, { status: 401 }))
+    )
 
     renderWithRoute("/")
 
-    expect(screen.getByText("Protected content")).toBeInTheDocument()
+    expect(await screen.findByText("Login page")).toBeInTheDocument()
+  })
+
+  it("renders the protected content when there is an active session", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            id: "user-1",
+            email: "ada@example.com",
+            name: "Ada Lovelace",
+          }),
+          { status: 200 }
+        )
+      )
+    )
+
+    renderWithRoute("/")
+
+    expect(await screen.findByText("Protected content")).toBeInTheDocument()
   })
 })

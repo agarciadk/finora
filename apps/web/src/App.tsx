@@ -11,6 +11,7 @@ import { BudgetsPage } from "@/pages/budgets-page"
 import { AnalyticsPage } from "@/pages/analytics-page"
 import { SettingsPage } from "@/pages/settings-page"
 import { LoginPage } from "@/pages/login-page"
+import { RegisterPage } from "@/pages/register-page"
 import { NotFoundPage } from "@/pages/not-found-page"
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="login" element={<LoginPage />} />
+            <Route path="registro" element={<RegisterPage />} />
             <Route element={<ProtectedRoute />}>
               <Route element={<DashboardLayout />}>
                 <Route index element={<DashboardPage />} />

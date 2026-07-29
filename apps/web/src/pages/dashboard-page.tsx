@@ -6,28 +6,63 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { useAccounts } from "@/hooks/use-accounts"
+import { useAnalytics } from "@/hooks/use-analytics"
+import { formatCurrency } from "@/lib/utils"
 
-const summaryCards = [
-  {
-    key: "totalBalance",
-    value: "€12.480,32",
-  },
-  {
-    key: "monthlyIncome",
-    value: "€3.250,00",
-  },
-  {
-    key: "monthlyExpenses",
-    value: "€1.940,15",
-  },
-  {
-    key: "savings",
-    value: "€1.309,85",
-  },
-] as const
+const now = new Date()
+
+function formatTrend(trend: number | null) {
+  if (trend === null) return null
+  return `${trend >= 0 ? "+" : ""}${trend}%`
+}
 
 export function DashboardPage() {
   const { t } = useTranslation()
+  const { accounts } = useAccounts()
+  const { analytics } = useAnalytics(now.getMonth() + 1, now.getFullYear())
+
+  const totalBalance = accounts.reduce(
+    (sum, account) => sum + Number(account.balance),
+    0
+  )
+  const monthlyIncome = analytics?.income ?? 0
+  const monthlyExpenses = analytics?.expenses ?? 0
+  const savings = monthlyIncome - monthlyExpenses
+  const savingsRate = analytics?.savingsRate ?? 0
+  const incomeTrend = formatTrend(analytics?.incomeTrend ?? null)
+  const expensesTrend = formatTrend(analytics?.expensesTrend ?? null)
+
+  const summaryCards = [
+    {
+      key: "totalBalance" as const,
+      value: formatCurrency(totalBalance),
+      description: t("dashboard.cards.totalBalance.description"),
+    },
+    {
+      key: "monthlyIncome" as const,
+      value: formatCurrency(monthlyIncome),
+      description: incomeTrend
+        ? t("dashboard.cards.monthlyIncome.description", { trend: incomeTrend })
+        : t("dashboard.cards.monthlyIncome.noTrend"),
+    },
+    {
+      key: "monthlyExpenses" as const,
+      value: formatCurrency(monthlyExpenses),
+      description: expensesTrend
+        ? t("dashboard.cards.monthlyExpenses.description", {
+            trend: expensesTrend,
+          })
+        : t("dashboard.cards.monthlyExpenses.noTrend"),
+    },
+    {
+      key: "savings" as const,
+      value: formatCurrency(savings),
+      description: t("dashboard.cards.savings.description", {
+        rate: savingsRate,
+      }),
+    },
+  ]
 
   return (
     <div className="flex flex-col gap-6">
@@ -47,9 +82,7 @@ export function DashboardPage() {
                 {t(`dashboard.cards.${card.key}.title`)}
               </CardDescription>
               <CardTitle className="text-2xl">{card.value}</CardTitle>
-              <CardDescription>
-                {t(`dashboard.cards.${card.key}.description`)}
-              </CardDescription>
+              <CardDescription>{card.description}</CardDescription>
             </CardHeader>
           </Card>
         ))}

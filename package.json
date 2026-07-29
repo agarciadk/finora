@@ -14,19 +14,28 @@
   "license": "Apache-2.0",
   "author": "Alberto Garcia de Paredes Cidoncha <agarciadk@gmail.com>",
   "scripts": {
+    "dev": "pnpm db:up && concurrently \"pnpm dev:web\" \"pnpm dev:api\"",
+    "dev:web": "pnpm --filter @finora/web dev",
+    "dev:api": "pnpm db:wait && pnpm --filter @finora/api start:dev",
     "build": "pnpm -r build",
     "clean": "rm -rf node_modules apps/*/dist apps/*/node_modules apps/*/test/node_modules apps/*/e2e/node_modules pnpm-lock.yaml && pnpm install",
-    "dev:api": "pnpm --filter @finora/api start:dev",
-    "dev:web": "pnpm --filter @finora/web dev",
     "lint": "pnpm -r lint",
     "prepare": "husky",
+    "typecheck": "pnpm --filter @finora/web typecheck",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:wait": "wait-on tcp:localhost:5432",
+    "db:generate": "pnpm --filter @finora/api prisma:generate",
+    "db:migrate": "pnpm --filter @finora/api prisma:migrate",
+    "db:studio": "pnpm --filter @finora/api prisma:studio",
     "test": "pnpm --filter @finora/test test",
     "test:a11y": "pnpm --filter @finora/e2e test:a11y",
     "test:e2e": "pnpm --filter @finora/e2e test:e2e",
-    "test:e2e:ui": "pnpm --filter @finora/e2e test:e2e:ui",
-    "typecheck": "pnpm --filter @finora/web typecheck"
+    "test:e2e:ui": "pnpm --filter @finora/e2e test:e2e:ui"
   },
   "devDependencies": {
-    "husky": "^9.1.7"
+    "concurrently": "^10.0.4",
+    "husky": "^9.1.7",
+    "wait-on": "^9.1.0"
   }
 }
