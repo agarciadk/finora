@@ -1,4 +1,23 @@
 {
+  "common": {
+    "loading": "Cargando…",
+    "actions": {
+      "add": "Añadir",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando…"
+    },
+    "confirmDelete": {
+      "title": "¿Eliminar \"{{name}}\"?",
+      "description": "Esta acción no se puede deshacer.",
+      "confirm": "Eliminar"
+    },
+    "errors": {
+      "generic": "Ha ocurrido un error. Inténtalo de nuevo."
+    }
+  },
   "sidebar": {
     "ariaLabel": "Navegación principal",
     "brand": "Finora",
@@ -41,21 +60,48 @@
       },
       "monthlyIncome": {
         "title": "Ingresos del mes",
-        "description": "+8% respecto al mes anterior"
+        "description": "{{trend}} respecto al mes anterior",
+        "noTrend": "Sin datos del mes anterior"
       },
       "monthlyExpenses": {
         "title": "Gastos del mes",
-        "description": "-3% respecto al mes anterior"
+        "description": "{{trend}} respecto al mes anterior",
+        "noTrend": "Sin datos del mes anterior"
       },
       "savings": {
         "title": "Ahorro",
-        "description": "40% de tus ingresos"
+        "description": "{{rate}}% de tus ingresos"
       }
+    },
+    "errors": {
+      "loadFailed": "No se han podido cargar los datos del resumen."
     }
   },
   "accounts": {
     "title": "Cuentas",
-    "description": "Consulta el saldo de todas tus cuentas y tarjetas."
+    "description": "Consulta el saldo de todas tus cuentas y tarjetas.",
+    "addButton": "Añadir cuenta",
+    "empty": "Aún no tienes cuentas. Añade la primera.",
+    "types": {
+      "CHECKING": "Corriente",
+      "SAVINGS": "Ahorro",
+      "CREDIT_CARD": "Crédito",
+      "CASH": "Efectivo"
+    },
+    "form": {
+      "createTitle": "Añadir cuenta",
+      "editTitle": "Editar cuenta",
+      "description": "Introduce los datos de la cuenta.",
+      "nameLabel": "Nombre",
+      "bankLabel": "Banco",
+      "typeLabel": "Tipo",
+      "balanceLabel": "Saldo"
+    },
+    "errors": {
+      "loadFailed": "No se han podido cargar las cuentas.",
+      "saveFailed": "No se ha podido guardar la cuenta.",
+      "deleteFailed": "No se ha podido eliminar la cuenta."
+    }
   },
   "transactions": {
     "title": "Transacciones",
@@ -69,13 +115,49 @@
       "category": "Categoría",
       "account": "Cuenta",
       "amount": "Importe"
+    },
+    "addButton": "Añadir transacción",
+    "empty": "Aún no hay transacciones.",
+    "types": {
+      "INCOME": "Ingreso",
+      "EXPENSE": "Gasto"
+    },
+    "form": {
+      "createTitle": "Añadir transacción",
+      "editTitle": "Editar transacción",
+      "description": "Registra un nuevo movimiento.",
+      "descriptionLabel": "Descripción",
+      "amountLabel": "Importe",
+      "typeLabel": "Tipo",
+      "dateLabel": "Fecha",
+      "accountLabel": "Cuenta",
+      "categoryLabel": "Categoría"
+    },
+    "errors": {
+      "loadFailed": "No se han podido cargar las transacciones.",
+      "saveFailed": "No se ha podido guardar la transacción.",
+      "deleteFailed": "No se ha podido eliminar la transacción."
     }
   },
   "budgets": {
     "title": "Presupuestos",
     "description": "Controla tus límites de gasto por categoría este mes.",
     "progressLabel": "Progreso del presupuesto de {{category}}",
-    "spentOfLimit": "{{spent}} de {{limit}}"
+    "spentOfLimit": "{{spent}} de {{limit}}",
+    "addButton": "Añadir presupuesto",
+    "empty": "Aún no tienes presupuestos para este mes.",
+    "form": {
+      "createTitle": "Añadir presupuesto",
+      "editTitle": "Editar presupuesto",
+      "description": "Define un límite de gasto por categoría.",
+      "categoryLabel": "Categoría",
+      "limitLabel": "Límite"
+    },
+    "errors": {
+      "loadFailed": "No se han podido cargar los presupuestos.",
+      "saveFailed": "No se ha podido guardar el presupuesto.",
+      "deleteFailed": "No se ha podido eliminar el presupuesto."
+    }
   },
   "analytics": {
     "title": "Analítica",
@@ -85,9 +167,14 @@
       "expenses": "Gastos",
       "savingsRate": "Tasa de ahorro"
     },
+    "noTrend": "Sin datos del mes anterior",
     "byCategoryTitle": "Gastos por categoría",
     "byCategoryDescription": "Distribución del gasto total del mes actual.",
-    "categoryProgressLabel": "Gasto en {{category}}"
+    "categoryProgressLabel": "Gasto en {{category}}",
+    "empty": "Aún no hay gastos registrados este mes.",
+    "errors": {
+      "loadFailed": "No se han podido cargar los datos de analítica."
+    }
   },
   "settings": {
     "title": "Ajustes",
@@ -97,11 +184,19 @@
       "description": "Actualiza tu información personal.",
       "nameLabel": "Nombre",
       "emailLabel": "Correo electrónico",
-      "saveButton": "Guardar cambios"
+      "saveButton": "Guardar cambios",
+      "errors": {
+        "loadFailed": "No se ha podido cargar tu perfil.",
+        "saveFailed": "No se han podido guardar los cambios."
+      }
     },
     "notifications": {
       "title": "Notificaciones",
       "description": "Elige qué notificaciones quieres recibir.",
+      "errors": {
+        "loadFailed": "No se han podido cargar tus preferencias.",
+        "updateFailed": "No se ha podido actualizar la preferencia."
+      },
       "budgetAlerts": {
         "label": "Alertas de presupuesto",
         "description": "Recibe un aviso cuando superes un límite de gasto."
@@ -128,14 +223,31 @@
       "emailRequired": "Introduce tu correo electrónico.",
       "emailInvalid": "Introduce un correo electrónico válido.",
       "passwordRequired": "Introduce tu contraseña.",
-      "passwordTooShort": "La contraseña debe tener al menos 8 caracteres."
+      "passwordTooShort": "La contraseña debe tener al menos 8 caracteres.",
+      "invalidCredentials": "Correo electrónico o contraseña incorrectos."
     },
-    "welcomeBack": {
-      "title": "Bienvenido de nuevo, {{name}}",
-      "description": "Inicia sesión para continuar en tu cuenta.",
-      "avatarAlt": "Avatar de {{name}}",
-      "submit": "Iniciar sesión",
-      "notYou": "¿No eres tú? Usa otra cuenta"
+    "registerLink": "¿No tienes cuenta? Regístrate"
+  },
+  "register": {
+    "title": "Crea tu cuenta en finora",
+    "description": "Regístrate para empezar a gestionar tus finanzas.",
+    "nameLabel": "Nombre",
+    "namePlaceholder": "Ada Lovelace",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "tucorreo@ejemplo.com",
+    "passwordLabel": "Contraseña",
+    "confirmPasswordLabel": "Confirma tu contraseña",
+    "submit": "Crear cuenta",
+    "loginLink": "¿Ya tienes cuenta? Inicia sesión",
+    "errors": {
+      "nameRequired": "Introduce tu nombre.",
+      "emailRequired": "Introduce tu correo electrónico.",
+      "emailInvalid": "Introduce un correo electrónico válido.",
+      "passwordRequired": "Introduce una contraseña.",
+      "passwordTooShort": "La contraseña debe tener al menos 8 caracteres.",
+      "passwordMismatch": "Las contraseñas no coinciden.",
+      "emailInUse": "Ya existe una cuenta con ese correo electrónico.",
+      "generic": "No se ha podido completar el registro. Inténtalo de nuevo."
     }
   }
 }

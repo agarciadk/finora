@@ -47,19 +47,10 @@ test.describe("Accessibility", () => {
     })
   }
 
-  test("the welcome back card has no automatically detectable accessibility issues", async ({
+  test("the register page has no automatically detectable accessibility issues", async ({
     page,
   }) => {
-    await login(page, { email: "ada.lovelace@example.com", rememberMe: true })
-    await page.getByRole("button", { name: "Cerrar sesión" }).click()
-    await page
-      .getByRole("alertdialog")
-      .getByRole("button", { name: "Cerrar sesión" })
-      .click()
-
-    await expect(
-      page.getByText("Bienvenido de nuevo, Ada Lovelace")
-    ).toBeVisible()
+    await page.goto("/registro")
 
     await expectNoViolations(new AxeBuilder({ page }))
   })

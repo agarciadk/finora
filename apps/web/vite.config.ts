@@ -16,4 +16,15 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    proxy: {
+      // Keeps API calls same-origin in dev so auth cookies work with
+      // SameSite=Lax without needing SameSite=None.
+      "/api": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+        rewrite: (requestPath) => requestPath.replace(/^\/api/, ""),
+      },
+    },
+  },
 })

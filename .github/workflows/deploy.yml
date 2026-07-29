@@ -1,0 +1,50 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm --filter @finora/api build
+
+      - name: Deploy backend to Railway
+        run: |
+          npm install -g @railway/cli
+          railway up --service "$RAILWAY_SERVICE" --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_SERVICE: ${{ vars.RAILWAY_SERVICE }}
+
+      - name: Run migrations
+        run: pnpm --filter @finora/api prisma:migrate:deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_PRODUCTION }}

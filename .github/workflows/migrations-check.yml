@@ -1,0 +1,72 @@
+name: Migrations Check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_DB: finora_test
+  POSTGRES_PORT: 5432
+  DATABASE_URL: postgresql://postgres:postgres@localhost:5432/finora_test
+
+jobs:
+  migrations-check:
+    name: Migrations Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --filter @finora/api lint
+
+      - name: Build
+        run: pnpm --filter @finora/api build
+
+      - name: Start PostgreSQL
+        run: docker compose -f compose.yml up -d postgres
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          for i in $(seq 1 30); do
+            if docker exec finora-postgres pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" > /dev/null 2>&1; then
+              echo "PostgreSQL is ready"
+              exit 0
+            fi
+            echo "Waiting for PostgreSQL... ($i/30)"
+            sleep 2
+          done
+          echo "PostgreSQL did not become ready in time" >&2
+          exit 1
+
+      - name: Apply migrations
+        run: pnpm --filter @finora/api prisma:migrate:deploy
+
+      - name: Run tests
+        run: pnpm --filter @finora/api test
+
+      - name: Stop PostgreSQL
+        if: always()
+        run: docker compose -f compose.yml down -v

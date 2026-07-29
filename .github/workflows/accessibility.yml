@@ -18,6 +18,17 @@ jobs:
     name: Accessibility Tests
     runs-on: ubuntu-latest
 
+    env:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: finora_a11y
+      POSTGRES_PORT: 5432
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/finora_a11y
+      JWT_ACCESS_SECRET: a11y-jwt-access-secret
+      REFRESH_TOKEN_HASH_SECRET: a11y-refresh-token-hash-secret
+      CORS_ORIGIN: http://localhost:5173
+      VITE_API_URL: /api
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,6 +46,28 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Start PostgreSQL
+        run: docker compose -f compose.yml up -d postgres
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          for i in $(seq 1 30); do
+            if docker exec finora-postgres pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" > /dev/null 2>&1; then
+              echo "PostgreSQL is ready"
+              exit 0
+            fi
+            echo "Waiting for PostgreSQL... ($i/30)"
+            sleep 2
+          done
+          echo "PostgreSQL did not become ready in time" >&2
+          exit 1
+
+      - name: Apply migrations
+        run: pnpm --filter @finora/api prisma:migrate:deploy
+
+      - name: Build API
+        run: pnpm --filter @finora/api build
 
       - name: Get installed Playwright version
         id: playwright-version
@@ -65,3 +98,7 @@ jobs:
           name: playwright-accessibility-report
           path: apps/web/e2e/playwright-report/
           retention-days: 7
+
+      - name: Stop PostgreSQL
+        if: always()
+        run: docker compose -f compose.yml down -v

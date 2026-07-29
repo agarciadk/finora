@@ -4,4 +4,6 @@ packages:
   - "apps/*/e2e"
   - "eslint-config"
 allowBuilds:
+  '@prisma/engines': true
+  prisma: true
   unrs-resolver: false

@@ -1,53 +1,36 @@
-import { expect, test, type Page } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { login } from "./support/auth"
 
-async function logout(page: Page) {
-  await page.getByRole("button", { name: "Cerrar sesión" }).click()
-  await page
-    .getByRole("alertdialog")
-    .getByRole("button", { name: "Cerrar sesión" })
-    .click()
-}
-
 test.describe("Remember me", () => {
-  test("shows a welcome back card after logging out when remember me was checked", async ({
+  test("persists the refresh token cookie across browser restarts when checked", async ({
     page,
+    context,
   }) => {
-    await login(page, { email: "ada.lovelace@example.com", rememberMe: true })
-    await logout(page)
-
-    await expect(page).toHaveURL(/\/login$/)
-    await expect(
-      page.getByText("Bienvenido de nuevo, Ada Lovelace")
-    ).toBeVisible()
-    await expect(page.getByText("ada.lovelace@example.com")).toBeVisible()
-
-    await page.getByRole("button", { name: "Iniciar sesión" }).click()
-
+    await login(page, { rememberMe: true })
     await expect(page).toHaveURL(/\/$/)
-    await expect(page.getByText("Saldo total")).toBeVisible()
+
+    const refreshCookie = (await context.cookies()).find(
+      (cookie) => cookie.name === "refresh_token"
+    )
+
+    expect(refreshCookie).toBeDefined()
+    // A session-only cookie reports expires as -1; "remember me" must persist it.
+    expect(refreshCookie?.expires).toBeGreaterThan(0)
   })
 
-  test("'usar otra cuenta' forgets the remembered user and shows the form again", async ({
+  test("uses a session-only refresh token cookie when not checked", async ({
     page,
-  }) => {
-    await login(page, { email: "ada.lovelace@example.com", rememberMe: true })
-    await logout(page)
-
-    await page
-      .getByRole("button", { name: "¿No eres tú? Usa otra cuenta" })
-      .click()
-
-    await expect(page.getByLabel("Correo electrónico")).toBeVisible()
-  })
-
-  test("does not show the welcome back card when remember me was not checked", async ({
-    page,
+    context,
   }) => {
     await login(page, { rememberMe: false })
-    await logout(page)
+    await expect(page).toHaveURL(/\/$/)
 
-    await expect(page.getByLabel("Correo electrónico")).toBeVisible()
+    const refreshCookie = (await context.cookies()).find(
+      (cookie) => cookie.name === "refresh_token"
+    )
+
+    expect(refreshCookie).toBeDefined()
+    expect(refreshCookie?.expires).toBe(-1)
   })
 })
