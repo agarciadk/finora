@@ -26,8 +26,6 @@ blob-report
 playwright/.cache
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
 .idea
 .DS_Store
 *.suo
@@ -46,7 +44,6 @@ playwright/.cache
 
 # IDE - VSCode
 .vscode/*
-!.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
@@ -70,3 +67,10 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Prisma
+**/.agents
+**/.claude
+**/.windsurf
+**/skills-lock.json
+**/generated/prisma

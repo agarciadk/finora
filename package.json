@@ -16,6 +16,9 @@
   "scripts": {
     "build": "pnpm -r build",
     "clean": "rm -rf node_modules apps/*/dist apps/*/node_modules apps/*/test/node_modules apps/*/e2e/node_modules pnpm-lock.yaml && pnpm install",
+    "db:generate": "pnpm --filter @finora/api prisma:generate",
+    "db:migrate": "pnpm --filter @finora/api prisma:migrate",
+    "db:studio": "pnpm --filter @finora/api prisma:studio",
     "dev:api": "pnpm --filter @finora/api start:dev",
     "dev:web": "pnpm --filter @finora/web dev",
     "lint": "pnpm -r lint",
