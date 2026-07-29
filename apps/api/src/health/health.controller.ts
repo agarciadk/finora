@@ -5,6 +5,7 @@ import {
   MemoryHealthIndicator,
   DiskHealthIndicator,
 } from '@nestjs/terminus';
+import { Public } from '../auth/public.decorator';
 
 @Controller('health')
 export class HealthController {
@@ -14,6 +15,7 @@ export class HealthController {
     private readonly disk: DiskHealthIndicator,
   ) {}
 
+  @Public()
   @Get()
   @HealthCheck()
   check() {

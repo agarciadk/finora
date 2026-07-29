@@ -1,24 +1,26 @@
 import { createContext } from "react"
-
-export type RememberedUser = {
-  email: string
-  name: string
-}
+import type { AuthUser } from "@/lib/types"
 
 export type AuthContextState = {
   isAuthenticated: boolean
-  rememberedUser: RememberedUser | null
-  login: (email: string, rememberMe: boolean) => void
-  logout: () => void
-  forgetRememberedUser: () => void
+  isLoading: boolean
+  user: AuthUser | null
+  login: (
+    email: string,
+    password: string,
+    rememberMe: boolean
+  ) => Promise<void>
+  register: (name: string, email: string, password: string) => Promise<void>
+  logout: () => Promise<void>
 }
 
 export const initialState: AuthContextState = {
   isAuthenticated: false,
-  rememberedUser: null,
-  login: () => null,
-  logout: () => null,
-  forgetRememberedUser: () => null,
+  isLoading: true,
+  user: null,
+  login: () => Promise.resolve(),
+  register: () => Promise.resolve(),
+  logout: () => Promise.resolve(),
 }
 
 export const AuthProviderContext = createContext<AuthContextState>(initialState)

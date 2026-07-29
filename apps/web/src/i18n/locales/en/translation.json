@@ -1,4 +1,23 @@
 {
+  "common": {
+    "loading": "Loading…",
+    "actions": {
+      "add": "Add",
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving…"
+    },
+    "confirmDelete": {
+      "title": "Delete \"{{name}}\"?",
+      "description": "This action cannot be undone.",
+      "confirm": "Delete"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again."
+    }
+  },
   "sidebar": {
     "ariaLabel": "Main navigation",
     "brand": "Finora",
@@ -41,21 +60,48 @@
       },
       "monthlyIncome": {
         "title": "Monthly income",
-        "description": "+8% compared to last month"
+        "description": "{{trend}} compared to last month",
+        "noTrend": "No data for last month"
       },
       "monthlyExpenses": {
         "title": "Monthly expenses",
-        "description": "-3% compared to last month"
+        "description": "{{trend}} compared to last month",
+        "noTrend": "No data for last month"
       },
       "savings": {
         "title": "Savings",
-        "description": "40% of your income"
+        "description": "{{rate}}% of your income"
       }
+    },
+    "errors": {
+      "loadFailed": "Couldn't load your overview data."
     }
   },
   "accounts": {
     "title": "Accounts",
-    "description": "Check the balance of all your accounts and cards."
+    "description": "Check the balance of all your accounts and cards.",
+    "addButton": "Add account",
+    "empty": "You don't have any accounts yet. Add the first one.",
+    "types": {
+      "CHECKING": "Checking",
+      "SAVINGS": "Savings",
+      "CREDIT_CARD": "Credit card",
+      "CASH": "Cash"
+    },
+    "form": {
+      "createTitle": "Add account",
+      "editTitle": "Edit account",
+      "description": "Enter the account details.",
+      "nameLabel": "Name",
+      "bankLabel": "Bank",
+      "typeLabel": "Type",
+      "balanceLabel": "Balance"
+    },
+    "errors": {
+      "loadFailed": "Couldn't load your accounts.",
+      "saveFailed": "Couldn't save the account.",
+      "deleteFailed": "Couldn't delete the account."
+    }
   },
   "transactions": {
     "title": "Transactions",
@@ -69,13 +115,49 @@
       "category": "Category",
       "account": "Account",
       "amount": "Amount"
+    },
+    "addButton": "Add transaction",
+    "empty": "There are no transactions yet.",
+    "types": {
+      "INCOME": "Income",
+      "EXPENSE": "Expense"
+    },
+    "form": {
+      "createTitle": "Add transaction",
+      "editTitle": "Edit transaction",
+      "description": "Record a new movement.",
+      "descriptionLabel": "Description",
+      "amountLabel": "Amount",
+      "typeLabel": "Type",
+      "dateLabel": "Date",
+      "accountLabel": "Account",
+      "categoryLabel": "Category"
+    },
+    "errors": {
+      "loadFailed": "Couldn't load your transactions.",
+      "saveFailed": "Couldn't save the transaction.",
+      "deleteFailed": "Couldn't delete the transaction."
     }
   },
   "budgets": {
     "title": "Budgets",
     "description": "Keep track of your spending limits by category this month.",
     "progressLabel": "Budget progress for {{category}}",
-    "spentOfLimit": "{{spent}} of {{limit}}"
+    "spentOfLimit": "{{spent}} of {{limit}}",
+    "addButton": "Add budget",
+    "empty": "You don't have any budgets for this month yet.",
+    "form": {
+      "createTitle": "Add budget",
+      "editTitle": "Edit budget",
+      "description": "Set a spending limit for a category.",
+      "categoryLabel": "Category",
+      "limitLabel": "Limit"
+    },
+    "errors": {
+      "loadFailed": "Couldn't load your budgets.",
+      "saveFailed": "Couldn't save the budget.",
+      "deleteFailed": "Couldn't delete the budget."
+    }
   },
   "analytics": {
     "title": "Analytics",
@@ -85,9 +167,14 @@
       "expenses": "Expenses",
       "savingsRate": "Savings rate"
     },
+    "noTrend": "No data for last month",
     "byCategoryTitle": "Spending by category",
     "byCategoryDescription": "Distribution of total spending for the current month.",
-    "categoryProgressLabel": "Spending on {{category}}"
+    "categoryProgressLabel": "Spending on {{category}}",
+    "empty": "There's no spending recorded for this month yet.",
+    "errors": {
+      "loadFailed": "Couldn't load your analytics data."
+    }
   },
   "settings": {
     "title": "Settings",
@@ -97,11 +184,19 @@
       "description": "Update your personal information.",
       "nameLabel": "Name",
       "emailLabel": "Email address",
-      "saveButton": "Save changes"
+      "saveButton": "Save changes",
+      "errors": {
+        "loadFailed": "Couldn't load your profile.",
+        "saveFailed": "Couldn't save your changes."
+      }
     },
     "notifications": {
       "title": "Notifications",
       "description": "Choose which notifications you want to receive.",
+      "errors": {
+        "loadFailed": "Couldn't load your preferences.",
+        "updateFailed": "Couldn't update the preference."
+      },
       "budgetAlerts": {
         "label": "Budget alerts",
         "description": "Get notified when you go over a spending limit."
@@ -128,14 +223,31 @@
       "emailRequired": "Enter your email address.",
       "emailInvalid": "Enter a valid email address.",
       "passwordRequired": "Enter your password.",
-      "passwordTooShort": "Your password must be at least 8 characters long."
+      "passwordTooShort": "Your password must be at least 8 characters long.",
+      "invalidCredentials": "Incorrect email or password."
     },
-    "welcomeBack": {
-      "title": "Welcome back, {{name}}",
-      "description": "Sign in to continue to your account.",
-      "avatarAlt": "Avatar for {{name}}",
-      "submit": "Sign in",
-      "notYou": "Not you? Use a different account"
+    "registerLink": "Don't have an account? Sign up"
+  },
+  "register": {
+    "title": "Create your finora account",
+    "description": "Sign up to start managing your finances.",
+    "nameLabel": "Name",
+    "namePlaceholder": "Ada Lovelace",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "youremail@example.com",
+    "passwordLabel": "Password",
+    "confirmPasswordLabel": "Confirm your password",
+    "submit": "Create account",
+    "loginLink": "Already have an account? Sign in",
+    "errors": {
+      "nameRequired": "Enter your name.",
+      "emailRequired": "Enter your email address.",
+      "emailInvalid": "Enter a valid email address.",
+      "passwordRequired": "Enter a password.",
+      "passwordTooShort": "Your password must be at least 8 characters long.",
+      "passwordMismatch": "Passwords don't match.",
+      "emailInUse": "An account with that email already exists.",
+      "generic": "We couldn't complete your registration. Please try again."
     }
   }
 }
