@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthModule } from './health/health.module';
@@ -11,9 +13,17 @@ import { UsersModule } from './users/users.module';
 import { NotificationPreferencesModule } from './notification-preferences/notification-preferences.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AuthModule } from './auth/auth.module';
+import { ImportModule } from './import/import.module';
+import { AuditLogModule } from './audit-log/audit-log.module';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      // Disabled in tests (Jest sets NODE_ENV=test automatically) so
+      // unit/e2e suites aren't rate-limited by repeated login/register calls.
+      skipIf: () => process.env.NODE_ENV === 'test',
+      throttlers: [{ ttl: 60_000, limit: 100 }],
+    }),
     PrismaModule,
     HealthModule,
     AccountsModule,
@@ -24,8 +34,10 @@ import { AuthModule } from './auth/auth.module';
     NotificationPreferencesModule,
     AnalyticsModule,
     AuthModule,
+    ImportModule,
+    AuditLogModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
