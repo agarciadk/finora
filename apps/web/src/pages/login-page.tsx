@@ -1,6 +1,8 @@
-import { type SubmitEvent, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { type SubmitEvent, useEffect, useRef, useState } from "react"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
+import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 import {
   Card,
@@ -14,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useAuth } from "@/hooks/use-auth"
 import { ApiError } from "@/lib/api"
+import type { SessionEndReason } from "@/lib/session-events"
 import i18n from "@/i18n/config"
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -44,6 +47,7 @@ function validate(email: string, password: string): LoginErrors {
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { login } = useAuth()
   const { t } = useTranslation()
   const [email, setEmail] = useState("")
@@ -51,6 +55,30 @@ export function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false)
   const [errors, setErrors] = useState<LoginErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const hasShownSessionToastRef = useRef(false)
+
+  useEffect(() => {
+    if (hasShownSessionToastRef.current) {
+      return
+    }
+    hasShownSessionToastRef.current = true
+
+    const state = location.state as { reason?: SessionEndReason } | null
+    if (!state?.reason) {
+      return
+    }
+
+    toast(
+      t(
+        state.reason === "idle"
+          ? "session.idleEnded"
+          : "session.expired"
+      )
+    )
+    // Clear the router state so the toast doesn't reappear on a later visit
+    // to /login (e.g. after pressing the browser's back button).
+    navigate(location.pathname, { replace: true, state: null })
+  }, [location, navigate, t])
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -68,12 +96,16 @@ export function LoginPage() {
       await login(email.trim(), password, rememberMe)
       navigate("/", { replace: true })
     } catch (error) {
-      setErrors({
-        form:
-          error instanceof ApiError
-            ? t("login.errors.invalidCredentials")
-            : t("common.errors.generic"),
-      })
+      let formError = t("common.errors.generic")
+
+      if (error instanceof ApiError) {
+        formError =
+          error.message === "EMAIL_NOT_VERIFIED"
+            ? t("login.errors.emailNotVerified")
+            : t("login.errors.invalidCredentials")
+      }
+
+      setErrors({ form: formError })
     } finally {
       setIsSubmitting(false)
     }
@@ -123,6 +155,12 @@ export function LoginPage() {
               {errors.password && (
                 <p className="text-sm text-destructive">{errors.password}</p>
               )}
+              <Link
+                to="/recuperar-password"
+                className="text-sm text-muted-foreground underline underline-offset-4"
+              >
+                {t("login.forgotPasswordLink")}
+              </Link>
             </div>
             <div className="flex items-center gap-2">
               <Checkbox
@@ -137,8 +175,20 @@ export function LoginPage() {
             {errors.form && (
               <p className="text-sm text-destructive">{errors.form}</p>
             )}
-            <Button type="submit" className="mt-2" disabled={isSubmitting}>
-              {t("login.submit")}
+            <Button
+              type="submit"
+              className="mt-2"
+              disabled={isSubmitting}
+              aria-disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="animate-spin" />
+                  <span className="sr-only">{t("common.loading")}</span>
+                </>
+              ) : (
+                t("login.submit")
+              )}
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">

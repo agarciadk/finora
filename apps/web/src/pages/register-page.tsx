@@ -1,6 +1,7 @@
 import { type SubmitEvent, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
+import { MailCheck } from "lucide-react"
 
 import {
   Card,
@@ -58,7 +59,6 @@ function validate(
 }
 
 export function RegisterPage() {
-  const navigate = useNavigate()
   const { register } = useAuth()
   const { t } = useTranslation()
   const [name, setName] = useState("")
@@ -67,6 +67,7 @@ export function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [errors, setErrors] = useState<RegisterErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isRegistered, setIsRegistered] = useState(false)
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -82,7 +83,7 @@ export function RegisterPage() {
 
     try {
       await register(name.trim(), email.trim(), password)
-      navigate("/", { replace: true })
+      setIsRegistered(true)
     } catch (error) {
       const isConflict = error instanceof ApiError && error.status === HTTP_CONFLICT
       setErrors({
@@ -93,6 +94,32 @@ export function RegisterPage() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  if (isRegistered) {
+    return (
+      <main className="flex min-h-svh items-center justify-center p-6">
+        <Card className="w-full max-w-sm">
+          <CardHeader>
+            <MailCheck className="mb-2 size-8 text-primary" aria-hidden="true" />
+            <h1 className="font-heading text-xl font-medium">
+              {t("register.checkEmail.title")}
+            </h1>
+            <CardDescription>
+              {t("register.checkEmail.description")}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link
+              to="/login"
+              className="text-sm underline underline-offset-4"
+            >
+              {t("register.checkEmail.loginLink")}
+            </Link>
+          </CardContent>
+        </Card>
+      </main>
+    )
   }
 
   return (

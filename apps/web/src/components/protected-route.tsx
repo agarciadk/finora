@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { useAuth } from "@/hooks/use-auth"
 
 export function ProtectedRoute() {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading, sessionEndReason } = useAuth()
   const { t } = useTranslation()
 
   if (isLoading) {
@@ -16,7 +16,13 @@ export function ProtectedRoute() {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={sessionEndReason ? { reason: sessionEndReason } : undefined}
+      />
+    )
   }
 
   return <Outlet />
