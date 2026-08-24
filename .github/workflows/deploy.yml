@@ -36,13 +36,10 @@ jobs:
       - name: Build
         run: pnpm --filter @finora/api build
 
-      - name: Deploy backend to Railway
-        run: |
-          npm install -g @railway/cli
-          railway up --service "$RAILWAY_SERVICE" --detach
+      - name: Deploy backend to Render
+        run: curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL"
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          RAILWAY_SERVICE: ${{ vars.RAILWAY_SERVICE }}
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
 
       - name: Run migrations
         run: pnpm --filter @finora/api prisma:migrate:deploy
