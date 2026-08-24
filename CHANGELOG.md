@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-08-24
+
+### Added
+
+- Multi-device session management: a new `Session` model (IP address, user agent, last-active timestamp) tied to each refresh token, created at login and updated on every refresh-token rotation. The access token now carries the session id so the API can tell which session made the request.
+- `GET /sessions`, `DELETE /sessions/:id` and `DELETE /sessions` (revoke all but the current one) endpoints, scoped to the authenticated user.
+- Ajustes page: new "Sesiones activas" card listing every session (device/browser/OS parsed from the user agent with `ua-parser-js`, IP, last-active date), a badge for the current session, and per-session/"log out everywhere else" revoke actions with confirmation dialogs.
+
+### Changed
+
+- Logging out now deletes the corresponding `Session` (cascading to its refresh tokens) instead of only revoking the refresh token row; detected refresh-token reuse and a password reset now delete every `Session` for that user instead of just marking refresh tokens as revoked.
+
 ## [0.4.0] - 2026-08-24
 
 ### Added

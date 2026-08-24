@@ -30,6 +30,7 @@ A modern full-stack personal finance platform to manage accounts, track transact
 - Responsive dashboard with a collapsible sidebar (drawer), header with the app name, a language switcher and a light/dark mode toggle.
 - Pages: Resumen (dashboard), Cuentas, Transacciones, Presupuestos, Analítica, Ajustes and a custom 404 page.
 - Real authentication: register and log in against the API, short-lived JWT access tokens (5 min) plus rotating refresh tokens (7 days) in `HttpOnly`/`Secure` cookies, "remember me" (persistent vs. session-only refresh cookie), automatic silent refresh on the frontend, and a logout confirmation dialog. Refresh token reuse is detected and revokes every active session for that user.
+- Multi-device session management: every login creates a `Session` record (IP address, user agent, last-active timestamp) tied to its refresh token. The Ajustes page lists every active session, flags the current one, and lets the user log out a single device or every other device at once (both with a confirmation dialog).
 - Sessions end automatically after 15 minutes of inactivity, and any session end (inactivity or a failed silent refresh) redirects to the login page with a toast explaining why.
 - Loading spinners (`lucide-react`) on the login and logout buttons, and other in-flight actions, for clearer feedback while a request is pending.
 - Full CRUD backed by PostgreSQL/Prisma: accounts, categories, transactions and budgets (with progress vs. limit), each scoped to the authenticated user; categories can be global or created per-user.
