@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
-import { AuthService, Session } from './auth.service';
+import { AuthService, IssuedSession } from './auth.service';
 import {
   ACCESS_TOKEN_COOKIE,
   REFRESH_TOKEN_COOKIE,
@@ -80,14 +80,19 @@ export class AuthController {
     @Req() request: AuthenticatedRequest,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const session = await this.authService.login(dto);
+    const ipAddress = getClientIp(request);
+    const session = await this.authService.login(
+      dto,
+      ipAddress,
+      request.headers['user-agent'],
+    );
     this.setSessionCookies(response, session);
 
     await this.auditLogService.record({
       userId: session.user.id,
       action: AuditAction.LOGIN,
       entityName: 'AUTH',
-      ipAddress: getClientIp(request),
+      ipAddress,
     });
 
     return session.user;
@@ -128,7 +133,7 @@ export class AuthController {
     return typeof value === 'string' ? value : undefined;
   }
 
-  private setSessionCookies(response: Response, session: Session) {
+  private setSessionCookies(response: Response, session: IssuedSession) {
     response.cookie(
       ACCESS_TOKEN_COOKIE,
       session.accessToken,
