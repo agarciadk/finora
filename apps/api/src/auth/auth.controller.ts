@@ -7,6 +7,7 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { AuthService, Session } from './auth.service';
 import {
@@ -17,33 +18,78 @@ import {
 } from './cookie.util';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { Public } from './public.decorator';
 import type { AuthenticatedRequest } from './auth.types';
+import { AuditLogService } from '../audit-log/audit-log.service';
+import { AuditAction } from '../generated/prisma/client';
+import { getClientIp } from '../audit-log/get-client-ip.util';
+
+// Stricter than the global default to slow down brute-force/credential-stuffing attempts.
+const AUTH_THROTTLE = { default: { limit: 5, ttl: 60_000 } };
+// Even stricter: these endpoints send an email and accept a token, both
+// prime targets for abuse (spam and token brute-forcing).
+const PASSWORD_RESET_THROTTLE = { default: { limit: 3, ttl: 60_000 } };
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly auditLogService: AuditLogService,
+  ) {}
 
   @Public()
+  @Throttle(AUTH_THROTTLE)
   @Post('register')
-  async register(
-    @Body() dto: RegisterDto,
-    @Res({ passthrough: true }) response: Response,
-  ) {
-    const session = await this.authService.register(dto);
-    this.setSessionCookies(response, session);
-    return session.user;
+  async register(@Body() dto: RegisterDto) {
+    return this.authService.register(dto);
   }
 
   @Public()
+  @Throttle(AUTH_THROTTLE)
+  @Post('verify-email')
+  @HttpCode(HttpStatus.OK)
+  async verifyEmail(@Body() dto: VerifyEmailDto) {
+    return this.authService.verifyEmail(dto);
+  }
+
+  @Public()
+  @Throttle(PASSWORD_RESET_THROTTLE)
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto);
+  }
+
+  @Public()
+  @Throttle(PASSWORD_RESET_THROTTLE)
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
+  }
+
+  @Public()
+  @Throttle(AUTH_THROTTLE)
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(
     @Body() dto: LoginDto,
+    @Req() request: AuthenticatedRequest,
     @Res({ passthrough: true }) response: Response,
   ) {
     const session = await this.authService.login(dto);
     this.setSessionCookies(response, session);
+
+    await this.auditLogService.record({
+      userId: session.user.id,
+      action: AuditAction.LOGIN,
+      entityName: 'AUTH',
+      ipAddress: getClientIp(request),
+    });
+
     return session.user;
   }
 
