@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from "react"
+import { type SubmitEvent, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
@@ -68,7 +68,7 @@ export function RegisterPage() {
   const [errors, setErrors] = useState<RegisterErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
 
     const nextErrors = validate(name, email, password, confirmPassword)

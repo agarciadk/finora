@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://finora.up.railway.app/:path*"
+      "destination": "https://finora-api-3jo1.onrender.com/:path*"
     },
     {
       "source": "/((?!api).*)",

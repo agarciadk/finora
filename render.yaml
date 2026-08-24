@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: finora-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: main
+    autoDeploy: false
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @finora/api build
+    startCommand: node apps/api/dist/src/main.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: REFRESH_TOKEN_HASH_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+      - key: COOKIE_SAME_SITE
+        value: none

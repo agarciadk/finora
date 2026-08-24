@@ -166,28 +166,36 @@ Workflows live in `.github/workflows/`:
 | `e2e.yml` | PR to `main` | Starts PostgreSQL, applies migrations, builds the API, then runs the Playwright e2e suite. |
 | `accessibility.yml` | PR to `main` | Same setup as `e2e.yml`, running the axe-core accessibility suite instead. |
 | `migrations-check.yml` | PR to `main` | Install, lint, build, start PostgreSQL, apply migrations and run the API test suite against a clean database. |
-| `deploy.yml` | push to `main` | Builds the API, deploys it to Railway, then runs `prisma migrate deploy` against the production database. |
+| `deploy.yml` | push to `main` | Builds the API, deploys it to Render (via a deploy hook), then runs `prisma migrate deploy` against the production (Neon) database. |
 | `release.yml` | PR merged to `main` | Bumps the version, tags the release and creates a release branch. |
 
-`migrations-check.yml` and `deploy.yml` only cover the database/API side; the production `JWT_ACCESS_SECRET`, `REFRESH_TOKEN_HASH_SECRET` and `COOKIE_SAME_SITE` must be configured directly on the hosting platform (e.g. Railway), not in these workflows.
+`migrations-check.yml` and `deploy.yml` only cover the database/API side; the production `JWT_ACCESS_SECRET`, `REFRESH_TOKEN_HASH_SECRET` and `COOKIE_SAME_SITE` must be configured directly on the hosting platform (e.g. Render), not in these workflows.
 
 ## Deployment
 
-The backend deploys to [Railway](https://railway.app/) (via `deploy.yml`, see above) and the frontend deploys to [Vercel](https://vercel.com/) using Vercel's native Git integration (no GitHub workflow needed for it).
+The backend deploys to [Render](https://render.com/) (via `deploy.yml`, see above), the database is hosted on [Neon](https://neon.tech/), and the frontend deploys to [Vercel](https://vercel.com/) using Vercel's native Git integration (no GitHub workflow needed for it).
 
-### Backend (Railway)
+### Database (Neon)
 
-1. Create a Railway project with two services: the API (deployed from this repo) and a PostgreSQL database.
-2. On the API service, set these variables: `DATABASE_URL` (Railway's internal Postgres URL — the app runs inside Railway's network, so the private hostname works here), `JWT_ACCESS_SECRET`, `REFRESH_TOKEN_HASH_SECRET`, `CORS_ORIGIN` (your Vercel production URL), `COOKIE_SAME_SITE` (`lax` if you use the Vercel rewrite proxy below; `none` if the frontend calls the Railway domain directly).
-3. On GitHub, set the `production` environment's secrets/variables used by `deploy.yml`: `RAILWAY_TOKEN` (a **Project Token**, not a personal one, from the Railway project's Settings → Tokens), `vars.RAILWAY_SERVICE` (the API service's name in Railway) and `DATABASE_URL_PRODUCTION`. The latter must be Postgres's **public** connection string (enable Public Networking/TCP Proxy on the Postgres service) — GitHub Actions runners can't reach Railway's private `*.railway.internal` hostnames, only the API service (running inside Railway) can.
+1. Create a Neon project and database. Neon gives you two connection strings: a **pooled** one (goes through PgBouncer, host has a `-pooler` suffix) and a **direct/unpooled** one.
+2. Use the **pooled** connection string as the API's `DATABASE_URL` (Render env var) — it's the one the running app should use for normal queries.
+3. Use the **direct/unpooled** connection string as `DATABASE_URL_PRODUCTION` (GitHub `production` environment secret) — `prisma migrate deploy` needs a direct connection (advisory locks/prepared statements don't work reliably through the pooler).
+4. Both connection strings already include `?sslmode=require`, which Neon requires; `pg`/`@prisma/adapter-pg` honor it automatically, no extra config needed.
+
+### Backend (Render)
+
+1. Create a Render **Web Service** from this repo, either by importing [render.yaml](./render.yaml) as a Blueprint or by configuring it manually with: build command `corepack enable && pnpm install --frozen-lockfile && pnpm --filter @finora/api build`, start command `node apps/api/dist/src/main.js`, health check path `/health`.
+2. On the service, set these environment variables: `DATABASE_URL` (Neon's **pooled** connection string), `JWT_ACCESS_SECRET`, `REFRESH_TOKEN_HASH_SECRET`, `CORS_ORIGIN` (your Vercel production URL), `COOKIE_SAME_SITE` (`lax` if you use the Vercel rewrite proxy below; `none` if the frontend calls the Render domain directly).
+3. Turn off Render's auto-deploy on push (`autoDeploy: false` in [render.yaml](./render.yaml)) so deploys are driven by `deploy.yml` instead — this keeps the deploy and the migration in the same, ordered workflow run. Under the service's Settings → Deploy Hook, copy the deploy hook URL.
+4. On GitHub, set the `production` environment's secrets used by `deploy.yml`: `RENDER_DEPLOY_HOOK_URL` (the deploy hook URL from step 3) and `DATABASE_URL_PRODUCTION` (Neon's **direct/unpooled** connection string, see above).
 
 ### Frontend (Vercel)
 
 1. Import this repository into Vercel and set the project's **Root Directory** to `apps/web` (Vercel still resolves the pnpm workspace correctly from there).
-2. `apps/web/vercel.json` rewrites `/api/*` to the Railway API, so requests stay same-origin from the browser's point of view and auth cookies keep working with `SameSite=Lax`. Replace the placeholder destination in that file with your actual Railway API domain (or a custom domain) before deploying.
+2. `apps/web/vercel.json` rewrites `/api/*` to the Render API, so requests stay same-origin from the browser's point of view and auth cookies keep working with `SameSite=Lax`. Replace the placeholder destination in that file with your actual Render API domain (or a custom domain) before deploying.
 3. Set `VITE_API_URL=/api` as a Vercel environment variable (matches the rewrite above; this is also the local dev default).
 
-If you'd rather have the frontend call the Railway API directly (skipping the Vercel rewrite), set `VITE_API_URL` to the full Railway API URL instead and switch the API's `COOKIE_SAME_SITE` to `none` — the auth cookies won't be sent cross-site otherwise.
+If you'd rather have the frontend call the Render API directly (skipping the Vercel rewrite), set `VITE_API_URL` to the full Render API URL instead and switch the API's `COOKIE_SAME_SITE` to `none` — the auth cookies won't be sent cross-site otherwise.
 
 ## Git hooks
 
