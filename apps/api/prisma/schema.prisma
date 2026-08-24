@@ -59,19 +59,42 @@ model User {
   budgets                  Budget[]
   notificationPreferences  NotificationPreference[]
   refreshTokens            RefreshToken[]
+  sessions                 Session[]
   auditLogs                AuditLog[]
 }
 
 model RefreshToken {
   id         String    @id @default(uuid())
   userId     String
+  sessionId  String
   tokenHash  String    @unique
   rememberMe Boolean   @default(false)
   expiresAt  DateTime
   revokedAt  DateTime?
   createdAt  DateTime  @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionId])
+}
+
+// A stable device/browser login that survives refresh-token rotation.
+// `refreshTokenHash` always mirrors the hash of the currently active
+// RefreshToken row for this session (updated on every rotation).
+model Session {
+  id               String   @id @default(uuid())
+  userId           String
+  refreshTokenHash String   @unique
+  ipAddress        String?
+  userAgent        String?
+  lastActive       DateTime @default(now())
+  expiresAt        DateTime
+  createdAt        DateTime @default(now())
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokens RefreshToken[]
 
   @@index([userId])
 }
