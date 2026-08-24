@@ -308,6 +308,32 @@
         "DELETE": "Eliminación",
         "LOGIN": "Inicio de sesión"
       }
+    },
+    "sessions": {
+      "title": "Sesiones activas",
+      "description": "Dispositivos donde tienes una sesión iniciada actualmente.",
+      "empty": "No hay sesiones activas.",
+      "current": "Sesión actual",
+      "revoke": "Cerrar sesión",
+      "revokeAll": "Cerrar todas las demás sesiones",
+      "unknownDevice": "Dispositivo desconocido",
+      "unknownOs": "sistema operativo desconocido",
+      "unknownIp": "IP desconocida",
+      "browserOnOs": "{{browser}} en {{os}}",
+      "lastActive": "Última actividad: {{date}}",
+      "errors": {
+        "loadFailed": "No se han podido cargar las sesiones activas."
+      },
+      "confirmRevoke": {
+        "title": "¿Cerrar esta sesión?",
+        "description": "Ese dispositivo tendrá que iniciar sesión de nuevo para volver a acceder a tu cuenta.",
+        "confirm": "Cerrar sesión"
+      },
+      "confirmRevokeAll": {
+        "title": "¿Cerrar todas las demás sesiones?",
+        "description": "Todos los demás dispositivos con sesión iniciada tendrán que volver a iniciar sesión. Tu sesión actual no se verá afectada.",
+        "confirm": "Cerrar todas"
+      }
     }
   },
   "login": {

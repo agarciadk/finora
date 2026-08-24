@@ -308,6 +308,32 @@
         "DELETE": "Deleted",
         "LOGIN": "Logged in"
       }
+    },
+    "sessions": {
+      "title": "Active sessions",
+      "description": "Devices where you're currently logged in.",
+      "empty": "There are no active sessions.",
+      "current": "Current session",
+      "revoke": "Log out",
+      "revokeAll": "Log out of all other sessions",
+      "unknownDevice": "Unknown device",
+      "unknownOs": "unknown OS",
+      "unknownIp": "Unknown IP",
+      "browserOnOs": "{{browser}} on {{os}}",
+      "lastActive": "Last active: {{date}}",
+      "errors": {
+        "loadFailed": "Couldn't load the active sessions."
+      },
+      "confirmRevoke": {
+        "title": "Log out of this session?",
+        "description": "That device will need to sign in again to access your account.",
+        "confirm": "Log out"
+      },
+      "confirmRevokeAll": {
+        "title": "Log out of all other sessions?",
+        "description": "Every other device with an active session will need to sign in again. Your current session won't be affected.",
+        "confirm": "Log out all"
+      }
     }
   },
   "login": {
