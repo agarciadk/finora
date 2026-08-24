@@ -15,6 +15,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { AuthModule } from './auth/auth.module';
 import { ImportModule } from './import/import.module';
 import { AuditLogModule } from './audit-log/audit-log.module';
+import { SessionsModule } from './sessions/sessions.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { AuditLogModule } from './audit-log/audit-log.module';
     AuthModule,
     ImportModule,
     AuditLogModule,
+    SessionsModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
