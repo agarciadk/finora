@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { CheckCircle2, Loader2, XCircle } from "lucide-react"
@@ -20,32 +20,22 @@ export function VerifyEmailPage() {
   const [status, setStatus] = useState<VerificationStatus>(
     token ? "loading" : "error"
   )
+  // Guards against StrictMode's double-invoke firing this single-use token twice.
+  const requestedTokenRef = useRef<string | null>(null)
 
   useEffect(() => {
-    if (!token) {
+    if (!token || requestedTokenRef.current === token) {
       return
     }
+    requestedTokenRef.current = token
 
-    let cancelled = false
-
-    async function verify() {
-      try {
-        await api.post("/auth/verify-email", { token })
-        if (!cancelled) {
-          setStatus("success")
-        }
-      } catch {
-        if (!cancelled) {
-          setStatus("error")
-        }
-      }
-    }
-
-    void verify()
-
-    return () => {
-      cancelled = true
-    }
+    // No abort-on-cleanup here on purpose: StrictMode's synthetic
+    // unmount/remount would cancel this same in-flight, deduped
+    // request and leave the page stuck on "loading" forever.
+    api
+      .post("/auth/verify-email", { token })
+      .then(() => setStatus("success"))
+      .catch(() => setStatus("error"))
   }, [token])
 
   return (
