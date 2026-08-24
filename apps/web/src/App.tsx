@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
 import { ProtectedRoute } from "@/components/protected-route"
 import { DashboardLayout } from "@/components/dashboard-layout"
+import { Toaster } from "@/components/ui/sonner"
 import { DashboardPage } from "@/pages/dashboard-page"
 import { AccountsPage } from "@/pages/accounts-page"
 import { TransactionsPage } from "@/pages/transactions-page"
@@ -12,16 +13,30 @@ import { AnalyticsPage } from "@/pages/analytics-page"
 import { SettingsPage } from "@/pages/settings-page"
 import { LoginPage } from "@/pages/login-page"
 import { RegisterPage } from "@/pages/register-page"
+import { VerifyEmailPage } from "@/pages/verify-email-page"
+import { ForgotPasswordPage } from "@/pages/forgot-password-page"
+import { ResetPasswordPage } from "@/pages/reset-password-page"
 import { NotFoundPage } from "@/pages/not-found-page"
 
 function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <BrowserRouter>
+      <BrowserRouter>
+        {/* AuthProvider needs router context to redirect to /login when the
+        session ends (inactivity or a failed silent refresh). */}
+        <AuthProvider>
           <Routes>
             <Route path="login" element={<LoginPage />} />
             <Route path="registro" element={<RegisterPage />} />
+            <Route path="verificar-email" element={<VerifyEmailPage />} />
+            <Route
+              path="recuperar-password"
+              element={<ForgotPasswordPage />}
+            />
+            <Route
+              path="restablecer-password"
+              element={<ResetPasswordPage />}
+            />
             <Route element={<ProtectedRoute />}>
               <Route element={<DashboardLayout />}>
                 <Route index element={<DashboardPage />} />
@@ -34,8 +49,9 @@ function App() {
               </Route>
             </Route>
           </Routes>
-        </BrowserRouter>
-      </AuthProvider>
+        </AuthProvider>
+      </BrowserRouter>
+      <Toaster />
     </ThemeProvider>
   )
 }

@@ -6,6 +6,7 @@ import { ModeToggle } from "@/components/mode-toggle"
 import { LanguageToggle } from "@/components/language-toggle"
 import { LogoutButton } from "@/components/logout-button"
 import { Separator } from "@/components/ui/separator"
+import { useIdleLogout } from "@/hooks/use-idle-logout"
 import {
   SidebarInset,
   SidebarProvider,
@@ -14,6 +15,7 @@ import {
 
 export function DashboardLayout() {
   const { t } = useTranslation()
+  useIdleLogout()
 
   return (
     <SidebarProvider>

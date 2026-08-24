@@ -55,6 +55,31 @@ test.describe("Accessibility", () => {
     await expectNoViolations(new AxeBuilder({ page }))
   })
 
+  test("the forgot-password page has no automatically detectable accessibility issues", async ({
+    page,
+  }) => {
+    await page.goto("/recuperar-password")
+
+    await expectNoViolations(new AxeBuilder({ page }))
+  })
+
+  test("the reset-password page has no automatically detectable accessibility issues", async ({
+    page,
+  }) => {
+    await page.goto("/restablecer-password?token=not-a-real-token")
+
+    await expectNoViolations(new AxeBuilder({ page }))
+  })
+
+  test("the verify-email page has no automatically detectable accessibility issues", async ({
+    page,
+  }) => {
+    await page.goto("/verificar-email?token=not-a-real-token")
+    await expect(page.getByText("no es válido o ha caducado")).toBeVisible()
+
+    await expectNoViolations(new AxeBuilder({ page }))
+  })
+
   test("the logout confirmation dialog has no automatically detectable accessibility issues", async ({
     page,
   }) => {
@@ -62,6 +87,29 @@ test.describe("Accessibility", () => {
     await page.getByRole("button", { name: "Cerrar sesión" }).click()
 
     await expect(page.getByRole("alertdialog")).toBeVisible()
+
+    await expectNoViolations(new AxeBuilder({ page }))
+  })
+
+  test("the import transactions dialog has no automatically detectable accessibility issues", async ({
+    page,
+  }) => {
+    await login(page)
+    await page.request.post("/api/accounts", {
+      data: {
+        name: "Cuenta de pruebas",
+        bank: "Banco de pruebas",
+        type: "CHECKING",
+        balance: 0,
+      },
+    })
+    await page.goto("/transacciones")
+    await page.getByRole("button", { name: "Importar movimientos" }).click()
+
+    await expect(page.getByRole("dialog")).toBeVisible()
+    // Let the sheet's opening transition finish; scanning mid-transition
+    // reports transient (and misleading) contrast ratios.
+    await page.waitForTimeout(250)
 
     await expectNoViolations(new AxeBuilder({ page }))
   })

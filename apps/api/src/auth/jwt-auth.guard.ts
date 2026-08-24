@@ -10,7 +10,7 @@ import { ACCESS_TOKEN_COOKIE } from './cookie.util';
 import { IS_PUBLIC_KEY } from './public.decorator';
 import { AuthenticatedRequest } from './auth.types';
 
-type AccessTokenPayload = { sub: string; email: string };
+type AccessTokenPayload = { sub: string; email: string; sessionId: string };
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -39,7 +39,11 @@ export class JwtAuthGuard implements CanActivate {
     try {
       const payload =
         await this.jwtService.verifyAsync<AccessTokenPayload>(token);
-      request.user = { id: payload.sub, email: payload.email };
+      request.user = {
+        id: payload.sub,
+        email: payload.email,
+        sessionId: payload.sessionId,
+      };
       return true;
     } catch {
       throw new UnauthorizedException();

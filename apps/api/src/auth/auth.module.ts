@@ -4,9 +4,13 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { MailModule } from '../mail/mail.module';
+import { AuditLogModule } from '../audit-log/audit-log.module';
 
 @Module({
   imports: [
+    MailModule,
+    AuditLogModule,
     JwtModule.registerAsync({
       useFactory: () => {
         const secret = process.env['JWT_ACCESS_SECRET'];

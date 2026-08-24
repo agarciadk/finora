@@ -14,6 +14,7 @@ import {
 import { BudgetsService } from './budgets.service';
 import { CreateBudgetDto } from './dto/create-budget.dto';
 import { UpdateBudgetDto } from './dto/update-budget.dto';
+import { AuditLog } from '../audit-log/audit-log.decorator';
 
 @Controller('budgets')
 export class BudgetsController {
@@ -28,16 +29,19 @@ export class BudgetsController {
   }
 
   @Post()
+  @AuditLog('BUDGET')
   create(@Body() dto: CreateBudgetDto) {
     return this.budgetsService.create(dto);
   }
 
   @Patch(':id')
+  @AuditLog('BUDGET')
   update(@Param('id') id: string, @Body() dto: UpdateBudgetDto) {
     return this.budgetsService.update(id, dto);
   }
 
   @Delete(':id')
+  @AuditLog('BUDGET')
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.budgetsService.remove(id);

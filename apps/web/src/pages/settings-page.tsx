@@ -13,9 +13,20 @@ import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { TransactionsPagination } from "@/components/transactions-pagination"
+import { ActiveSessionsCard } from "@/components/active-sessions-card"
 import { useCurrentUser } from "@/hooks/use-current-user"
 import { useNotificationPreferences } from "@/hooks/use-notification-preferences"
-import type { NotificationPreferenceType, User } from "@/lib/types"
+import { useAuditLogs } from "@/hooks/use-audit-logs"
+import type { AuditAction, NotificationPreferenceType, User } from "@/lib/types"
 
 const NOTIFICATION_PREFERENCES: Array<{
   id: string
@@ -83,9 +94,11 @@ function ProfileForm({ user, onSave }: ProfileFormProps) {
 }
 
 export function SettingsPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { user, updateUser } = useCurrentUser()
   const { preferences, setPreference } = useNotificationPreferences()
+  const [activityLogPage, setActivityLogPage] = useState(1)
+  const { auditLogs, meta: activityLogMeta } = useAuditLogs(activityLogPage)
 
   function isPreferenceEnabled(
     type: NotificationPreferenceType,
@@ -155,6 +168,58 @@ export function SettingsPage() {
           ))}
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("settings.activityLog.title")}</CardTitle>
+          <CardDescription>
+            {t("settings.activityLog.description")}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          {auditLogs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {t("settings.activityLog.empty")}
+            </p>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("settings.activityLog.table.date")}</TableHead>
+                    <TableHead>{t("settings.activityLog.table.action")}</TableHead>
+                    <TableHead>{t("settings.activityLog.table.entity")}</TableHead>
+                    <TableHead>{t("settings.activityLog.table.ip")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {auditLogs.map((log) => (
+                    <TableRow key={log.id}>
+                      <TableCell className="text-muted-foreground">
+                        {new Date(log.createdAt).toLocaleString(i18n.language)}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {t(`settings.activityLog.actions.${log.action}` as `settings.activityLog.actions.${AuditAction}`)}
+                      </TableCell>
+                      <TableCell>{log.entityName}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {log.ipAddress ?? "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <TransactionsPagination
+                page={activityLogMeta.page}
+                totalPages={activityLogMeta.totalPages}
+                onPageChange={setActivityLogPage}
+              />
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      <ActiveSessionsCard />
     </div>
   )
 }

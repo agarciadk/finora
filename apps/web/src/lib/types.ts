@@ -69,6 +69,34 @@ export type AuthUser = {
   name: string | null
 }
 
+export type ImportRowStatus = "valid" | "invalid" | "duplicate"
+
+export type ImportPreviewRow = {
+  rowNumber: number
+  date: string | null
+  description: string
+  amount: string | null
+  balance: string | null
+  status: ImportRowStatus
+  errors: string[]
+}
+
+export type ImportPreviewResult = {
+  fileName: string
+  totalRows: number
+  validRows: number
+  invalidRows: number
+  duplicateRows: number
+  dateRange: { from: string; to: string } | null
+  transactions: ImportPreviewRow[]
+}
+
+export type ImportConfirmResult = {
+  imported: number
+  duplicates: number
+  invalid: number
+}
+
 export type SpendingByCategory = {
   categoryId: string
   category: string
@@ -85,4 +113,25 @@ export type Analytics = {
   savingsRateTrend: number | null
   spendingByCategory: SpendingByCategory[]
 }
+
+export type AuditAction = "CREATE" | "UPDATE" | "DELETE" | "LOGIN"
+
+export type AuditLog = {
+  id: string
+  action: AuditAction
+  entityName: string
+  entityId: string | null
+  ipAddress: string | null
+  createdAt: string
+}
+
+export type Session = {
+  id: string
+  ipAddress: string | null
+  userAgent: string | null
+  lastActive: string
+  createdAt: string
+  isCurrent: boolean
+}
+
 

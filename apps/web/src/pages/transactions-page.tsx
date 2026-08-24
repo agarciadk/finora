@@ -1,15 +1,15 @@
 import { useMemo, useState, type FormEvent } from "react"
-import { MoreVertical, Plus } from "lucide-react"
+import { MoreVertical, Plus, Upload } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -52,6 +52,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { ImportTransactionsDialog } from "@/components/import-transactions-dialog"
+import { TransactionCategorySelect } from "@/components/transaction-category-select"
+import { TransactionsPagination } from "@/components/transactions-pagination"
+import {
+  TransactionsDateRangeFilter,
+  type DateRange,
+} from "@/components/transactions-date-range-filter"
 import { useAccounts } from "@/hooks/use-accounts"
 import { useCategories } from "@/hooks/use-categories"
 import {
@@ -62,6 +69,8 @@ import { formatCurrency } from "@/lib/utils"
 import type { Transaction, TransactionType } from "@/lib/types"
 
 const TRANSACTION_TYPES: TransactionType[] = ["EXPENSE", "INCOME"]
+const PAGE_LIMIT_OPTIONS = [10, 20, 50] as const
+const EMPTY_DATE_RANGE: DateRange = { startDate: "", endDate: "" }
 
 function todayIsoDate() {
   return new Date().toISOString().slice(0, 10)
@@ -80,12 +89,29 @@ function emptyForm() {
 
 export function TransactionsPage() {
   const { t, i18n } = useTranslation()
-  const { accounts } = useAccounts()
-  const { categories } = useCategories()
-  const { transactions, createTransaction, updateTransaction, deleteTransaction } =
-    useTransactions()
+  const { accounts, refresh: refreshAccounts } = useAccounts()
+  const { categories, createCategory } = useCategories()
+  const [dateRange, setDateRange] = useState<DateRange>(EMPTY_DATE_RANGE)
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState<(typeof PAGE_LIMIT_OPTIONS)[number]>(10)
+  const {
+    transactions,
+    meta,
+    createTransaction,
+    updateTransaction,
+    deleteTransaction,
+    updateTransactionCategory,
+    refresh: refreshTransactions,
+  } = useTransactions({
+    startDate: dateRange.startDate || undefined,
+    endDate: dateRange.endDate || undefined,
+    page,
+    limit,
+  })
 
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [importOpen, setImportOpen] = useState(false)
+  const [importKey, setImportKey] = useState(0)
   const [editingTransaction, setEditingTransaction] =
     useState<Transaction | null>(null)
   const [form, setForm] = useState(emptyForm)
@@ -169,6 +195,22 @@ export function TransactionsPage() {
     }
   }
 
+  function handleDateRangeApply(range: DateRange) {
+    setDateRange(range)
+    setPage(1)
+  }
+
+  function handleDateRangeClear() {
+    setDateRange(EMPTY_DATE_RANGE)
+    setPage(1)
+  }
+
+  function handleLimitChange(value: string | null) {
+    if (!value) return
+    setLimit(Number(value) as (typeof PAGE_LIMIT_OPTIONS)[number])
+    setPage(1)
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
@@ -180,20 +222,68 @@ export function TransactionsPage() {
             {t("transactions.description")}
           </p>
         </div>
-        <Button onClick={openCreateSheet} disabled={accounts.length === 0}>
-          <Plus />
-          {t("transactions.addButton")}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setImportKey((key) => key + 1)
+              setImportOpen(true)
+            }}
+            disabled={accounts.length === 0}
+          >
+            <Upload />
+            {t("transactions.import.button")}
+          </Button>
+          <Button onClick={openCreateSheet} disabled={accounts.length === 0}>
+            <Plus />
+            {t("transactions.addButton")}
+          </Button>
+        </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>{t("transactions.recentTitle")}</CardTitle>
-          <CardDescription>
-            {t("transactions.recentDescription", {
-              count: transactions.length,
-            })}
-          </CardDescription>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <CardTitle>{t("transactions.recentTitle")}</CardTitle>
+              <CardDescription>
+                {t("transactions.recentDescription", {
+                  count: meta.total,
+                })}
+              </CardDescription>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <TransactionsDateRangeFilter
+                value={dateRange}
+                onApply={handleDateRangeApply}
+                onClear={handleDateRangeClear}
+              />
+              <Select
+                value={String(limit)}
+                onValueChange={handleLimitChange}
+                items={Object.fromEntries(
+                  PAGE_LIMIT_OPTIONS.map((option) => [
+                    String(option),
+                    t("transactions.filters.perPage", { count: option }),
+                  ])
+                )}
+              >
+                <SelectTrigger
+                  aria-label={t("transactions.filters.limitLabel")}
+                  className="h-9 w-auto min-w-28"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAGE_LIMIT_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={String(option)}>
+                      {t("transactions.filters.perPage", { count: option })}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {transactions.length === 0 ? (
@@ -226,9 +316,16 @@ export function TransactionsPage() {
                       {transaction.description}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">
-                        {transaction.category.name}
-                      </Badge>
+                      <TransactionCategorySelect
+                        transaction={transaction}
+                        categories={categories}
+                        onChangeCategory={(categoryId) =>
+                          updateTransactionCategory(transaction.id, categoryId)
+                        }
+                        onCreateCategory={(name) =>
+                          createCategory({ name, type: transaction.type })
+                        }
+                      />
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {transaction.account.name}
@@ -272,6 +369,15 @@ export function TransactionsPage() {
             </Table>
           )}
         </CardContent>
+        {transactions.length > 0 && (
+          <CardFooter>
+            <TransactionsPagination
+              page={meta.page}
+              totalPages={meta.totalPages}
+              onPageChange={setPage}
+            />
+          </CardFooter>
+        )}
       </Card>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -469,6 +575,18 @@ export function TransactionsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ImportTransactionsDialog
+        key={importKey}
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        accounts={accounts}
+        categories={categories}
+        onImported={() => {
+          void refreshTransactions()
+          void refreshAccounts()
+        }}
+      />
     </div>
   )
 }

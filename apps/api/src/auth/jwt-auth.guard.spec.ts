@@ -54,12 +54,17 @@ describe('JwtAuthGuard', () => {
     jwtService.verifyAsync.mockResolvedValue({
       sub: 'user-1',
       email: 'ada@example.com',
+      sessionId: 'session-1',
     });
     const context = createContext({ [ACCESS_TOKEN_COOKIE]: 'good' });
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
 
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    expect(request.user).toEqual({ id: 'user-1', email: 'ada@example.com' });
+    expect(request.user).toEqual({
+      id: 'user-1',
+      email: 'ada@example.com',
+      sessionId: 'session-1',
+    });
   });
 });

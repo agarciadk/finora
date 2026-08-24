@@ -23,4 +23,13 @@ export class CurrentUserService {
 
     return this.request.user.id;
   }
+
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async getSessionId(): Promise<string> {
+    if (!this.request.user) {
+      throw new UnauthorizedException();
+    }
+
+    return this.request.user.sessionId;
+  }
 }

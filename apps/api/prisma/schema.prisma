@@ -31,6 +31,13 @@ enum NotificationPreferenceType {
   PRODUCT_NEWS
 }
 
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -39,24 +46,55 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  emailVerified Boolean @default(false)
+  // Both tokens are stored as an HMAC hash (see auth/token.util.ts), never in
+  // clear text — same pattern already used for RefreshToken.tokenHash.
+  verificationToken    String?   @unique
+  resetPasswordToken   String?   @unique
+  resetPasswordExpires DateTime?
+
   accounts                 Account[]
   categories               Category[]
   transactions             Transaction[]
   budgets                  Budget[]
   notificationPreferences  NotificationPreference[]
   refreshTokens            RefreshToken[]
+  sessions                 Session[]
+  auditLogs                AuditLog[]
 }
 
 model RefreshToken {
   id         String    @id @default(uuid())
   userId     String
+  sessionId  String
   tokenHash  String    @unique
   rememberMe Boolean   @default(false)
   expiresAt  DateTime
   revokedAt  DateTime?
   createdAt  DateTime  @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionId])
+}
+
+// A stable device/browser login that survives refresh-token rotation.
+// `refreshTokenHash` always mirrors the hash of the currently active
+// RefreshToken row for this session (updated on every rotation).
+model Session {
+  id               String   @id @default(uuid())
+  userId           String
+  refreshTokenHash String   @unique
+  ipAddress        String?
+  userAgent        String?
+  lastActive       DateTime @default(now())
+  expiresAt        DateTime
+  createdAt        DateTime @default(now())
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokens RefreshToken[]
 
   @@index([userId])
 }
@@ -71,6 +109,7 @@ model Account {
   currency  String      @default("EUR")
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+  deletedAt DateTime?
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
@@ -85,6 +124,7 @@ model Category {
   type      TransactionType
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
+  deletedAt DateTime?
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
@@ -105,6 +145,7 @@ model Transaction {
   date        DateTime
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
+  deletedAt   DateTime?
 
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   account  Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
@@ -116,14 +157,15 @@ model Transaction {
 }
 
 model Budget {
-  id         String   @id @default(uuid())
+  id         String    @id @default(uuid())
   userId     String
   categoryId String
-  limit      Decimal  @db.Decimal(12, 2)
+  limit      Decimal   @db.Decimal(12, 2)
   month      Int
   year       Int
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
 
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
@@ -141,4 +183,19 @@ model NotificationPreference {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, type])
+}
+
+model AuditLog {
+  id         String      @id @default(uuid())
+  userId     String
+  action     AuditAction
+  entityName String
+  entityId   String?
+  ipAddress  String?
+  details    Json?
+  createdAt  DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }

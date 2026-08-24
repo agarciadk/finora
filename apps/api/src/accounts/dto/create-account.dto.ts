@@ -6,12 +6,15 @@ import {
   IsString,
 } from 'class-validator';
 import { AccountType } from '../../generated/prisma/enums';
+import { SanitizeHtml } from '../../common/sanitize-html.decorator';
 
 export class CreateAccountDto {
+  @SanitizeHtml()
   @IsString()
   @IsNotEmpty()
   name!: string;
 
+  @SanitizeHtml()
   @IsString()
   @IsNotEmpty()
   bank!: string;

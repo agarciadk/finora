@@ -12,6 +12,7 @@ import {
 import { AccountsService } from './accounts.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
+import { AuditLog } from '../audit-log/audit-log.decorator';
 
 @Controller('accounts')
 export class AccountsController {
@@ -23,16 +24,19 @@ export class AccountsController {
   }
 
   @Post()
+  @AuditLog('ACCOUNT')
   create(@Body() dto: CreateAccountDto) {
     return this.accountsService.create(dto);
   }
 
   @Patch(':id')
+  @AuditLog('ACCOUNT')
   update(@Param('id') id: string, @Body() dto: UpdateAccountDto) {
     return this.accountsService.update(id, dto);
   }
 
   @Delete(':id')
+  @AuditLog('ACCOUNT')
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.accountsService.remove(id);

@@ -38,6 +38,10 @@
   "modeToggle": {
     "toggle": "Toggle theme"
   },
+  "session": {
+    "idleEnded": "Your session has ended due to inactivity.",
+    "expired": "Your session has expired. Please sign in again."
+  },
   "logout": {
     "trigger": "Sign out",
     "title": "Sign out?",
@@ -137,6 +141,81 @@
       "loadFailed": "Couldn't load your transactions.",
       "saveFailed": "Couldn't save the transaction.",
       "deleteFailed": "Couldn't delete the transaction."
+    },
+    "filters": {
+      "dateRangeButton": "Filter by date",
+      "dateRangeApplied": "{{startDate}} – {{endDate}}",
+      "startDate": "From",
+      "endDate": "To",
+      "apply": "Apply",
+      "clear": "Clear",
+      "limitLabel": "Results per page",
+      "perPage": "{{count}} / page"
+    },
+    "pagination": {
+      "status": "Page {{page}} of {{totalPages}}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "category": {
+      "createNew": "Create new category",
+      "createTitle": "New category",
+      "createDescription": "It will be created with the same type as this transaction and assigned to it.",
+      "nameLabel": "Name",
+      "errors": {
+        "updateFailed": "Couldn't update the category.",
+        "createFailed": "Couldn't create the category."
+      }
+    },
+    "import": {
+      "button": "Import movements",
+      "dialogTitle": "Import movements",
+      "dialogDescription": "Upload a CSV or XLSX file to import movements into an account.",
+      "accountLabel": "Account",
+      "accountPlaceholder": "Select an account",
+      "fileLabel": "File (CSV or XLSX)",
+      "dropHint": "Drag a file here or click to select one",
+      "selectedFile": "Selected file: {{name}}",
+      "analyzeButton": "Analyze file",
+      "analyzing": "Analyzing file…",
+      "errors": {
+        "invalidExtension": "Only CSV or XLSX files are supported.",
+        "noAccount": "Select an account.",
+        "noFile": "Select a file.",
+        "previewFailed": "Couldn't analyze the file.",
+        "confirmFailed": "Couldn't complete the import.",
+        "missingCategory": "Select a category for income and expense movements."
+      },
+      "summary": {
+        "total": "Movements detected",
+        "valid": "Valid",
+        "invalid": "Invalid",
+        "duplicate": "Duplicates",
+        "dateRange": "From {{from}} to {{to}}"
+      },
+      "table": {
+        "date": "Date",
+        "description": "Description",
+        "amount": "Amount",
+        "status": "Status"
+      },
+      "status": {
+        "valid": "Valid",
+        "invalid": "Invalid",
+        "duplicate": "Duplicate"
+      },
+      "incomeCategoryLabel": "Category for income",
+      "expenseCategoryLabel": "Category for expenses",
+      "cancelButton": "Cancel",
+      "confirmButton_one": "Import {{count}} movement",
+      "confirmButton_other": "Import {{count}} movements",
+      "confirming": "Importing…",
+      "successTitle": "Import completed",
+      "successMessage_one": "{{count}} movement was imported.",
+      "successMessage_other": "{{count}} movements were imported.",
+      "successDuplicates_one": "{{count}} duplicate movement was ignored.",
+      "successDuplicates_other": "{{count}} duplicate movements were ignored.",
+      "closeButton": "Close"
     }
   },
   "budgets": {
@@ -209,6 +288,52 @@
         "label": "Finora news",
         "description": "Find out about new features and improvements."
       }
+    },
+    "activityLog": {
+      "title": "Activity log",
+      "description": "Review the history of actions taken on your account.",
+      "empty": "There's no recorded activity yet.",
+      "errors": {
+        "loadFailed": "Couldn't load the activity log."
+      },
+      "table": {
+        "date": "Date",
+        "action": "Action",
+        "entity": "Resource",
+        "ip": "IP"
+      },
+      "actions": {
+        "CREATE": "Created",
+        "UPDATE": "Updated",
+        "DELETE": "Deleted",
+        "LOGIN": "Logged in"
+      }
+    },
+    "sessions": {
+      "title": "Active sessions",
+      "description": "Devices where you're currently logged in.",
+      "empty": "There are no active sessions.",
+      "current": "Current session",
+      "revoke": "Log out",
+      "revokeAll": "Log out of all other sessions",
+      "unknownDevice": "Unknown device",
+      "unknownOs": "unknown OS",
+      "unknownIp": "Unknown IP",
+      "browserOnOs": "{{browser}} on {{os}}",
+      "lastActive": "Last active: {{date}}",
+      "errors": {
+        "loadFailed": "Couldn't load the active sessions."
+      },
+      "confirmRevoke": {
+        "title": "Log out of this session?",
+        "description": "That device will need to sign in again to access your account.",
+        "confirm": "Log out"
+      },
+      "confirmRevokeAll": {
+        "title": "Log out of all other sessions?",
+        "description": "Every other device with an active session will need to sign in again. Your current session won't be affected.",
+        "confirm": "Log out all"
+      }
     }
   },
   "login": {
@@ -224,8 +349,10 @@
       "emailInvalid": "Enter a valid email address.",
       "passwordRequired": "Enter your password.",
       "passwordTooShort": "Your password must be at least 8 characters long.",
-      "invalidCredentials": "Incorrect email or password."
+      "invalidCredentials": "Incorrect email or password.",
+      "emailNotVerified": "You must verify your email before signing in."
     },
+    "forgotPasswordLink": "Forgot your password?",
     "registerLink": "Don't have an account? Sign up"
   },
   "register": {
@@ -248,6 +375,48 @@
       "passwordMismatch": "Passwords don't match.",
       "emailInUse": "An account with that email already exists.",
       "generic": "We couldn't complete your registration. Please try again."
+    },
+    "checkEmail": {
+      "title": "Check your email",
+      "description": "We've sent you a link to verify your account. Open it to be able to sign in.",
+      "loginLink": "Back to sign in"
+    }
+  },
+  "verifyEmail": {
+    "title": "Email verification",
+    "loading": "Verifying your email…",
+    "success": "Your email has been verified. You can now sign in.",
+    "error": "This verification link is invalid or has expired.",
+    "loginLink": "Go to sign in"
+  },
+  "forgotPassword": {
+    "title": "Reset your password",
+    "description": "Enter your email and we'll send you a link to reset it.",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "youremail@example.com",
+    "submit": "Send link",
+    "successTitle": "Check your email",
+    "successDescription": "If that email is registered, we've sent a link to reset your password.",
+    "loginLink": "Back to sign in",
+    "errors": {
+      "emailRequired": "Enter your email address.",
+      "emailInvalid": "Enter a valid email address."
+    }
+  },
+  "resetPassword": {
+    "title": "Reset your password",
+    "description": "Enter your new password.",
+    "passwordLabel": "New password",
+    "confirmPasswordLabel": "Confirm your new password",
+    "submit": "Reset password",
+    "successTitle": "Password updated",
+    "successDescription": "Your password has been reset successfully.",
+    "loginLink": "Sign in",
+    "errors": {
+      "passwordRequired": "Enter a password.",
+      "passwordTooShort": "Your password must be at least 8 characters long.",
+      "passwordMismatch": "Passwords don't match.",
+      "invalidToken": "This link is invalid or has expired. Request a new one."
     }
   }
 }
