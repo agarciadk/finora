@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import type { Response } from 'express';
 import { AuthController } from './auth.controller';
-import { AuthService, Session } from './auth.service';
+import { AuthService, IssuedSession } from './auth.service';
 import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from './cookie.util';
 import type { AuthenticatedRequest } from './auth.types';
 import { AuditLogService } from '../audit-log/audit-log.service';
@@ -14,7 +14,7 @@ function createMockResponse() {
   return { response, cookie, clearCookie };
 }
 
-const session: Session = {
+const session: IssuedSession = {
   accessToken: 'access-token',
   refreshToken: 'refresh-token',
   rememberMe: false,
@@ -116,12 +116,19 @@ describe('AuthController', () => {
       const dto = { email: 'ada@example.com', password: 'supersecret' };
       authService.login.mockResolvedValue(session);
       const { response } = createMockResponse();
-      const request = { ip: '203.0.113.5' } as unknown as AuthenticatedRequest;
+      const request = {
+        ip: '203.0.113.5',
+        headers: { 'user-agent': 'Mozilla/5.0' },
+      } as unknown as AuthenticatedRequest;
 
       await expect(
         authController.login(dto, request, response),
       ).resolves.toEqual(session.user);
-      expect(authService.login).toHaveBeenCalledWith(dto);
+      expect(authService.login).toHaveBeenCalledWith(
+        dto,
+        '203.0.113.5',
+        'Mozilla/5.0',
+      );
       expect(auditLogService.record).toHaveBeenCalledWith(
         expect.objectContaining({
           userId: session.user.id,

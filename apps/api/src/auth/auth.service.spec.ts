@@ -24,10 +24,20 @@ type MockUser = {
 type MockRefreshToken = {
   id: string;
   userId: string;
+  sessionId: string;
   tokenHash: string;
   rememberMe: boolean;
   expiresAt: Date;
   revokedAt: Date | null;
+};
+
+type MockSession = {
+  id: string;
+  userId: string;
+  refreshTokenHash: string;
+  ipAddress: string | null;
+  userAgent: string | null;
+  expiresAt: Date;
 };
 
 describe('AuthService', () => {
@@ -44,6 +54,11 @@ describe('AuthService', () => {
       findUnique: jest.Mock<Promise<MockRefreshToken | null>, [unknown]>;
       update: jest.Mock<Promise<MockRefreshToken>, [unknown]>;
       updateMany: jest.Mock<Promise<{ count: number }>, [unknown]>;
+    };
+    session: {
+      create: jest.Mock<Promise<MockSession>, [unknown]>;
+      update: jest.Mock<Promise<MockSession>, [unknown]>;
+      deleteMany: jest.Mock<Promise<{ count: number }>, [unknown]>;
     };
   };
   let mailService: {
@@ -68,6 +83,11 @@ describe('AuthService', () => {
         findUnique: jest.fn<Promise<MockRefreshToken | null>, [unknown]>(),
         update: jest.fn<Promise<MockRefreshToken>, [unknown]>(),
         updateMany: jest.fn<Promise<{ count: number }>, [unknown]>(),
+      },
+      session: {
+        create: jest.fn<Promise<MockSession>, [unknown]>(),
+        update: jest.fn<Promise<MockSession>, [unknown]>(),
+        deleteMany: jest.fn<Promise<{ count: number }>, [unknown]>(),
       },
     };
     mailService = {
@@ -176,25 +196,78 @@ describe('AuthService', () => {
         passwordHash,
         emailVerified: true,
       });
+      prismaService.session.create.mockResolvedValue({
+        id: 'session-1',
+      } as MockSession);
       prismaService.refreshToken.create.mockResolvedValue(
         {} as MockRefreshToken,
       );
 
-      const session = await authService.login({
-        email: 'ada@example.com',
-        password: 'supersecret',
-        rememberMe: true,
-      });
+      const session = await authService.login(
+        {
+          email: 'ada@example.com',
+          password: 'supersecret',
+          rememberMe: true,
+        },
+        '203.0.113.5',
+        'Mozilla/5.0',
+      );
 
       expect(session.rememberMe).toBe(true);
       expect(session.user.id).toBe('user-1');
+    });
+
+    it('creates a Session row capturing the IP and user agent', async () => {
+      const passwordHash = await bcrypt.hash('supersecret', 4);
+      prismaService.user.findUnique.mockResolvedValue({
+        id: 'user-1',
+        email: 'ada@example.com',
+        name: 'Ada Lovelace',
+        passwordHash,
+        emailVerified: true,
+      });
+      prismaService.session.create.mockResolvedValue({
+        id: 'session-1',
+      } as MockSession);
+      prismaService.refreshToken.create.mockResolvedValue(
+        {} as MockRefreshToken,
+      );
+
+      await authService.login(
+        { email: 'ada@example.com', password: 'supersecret' },
+        '203.0.113.5',
+        'Mozilla/5.0',
+      );
+
+      expect(prismaService.session.create).toHaveBeenCalledWith({
+        data: {
+          userId: 'user-1',
+          refreshTokenHash: expect.any(String) as string,
+          ipAddress: '203.0.113.5',
+          userAgent: 'Mozilla/5.0',
+          expiresAt: expect.any(Date) as Date,
+        },
+      });
+      expect(prismaService.refreshToken.create).toHaveBeenCalledWith({
+        data: {
+          userId: 'user-1',
+          sessionId: 'session-1',
+          tokenHash: expect.any(String) as string,
+          rememberMe: false,
+          expiresAt: expect.any(Date) as Date,
+        },
+      });
     });
 
     it('rejects an unknown email', async () => {
       prismaService.user.findUnique.mockResolvedValue(null);
 
       await expect(
-        authService.login({ email: 'nope@example.com', password: 'x' }),
+        authService.login(
+          { email: 'nope@example.com', password: 'x' },
+          undefined,
+          undefined,
+        ),
       ).rejects.toBeInstanceOf(UnauthorizedException);
     });
 
@@ -209,7 +282,11 @@ describe('AuthService', () => {
       });
 
       await expect(
-        authService.login({ email: 'ada@example.com', password: 'wrong' }),
+        authService.login(
+          { email: 'ada@example.com', password: 'wrong' },
+          undefined,
+          undefined,
+        ),
       ).rejects.toBeInstanceOf(UnauthorizedException);
     });
 
@@ -224,10 +301,11 @@ describe('AuthService', () => {
       });
 
       await expect(
-        authService.login({
-          email: 'ada@example.com',
-          password: 'supersecret',
-        }),
+        authService.login(
+          { email: 'ada@example.com', password: 'supersecret' },
+          undefined,
+          undefined,
+        ),
       ).rejects.toBeInstanceOf(ForbiddenException);
     });
   });
@@ -298,9 +376,8 @@ describe('AuthService', () => {
           resetPasswordExpires: null,
         },
       });
-      expect(prismaService.refreshToken.updateMany).toHaveBeenCalledWith({
-        where: { userId: 'user-1', revokedAt: null },
-        data: { revokedAt: expect.any(Date) as Date },
+      expect(prismaService.session.deleteMany).toHaveBeenCalledWith({
+        where: { userId: 'user-1' },
       });
     });
 
@@ -334,6 +411,7 @@ describe('AuthService', () => {
       const existing: MockRefreshToken = {
         id: 'token-1',
         userId: 'user-1',
+        sessionId: 'session-1',
         tokenHash: 'hash',
         rememberMe: true,
         expiresAt: new Date(Date.now() + 60_000),
@@ -348,12 +426,21 @@ describe('AuthService', () => {
         passwordHash: 'irrelevant',
       });
       prismaService.refreshToken.create.mockResolvedValue(existing);
+      prismaService.session.update.mockResolvedValue({} as MockSession);
 
       const session = await authService.refresh('raw-token');
 
       expect(prismaService.refreshToken.update).toHaveBeenCalledWith({
         where: { id: 'token-1' },
         data: { revokedAt: expect.any(Date) as Date },
+      });
+      expect(prismaService.session.update).toHaveBeenCalledWith({
+        where: { id: 'session-1' },
+        data: {
+          refreshTokenHash: expect.any(String) as string,
+          lastActive: expect.any(Date) as Date,
+          expiresAt: expect.any(Date) as Date,
+        },
       });
       expect(session.rememberMe).toBe(true);
       expect(session.user.id).toBe('user-1');
@@ -373,10 +460,11 @@ describe('AuthService', () => {
       );
     });
 
-    it('revokes every session for the user on refresh token reuse', async () => {
+    it('deletes every session for the user on refresh token reuse', async () => {
       const reused: MockRefreshToken = {
         id: 'token-1',
         userId: 'user-1',
+        sessionId: 'session-1',
         tokenHash: 'hash',
         rememberMe: false,
         expiresAt: new Date(Date.now() + 60_000),
@@ -387,27 +475,44 @@ describe('AuthService', () => {
       await expect(authService.refresh('raw-token')).rejects.toBeInstanceOf(
         UnauthorizedException,
       );
-      expect(prismaService.refreshToken.updateMany).toHaveBeenCalledWith({
-        where: { userId: 'user-1', revokedAt: null },
-        data: { revokedAt: expect.any(Date) as Date },
+      expect(prismaService.session.deleteMany).toHaveBeenCalledWith({
+        where: { userId: 'user-1' },
       });
     });
   });
 
   describe('logout', () => {
-    it('revokes the matching refresh token', async () => {
+    it('deletes the session tied to the refresh token', async () => {
+      prismaService.refreshToken.findUnique.mockResolvedValue({
+        id: 'token-1',
+        userId: 'user-1',
+        sessionId: 'session-1',
+        tokenHash: 'hash',
+        rememberMe: false,
+        expiresAt: new Date(Date.now() + 60_000),
+        revokedAt: null,
+      });
+
       await authService.logout('raw-token');
 
-      expect(prismaService.refreshToken.updateMany).toHaveBeenCalledWith({
-        where: { tokenHash: expect.any(String) as string, revokedAt: null },
-        data: { revokedAt: expect.any(Date) as Date },
+      expect(prismaService.session.deleteMany).toHaveBeenCalledWith({
+        where: { id: 'session-1' },
       });
     });
 
     it('does nothing when no token is provided', async () => {
       await authService.logout(undefined);
 
-      expect(prismaService.refreshToken.updateMany).not.toHaveBeenCalled();
+      expect(prismaService.refreshToken.findUnique).not.toHaveBeenCalled();
+      expect(prismaService.session.deleteMany).not.toHaveBeenCalled();
+    });
+
+    it('does nothing when the refresh token is unknown', async () => {
+      prismaService.refreshToken.findUnique.mockResolvedValue(null);
+
+      await authService.logout('raw-token');
+
+      expect(prismaService.session.deleteMany).not.toHaveBeenCalled();
     });
   });
 });
