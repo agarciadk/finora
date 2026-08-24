@@ -48,6 +48,9 @@ export default defineConfig({
       url: "http://localhost:3000/health",
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,
+      // Skips the auth rate-limit so repeated login/register calls across
+      // specs don't 429; only applies to the server Playwright itself spawns.
+      env: { ...process.env, NODE_ENV: "test" },
     },
     {
       command: "pnpm dev",
@@ -58,3 +61,4 @@ export default defineConfig({
     },
   ],
 })
+

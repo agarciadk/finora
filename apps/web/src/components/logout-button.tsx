@@ -1,4 +1,5 @@
-import { LogOut } from "lucide-react"
+import { LogOut, Loader2 } from "lucide-react"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
@@ -20,10 +21,16 @@ export function LogoutButton() {
   const navigate = useNavigate()
   const { logout } = useAuth()
   const { t } = useTranslation()
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   async function handleLogout() {
-    await logout()
-    navigate("/login", { replace: true })
+    setIsLoggingOut(true)
+    try {
+      await logout()
+      navigate("/login", { replace: true })
+    } finally {
+      setIsLoggingOut(false)
+    }
   }
 
   return (
@@ -44,9 +51,22 @@ export function LogoutButton() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{t("logout.cancel")}</AlertDialogCancel>
-          <AlertDialogAction onClick={handleLogout}>
-            {t("logout.confirm")}
+          <AlertDialogCancel disabled={isLoggingOut}>
+            {t("logout.cancel")}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            aria-disabled={isLoggingOut}
+          >
+            {isLoggingOut ? (
+              <>
+                <Loader2 className="animate-spin" />
+                <span className="sr-only">{t("common.loading")}</span>
+              </>
+            ) : (
+              t("logout.confirm")
+            )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -134,4 +134,32 @@ describe("LoginPage", () => {
       await screen.findByText(/correo electrónico o contraseña incorrectos/i)
     ).toBeInTheDocument()
   })
+
+  it("shows a specific message when the email hasn't been verified", async () => {
+    vi.mocked(fetch).mockImplementation((input) => {
+      const url = String(input)
+      if (url.includes("/auth/login")) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ message: "EMAIL_NOT_VERIFIED" }), {
+            status: 403,
+          })
+        )
+      }
+      return Promise.resolve(new Response(null, { status: 401 }))
+    })
+
+    const user = userEvent.setup()
+    renderLoginPage()
+
+    await user.type(
+      screen.getByLabelText(/correo electrónico/i),
+      "ada@example.com"
+    )
+    await user.type(screen.getByLabelText(/contraseña/i), "supersecret")
+    await user.click(screen.getByRole("button", { name: /iniciar sesión/i }))
+
+    expect(
+      await screen.findByText(/debes verificar tu correo/i)
+    ).toBeInTheDocument()
+  })
 })

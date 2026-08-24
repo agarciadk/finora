@@ -107,16 +107,14 @@ describe("RegisterPage", () => {
     ).toBeInTheDocument()
   })
 
-  it("registers and navigates to the dashboard on success", async () => {
+  it("registers and shows the check-your-email confirmation on success", async () => {
     vi.mocked(fetch).mockImplementation((input) => {
       const url = String(input)
       if (url.includes("/auth/register")) {
         return Promise.resolve(
           new Response(
             JSON.stringify({
-              id: "user-1",
-              email: "ada@example.com",
-              name: "Ada Lovelace",
+              message: "Check your email to verify your account.",
             }),
             { status: 201 }
           )
@@ -131,6 +129,6 @@ describe("RegisterPage", () => {
     await fillValidForm(user)
     await user.click(screen.getByRole("button", { name: /crear cuenta/i }))
 
-    expect(await screen.findByText("Dashboard")).toBeInTheDocument()
+    expect(await screen.findByText(/revisa tu correo/i)).toBeInTheDocument()
   })
 })

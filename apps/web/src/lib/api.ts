@@ -1,3 +1,5 @@
+import { emitSessionEnded } from "@/lib/session-events"
+
 const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "/api"
 const HTTP_UNAUTHORIZED = 401
 const HTTP_NO_CONTENT = 204
@@ -18,8 +20,18 @@ function refreshSession(): Promise<boolean> {
     method: "POST",
     credentials: "include",
   })
-    .then((response) => response.ok)
-    .catch(() => false)
+    .then((response) => {
+      if (!response.ok) {
+        // The AuthProvider decides whether this matters (it ignores it
+        // unless a session was actually active), so it's safe to always emit.
+        emitSessionEnded("expired")
+      }
+      return response.ok
+    })
+    .catch(() => {
+      emitSessionEnded("expired")
+      return false
+    })
     .finally(() => {
       refreshPromise = null
     })
@@ -32,11 +44,14 @@ async function request<T>(
   options: RequestInit = {},
   isRetry = false
 ): Promise<T> {
+  const isFormData = options.body instanceof FormData
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
     credentials: "include",
     headers: {
-      "Content-Type": "application/json",
+      // Skip Content-Type for FormData: the browser must set its own
+      // multipart boundary, which we can't replicate manually.
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...options.headers,
     },
   })
@@ -78,4 +93,6 @@ export const api = {
   patch: <T>(path: string, body: unknown) =>
     request<T>(path, { method: "PATCH", body: JSON.stringify(body) }),
   delete: (path: string) => request<void>(path, { method: "DELETE" }),
+  postForm: <T>(path: string, formData: FormData) =>
+    request<T>(path, { method: "POST", body: formData }),
 }
