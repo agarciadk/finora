@@ -30,7 +30,11 @@ A modern full-stack personal finance platform to manage accounts, track transact
 - Responsive dashboard with a collapsible sidebar (drawer), header with the app name, a language switcher and a light/dark mode toggle.
 - Pages: Resumen (dashboard), Cuentas, Transacciones, Presupuestos, Analítica, Ajustes and a custom 404 page.
 - Real authentication: register and log in against the API, short-lived JWT access tokens (5 min) plus rotating refresh tokens (7 days) in `HttpOnly`/`Secure` cookies, "remember me" (persistent vs. session-only refresh cookie), automatic silent refresh on the frontend, and a logout confirmation dialog. Refresh token reuse is detected and revokes every active session for that user.
-- Full CRUD backed by PostgreSQL/Prisma: accounts, categories, transactions and budgets (with progress vs. limit), each scoped to the authenticated user.
+- Sessions end automatically after 15 minutes of inactivity, and any session end (inactivity or a failed silent refresh) redirects to the login page with a toast explaining why.
+- Loading spinners (`lucide-react`) on the login and logout buttons, and other in-flight actions, for clearer feedback while a request is pending.
+- Full CRUD backed by PostgreSQL/Prisma: accounts, categories, transactions and budgets (with progress vs. limit), each scoped to the authenticated user; categories can be global or created per-user.
+- Transactions support server-side date-range filtering, pagination (configurable page size, capped at 50 per request) and inline recategorization straight from the table, including quick creation of a new category without leaving the view.
+- Import transactions from CSV or XLSX files: a pluggable backend importer architecture (`papaparse`/`exceljs`) parses the file, the frontend previews the parsed rows and flags likely duplicates, and the user confirms before the batch is inserted atomically in a single Prisma transaction.
 - Analytics endpoint aggregating income/expenses/savings-rate trends and spending by category, used by the Resumen and Analítica pages.
 - Notification preferences and profile settings, persisted per user.
 - Route protection: every page except `/login` and `/registro` requires an active session.
@@ -132,8 +136,8 @@ pnpm --filter @finora/e2e install-browsers
 
 Both the e2e and accessibility Playwright suites drive real login/registration flows, so the API and a PostgreSQL database must be running (`pnpm db:up && pnpm db:migrate`) before `pnpm test:e2e` or `pnpm test:a11y`.
 
-- **Frontend unit tests** (`apps/web/test/`): Vitest + React Testing Library, covering hooks (`useAuth`), utilities, and key pages/components (login/register validation, route protection); network calls are mocked, so no backend is required.
-- **Frontend end-to-end tests** (`apps/web/e2e/tests/*.spec.ts`): Playwright drives a real browser against the app (the API and the web dev server are started automatically, see `playwright.config.ts`), covering login, registration, navigation, logout, "remember me" (cookie persistence) and the 404 page.
+- **Frontend unit tests** (`apps/web/test/`): Vitest + React Testing Library, covering hooks (`useAuth`, `useIdleTimer`), utilities, and key pages/components (login/register validation, route protection); network calls are mocked, so no backend is required. The idle-timeout logic is verified with Vitest's simulated timers (`vi.useFakeTimers()`) instead of real waits.
+- **Frontend end-to-end tests** (`apps/web/e2e/tests/*.spec.ts`): Playwright drives a real browser against the app (the API and the web dev server are started automatically, see `playwright.config.ts`), covering login, registration, navigation, logout, session expiration (forced refresh-token failure), "remember me" (cookie persistence), CSV/XLSX transaction import (using fixture files under `apps/web/e2e/tests/fixtures/`) and the 404 page.
 - **Frontend accessibility tests** (`apps/web/e2e/tests/*.a11y.spec.ts`): Playwright + `@axe-core/playwright` scan every page and key interactive states (dialogs, forms) for automatically detectable WCAG issues.
 - **Backend tests** (`apps/api/src/**/*.spec.ts` and `apps/api/test/`): Jest unit and e2e tests, run with `pnpm --filter @finora/api test` and `pnpm --filter @finora/api test:e2e`.
 
