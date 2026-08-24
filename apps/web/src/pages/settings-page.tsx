@@ -22,6 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { TransactionsPagination } from "@/components/transactions-pagination"
+import { ActiveSessionsCard } from "@/components/active-sessions-card"
 import { useCurrentUser } from "@/hooks/use-current-user"
 import { useNotificationPreferences } from "@/hooks/use-notification-preferences"
 import { useAuditLogs } from "@/hooks/use-audit-logs"
@@ -217,6 +218,8 @@ export function SettingsPage() {
           )}
         </CardContent>
       </Card>
+
+      <ActiveSessionsCard />
     </div>
   )
 }

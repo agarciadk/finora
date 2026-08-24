@@ -125,4 +125,13 @@ export type AuditLog = {
   createdAt: string
 }
 
+export type Session = {
+  id: string
+  ipAddress: string | null
+  userAgent: string | null
+  lastActive: string
+  createdAt: string
+  isCurrent: boolean
+}
+
 
