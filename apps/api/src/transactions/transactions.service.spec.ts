@@ -13,7 +13,10 @@ describe('TransactionsService', () => {
       count: jest.Mock;
       findUnique: jest.Mock;
       update: jest.Mock;
+      updateMany: jest.Mock;
+      deleteMany: jest.Mock;
     };
+    account: { findUnique: jest.Mock };
     category: { findUnique: jest.Mock };
   };
   let currentUser: { getUserId: jest.Mock };
@@ -27,7 +30,10 @@ describe('TransactionsService', () => {
         count: jest.fn().mockResolvedValue(0),
         findUnique: jest.fn(),
         update: jest.fn(),
+        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+        deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
       },
+      account: { findUnique: jest.fn() },
       category: { findUnique: jest.fn() },
     };
     currentUser = { getUserId: jest.fn().mockResolvedValue(userId) };
@@ -93,6 +99,44 @@ describe('TransactionsService', () => {
         }),
       );
     });
+
+    it('filters by a case-insensitive search on the description', async () => {
+      const query: FindTransactionsQueryDto = {
+        page: 1,
+        limit: 10,
+        search: 'super',
+      };
+
+      await service.findAll(query);
+
+      expect(prisma.transaction.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            userId,
+            description: { contains: 'super', mode: 'insensitive' },
+          },
+        }),
+      );
+    });
+
+    it('filters by one or more account ids', async () => {
+      const query: FindTransactionsQueryDto = {
+        page: 1,
+        limit: 10,
+        accountIds: ['acc-1', 'acc-2'],
+      };
+
+      await service.findAll(query);
+
+      expect(prisma.transaction.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            userId,
+            accountId: { in: ['acc-1', 'acc-2'] },
+          },
+        }),
+      );
+    });
   });
 
   describe('updateCategory', () => {
@@ -135,6 +179,115 @@ describe('TransactionsService', () => {
       await expect(
         service.updateCategory('t1', { categoryId: 'c1' }),
       ).rejects.toBeInstanceOf(BadRequestException);
+    });
+  });
+
+  describe('bulkUpdateCategory', () => {
+    it('reassigns the category once every transaction and the category are verified', async () => {
+      prisma.transaction.count.mockResolvedValue(2);
+      prisma.category.findUnique.mockResolvedValue({ id: 'c1', userId });
+      prisma.transaction.updateMany.mockResolvedValue({ count: 2 });
+
+      const result = await service.bulkUpdateCategory({
+        transactionIds: ['t1', 't2'],
+        categoryId: 'c1',
+      });
+
+      expect(prisma.transaction.count).toHaveBeenCalledWith({
+        where: { id: { in: ['t1', 't2'] }, userId },
+      });
+      expect(prisma.transaction.updateMany).toHaveBeenCalledWith({
+        where: { id: { in: ['t1', 't2'] }, userId },
+        data: { categoryId: 'c1' },
+      });
+      expect(result).toEqual({ updated: 2 });
+    });
+
+    it('throws NotFoundException when one of the transactions does not belong to the user', async () => {
+      prisma.transaction.count.mockResolvedValue(1);
+
+      await expect(
+        service.bulkUpdateCategory({
+          transactionIds: ['t1', 't2'],
+          categoryId: 'c1',
+        }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(prisma.transaction.updateMany).not.toHaveBeenCalled();
+    });
+
+    it('throws BadRequestException when the category does not belong to the user', async () => {
+      prisma.transaction.count.mockResolvedValue(2);
+      prisma.category.findUnique.mockResolvedValue({
+        id: 'c1',
+        userId: 'other-user',
+      });
+
+      await expect(
+        service.bulkUpdateCategory({
+          transactionIds: ['t1', 't2'],
+          categoryId: 'c1',
+        }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      expect(prisma.transaction.updateMany).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('bulkUpdateAccount', () => {
+    it('reassigns the account once every transaction and the account are verified', async () => {
+      prisma.transaction.count.mockResolvedValue(2);
+      prisma.account.findUnique.mockResolvedValue({ id: 'a1', userId });
+      prisma.transaction.updateMany.mockResolvedValue({ count: 2 });
+
+      const result = await service.bulkUpdateAccount({
+        transactionIds: ['t1', 't2'],
+        accountId: 'a1',
+      });
+
+      expect(prisma.transaction.updateMany).toHaveBeenCalledWith({
+        where: { id: { in: ['t1', 't2'] }, userId },
+        data: { accountId: 'a1' },
+      });
+      expect(result).toEqual({ updated: 2 });
+    });
+
+    it('throws BadRequestException when the account does not belong to the user', async () => {
+      prisma.transaction.count.mockResolvedValue(2);
+      prisma.account.findUnique.mockResolvedValue({
+        id: 'a1',
+        userId: 'other-user',
+      });
+
+      await expect(
+        service.bulkUpdateAccount({
+          transactionIds: ['t1', 't2'],
+          accountId: 'a1',
+        }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      expect(prisma.transaction.updateMany).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('bulkRemove', () => {
+    it('soft-deletes every transaction once ownership is verified', async () => {
+      prisma.transaction.count.mockResolvedValue(2);
+
+      const result = await service.bulkRemove({
+        transactionIds: ['t1', 't2'],
+      });
+
+      expect(prisma.transaction.deleteMany).toHaveBeenCalledWith({
+        where: { id: { in: ['t1', 't2'] }, userId },
+      });
+      expect(result).toEqual({ deleted: 2 });
+    });
+
+    it('throws NotFoundException when one of the transactions does not belong to the user', async () => {
+      prisma.transaction.count.mockResolvedValue(1);
+
+      await expect(
+        service.bulkRemove({ transactionIds: ['t1', 't2'] }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(prisma.transaction.deleteMany).not.toHaveBeenCalled();
     });
   });
 });

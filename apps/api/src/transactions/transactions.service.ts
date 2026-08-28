@@ -10,6 +10,9 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { FindTransactionsQueryDto } from './dto/find-transactions-query.dto';
 import { UpdateTransactionCategoryDto } from './dto/update-transaction-category.dto';
+import { BulkUpdateTransactionsCategoryDto } from './dto/bulk-update-transactions-category.dto';
+import { BulkUpdateTransactionsAccountDto } from './dto/bulk-update-transactions-account.dto';
+import { BulkDeleteTransactionsDto } from './dto/bulk-delete-transactions.dto';
 
 const ISO_DATE_ONLY_LENGTH = 10;
 
@@ -34,7 +37,7 @@ export class TransactionsService {
 
   async findAll(query: FindTransactionsQueryDto) {
     const userId = await this.currentUser.getUserId();
-    const { startDate, endDate, page, limit } = query;
+    const { startDate, endDate, search, accountIds, page, limit } = query;
 
     const where: Prisma.TransactionWhereInput = {
       userId,
@@ -44,6 +47,11 @@ export class TransactionsService {
           ...(endDate && { lte: toInclusiveEndOfDay(endDate) }),
         },
       }),
+      ...(search && {
+        description: { contains: search, mode: 'insensitive' },
+      }),
+      ...(accountIds &&
+        accountIds.length > 0 && { accountId: { in: accountIds } }),
     };
 
     const [data, total] = await Promise.all([
@@ -138,6 +146,48 @@ export class TransactionsService {
     });
   }
 
+  async bulkUpdateCategory(dto: BulkUpdateTransactionsCategoryDto) {
+    const userId = await this.currentUser.getUserId();
+    await this.ensureTransactionsBelongToUser(userId, dto.transactionIds);
+    await this.ensureRelationsBelongToUser(userId, undefined, dto.categoryId);
+
+    const result = await this.prisma.transaction.updateMany({
+      where: { id: { in: dto.transactionIds }, userId },
+      data: { categoryId: dto.categoryId },
+    });
+
+    return { updated: result.count };
+  }
+
+  async bulkUpdateAccount(dto: BulkUpdateTransactionsAccountDto) {
+    const userId = await this.currentUser.getUserId();
+    await this.ensureTransactionsBelongToUser(userId, dto.transactionIds);
+    await this.ensureRelationsBelongToUser(userId, dto.accountId, undefined);
+
+    const result = await this.prisma.transaction.updateMany({
+      where: { id: { in: dto.transactionIds }, userId },
+      data: { accountId: dto.accountId },
+    });
+
+    return { updated: result.count };
+  }
+
+  async bulkRemove(dto: BulkDeleteTransactionsDto) {
+    const userId = await this.currentUser.getUserId();
+    await this.ensureTransactionsBelongToUser(userId, dto.transactionIds);
+
+    // `deleteMany` is rewritten to a soft-delete `updateMany` by the Prisma
+    // extension configured in `PrismaService` (see soft-delete.extension.ts).
+    // Its overridden return type isn't reliably inferred, so we rely on the
+    // ownership check above (already confirmed every id exists and belongs
+    // to the user) to report the count instead of the call's return value.
+    await this.prisma.transaction.deleteMany({
+      where: { id: { in: dto.transactionIds }, userId },
+    });
+
+    return { deleted: dto.transactionIds.length };
+  }
+
   private async ensureRelationsBelongToUser(
     userId: string,
     accountId?: string,
@@ -175,5 +225,18 @@ export class TransactionsService {
     }
 
     return userId;
+  }
+
+  private async ensureTransactionsBelongToUser(
+    userId: string,
+    transactionIds: string[],
+  ) {
+    const count = await this.prisma.transaction.count({
+      where: { id: { in: transactionIds }, userId },
+    });
+
+    if (count !== transactionIds.length) {
+      throw new NotFoundException('One or more transactions were not found');
+    }
   }
 }

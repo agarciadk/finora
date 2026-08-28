@@ -48,4 +48,47 @@ describe('FindTransactionsQueryDto', () => {
     expect(errors).toHaveLength(1);
     expect(errors[0].property).toBe('startDate');
   });
+
+  it('accepts an optional search string', async () => {
+    const dto = plainToInstance(FindTransactionsQueryDto, {
+      search: 'supermercado',
+    });
+    const errors = await validate(dto);
+
+    expect(errors).toHaveLength(0);
+    expect(dto.search).toBe('supermercado');
+  });
+
+  it('normalizes a single accountIds query value into an array', async () => {
+    const dto = plainToInstance(FindTransactionsQueryDto, {
+      accountIds: '11111111-1111-4111-8111-111111111111',
+    });
+    const errors = await validate(dto);
+
+    expect(errors).toHaveLength(0);
+    expect(dto.accountIds).toEqual(['11111111-1111-4111-8111-111111111111']);
+  });
+
+  it('accepts multiple accountIds', async () => {
+    const dto = plainToInstance(FindTransactionsQueryDto, {
+      accountIds: [
+        '11111111-1111-4111-8111-111111111111',
+        '22222222-2222-4222-8222-222222222222',
+      ],
+    });
+    const errors = await validate(dto);
+
+    expect(errors).toHaveLength(0);
+    expect(dto.accountIds).toHaveLength(2);
+  });
+
+  it('rejects an accountIds value that is not a valid UUID', async () => {
+    const dto = plainToInstance(FindTransactionsQueryDto, {
+      accountIds: 'not-a-uuid',
+    });
+    const errors = await validate(dto);
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0].property).toBe('accountIds');
+  });
 });
