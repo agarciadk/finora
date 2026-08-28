@@ -1,8 +1,10 @@
 import { Controller, Get, Query } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { CurrentUserService } from '../common/current-user/current-user.service';
 import { AuditLogService } from './audit-log.service';
 import { FindAuditLogsQueryDto } from './dto/find-audit-logs-query.dto';
 
+@ApiTags('Audit Logs')
 @Controller('audit-logs')
 export class AuditLogController {
   constructor(

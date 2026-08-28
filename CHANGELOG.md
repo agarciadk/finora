@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-08-28
+
+### Added
+
+- Swagger (OpenAPI) documentation for the API: `@nestjs/swagger` with the CLI plugin enabled (`nest-cli.json`) so DTOs don't need manual `@ApiProperty()` decorators, `DocumentBuilder` setup describing the cookie-based auth flow (plus an optional Bearer scheme for manual testing), and `@ApiTags` grouping every controller by feature. The UI (`GET /api-docs`) is only registered when `NODE_ENV=development`, never in production.
+
 ## [0.5.0] - 2026-08-24
 
 ### Added

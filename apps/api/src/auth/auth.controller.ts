@@ -8,6 +8,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
+import { ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { AuthService, IssuedSession } from './auth.service';
 import {
@@ -33,6 +34,7 @@ const AUTH_THROTTLE = { default: { limit: 5, ttl: 60_000 } };
 // prime targets for abuse (spam and token brute-forcing).
 const PASSWORD_RESET_THROTTLE = { default: { limit: 3, ttl: 60_000 } };
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
