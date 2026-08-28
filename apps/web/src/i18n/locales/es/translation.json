@@ -7,7 +7,8 @@
       "delete": "Eliminar",
       "cancel": "Cancelar",
       "save": "Guardar",
-      "saving": "Guardando…"
+      "saving": "Guardando…",
+      "actionsMenu": "Abrir menú de acciones"
     },
     "confirmDelete": {
       "title": "¿Eliminar \"{{name}}\"?",
@@ -24,6 +25,7 @@
     "nav": {
       "dashboard": "Resumen",
       "accounts": "Cuentas",
+      "categories": "Categorías",
       "transactions": "Transacciones",
       "budgets": "Presupuestos",
       "analytics": "Analítica",
@@ -105,6 +107,32 @@
       "loadFailed": "No se han podido cargar las cuentas.",
       "saveFailed": "No se ha podido guardar la cuenta.",
       "deleteFailed": "No se ha podido eliminar la cuenta."
+    }
+  },
+  "categories": {
+    "title": "Categorías",
+    "description": "Organiza tus ingresos y gastos en categorías.",
+    "addButton": "Añadir categoría",
+    "empty": "Aún no tienes categorías. Añade la primera.",
+    "table": {
+      "name": "Nombre",
+      "type": "Tipo"
+    },
+    "form": {
+      "createTitle": "Añadir categoría",
+      "editTitle": "Editar categoría",
+      "description": "Introduce los datos de la categoría.",
+      "nameLabel": "Nombre",
+      "typeLabel": "Tipo"
+    },
+    "deleteDialog": {
+      "title": "¿Eliminar \"{{name}}\"?",
+      "description": "Las transacciones y presupuestos asociados a esta categoría se reasignarán automáticamente a \"Otros\"."
+    },
+    "errors": {
+      "loadFailed": "No se han podido cargar las categorías.",
+      "saveFailed": "No se ha podido guardar la categoría.",
+      "deleteFailed": "No se ha podido eliminar la categoría."
     }
   },
   "transactions": {

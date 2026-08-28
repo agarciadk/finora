@@ -21,6 +21,7 @@ async function expectNoViolations(builder: AxeBuilder) {
 const authenticatedRoutes = [
   { name: "dashboard", path: "/" },
   { name: "cuentas", path: "/cuentas" },
+  { name: "categorias", path: "/categorias" },
   { name: "transacciones", path: "/transacciones" },
   { name: "presupuestos", path: "/presupuestos" },
   { name: "analitica", path: "/analitica" },
