@@ -19,6 +19,7 @@ A modern full-stack personal finance platform to manage accounts, track transact
 - [`@nestjs/jwt`](https://docs.nestjs.com/security/authentication) + rotating refresh tokens for authentication, both delivered as `HttpOnly`/`Secure` cookies; passwords hashed with `bcryptjs`
 - [`@nestjs/terminus`](https://docs.nestjs.com/recipes/terminus) powering the `GET /health` health check endpoint
 - [class-validator](https://github.com/typestack/class-validator) for request DTO validation
+- [`@nestjs/swagger`](https://docs.nestjs.com/openapi/introduction) (with the CLI plugin, so DTOs don't need manual `@ApiProperty()` decorators) for OpenAPI docs, enabled in development only
 
 **Tooling**
 
@@ -42,6 +43,7 @@ A modern full-stack personal finance platform to manage accounts, track transact
 - Internationalized UI (Spanish and English) with automatic detection of the browser's preferred language and a manual language switcher.
 - Accessibility-conscious UI, verified with automated axe-core scans (semantic landmarks, headings, color contrast, accessible names for interactive components).
 - Backend health check endpoint (`GET /health`) reporting memory (heap/RSS) and disk usage status.
+- Interactive API documentation (Swagger UI) at `GET /api-docs`, available only when `NODE_ENV=development`; endpoints are grouped by feature via `@ApiTags`.
 
 ## Prerequisites
 
