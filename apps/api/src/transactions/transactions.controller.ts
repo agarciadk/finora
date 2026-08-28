@@ -16,7 +16,9 @@ import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { FindTransactionsQueryDto } from './dto/find-transactions-query.dto';
 import { UpdateTransactionCategoryDto } from './dto/update-transaction-category.dto';
 import { AuditLog } from '../audit-log/audit-log.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Transactions')
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}

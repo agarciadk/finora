@@ -6,9 +6,11 @@ import {
   HttpStatus,
   Param,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { CurrentUserService } from '../common/current-user/current-user.service';
 import { SessionsService } from './sessions.service';
 
+@ApiTags('Sessions')
 @Controller('sessions')
 export class SessionsController {
   constructor(

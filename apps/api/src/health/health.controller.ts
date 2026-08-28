@@ -5,8 +5,10 @@ import {
   MemoryHealthIndicator,
   DiskHealthIndicator,
 } from '@nestjs/terminus';
+import { ApiTags } from '@nestjs/swagger';
 import { Public } from '../auth/public.decorator';
 
+@ApiTags('Health')
 @Controller('health')
 export class HealthController {
   constructor(

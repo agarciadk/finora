@@ -8,6 +8,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags } from '@nestjs/swagger';
 import { memoryStorage } from 'multer';
 import { extname } from 'node:path';
 import { ImportService } from './import.service';
@@ -17,6 +18,7 @@ import {
   MAX_IMPORT_FILE_SIZE_BYTES,
 } from './import.constants';
 
+@ApiTags('Import')
 @Controller('accounts/:accountId/import')
 export class ImportController {
   constructor(private readonly importService: ImportService) {}

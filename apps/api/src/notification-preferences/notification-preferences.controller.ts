@@ -1,7 +1,9 @@
 import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { NotificationPreferencesService } from './notification-preferences.service';
 import { UpdateNotificationPreferenceDto } from './dto/update-notification-preference.dto';
 
+@ApiTags('Notification Preferences')
 @Controller('notification-preferences')
 export class NotificationPreferencesController {
   constructor(
