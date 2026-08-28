@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react"
+import { useEffect, useMemo, useState, type FormEvent } from "react"
 import { MoreVertical, Plus, Upload } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -54,7 +55,10 @@ import {
 } from "@/components/ui/table"
 import { ImportTransactionsDialog } from "@/components/import-transactions-dialog"
 import { TransactionCategorySelect } from "@/components/transaction-category-select"
+import { TransactionsAccountFilter } from "@/components/transactions-account-filter"
+import { TransactionsBulkActionsBar } from "@/components/transactions-bulk-actions-bar"
 import { TransactionsPagination } from "@/components/transactions-pagination"
+import { TransactionsSearchInput } from "@/components/transactions-search-input"
 import {
   TransactionsDateRangeFilter,
   type DateRange,
@@ -71,6 +75,7 @@ import type { Transaction, TransactionType } from "@/lib/types"
 const TRANSACTION_TYPES: TransactionType[] = ["EXPENSE", "INCOME"]
 const PAGE_LIMIT_OPTIONS = [10, 20, 50] as const
 const EMPTY_DATE_RANGE: DateRange = { startDate: "", endDate: "" }
+const SEARCH_DEBOUNCE_MS = 400
 
 function todayIsoDate() {
   return new Date().toISOString().slice(0, 10)
@@ -92,8 +97,12 @@ export function TransactionsPage() {
   const { accounts, refresh: refreshAccounts } = useAccounts()
   const { categories, createCategory } = useCategories()
   const [dateRange, setDateRange] = useState<DateRange>(EMPTY_DATE_RANGE)
+  const [searchInput, setSearchInput] = useState("")
+  const [search, setSearch] = useState("")
+  const [accountIds, setAccountIds] = useState<string[]>([])
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState<(typeof PAGE_LIMIT_OPTIONS)[number]>(10)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const {
     transactions,
     meta,
@@ -101,13 +110,28 @@ export function TransactionsPage() {
     updateTransaction,
     deleteTransaction,
     updateTransactionCategory,
+    bulkUpdateCategory,
+    bulkUpdateAccount,
+    bulkDeleteTransactions,
     refresh: refreshTransactions,
   } = useTransactions({
     startDate: dateRange.startDate || undefined,
     endDate: dateRange.endDate || undefined,
+    search: search || undefined,
+    accountIds: accountIds.length > 0 ? accountIds : undefined,
     page,
     limit,
   })
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setSearch(searchInput)
+      setPage(1)
+      setSelectedIds(new Set())
+    }, SEARCH_DEBOUNCE_MS)
+
+    return () => clearTimeout(timeout)
+  }, [searchInput])
 
   const [sheetOpen, setSheetOpen] = useState(false)
   const [importOpen, setImportOpen] = useState(false)
@@ -198,17 +222,81 @@ export function TransactionsPage() {
   function handleDateRangeApply(range: DateRange) {
     setDateRange(range)
     setPage(1)
+    setSelectedIds(new Set())
   }
 
   function handleDateRangeClear() {
     setDateRange(EMPTY_DATE_RANGE)
     setPage(1)
+    setSelectedIds(new Set())
+  }
+
+  function handleSearchChange(value: string) {
+    setSearchInput(value)
+  }
+
+  function handleAccountFilterChange(nextAccountIds: string[]) {
+    setAccountIds(nextAccountIds)
+    setPage(1)
+    setSelectedIds(new Set())
   }
 
   function handleLimitChange(value: string | null) {
     if (!value) return
     setLimit(Number(value) as (typeof PAGE_LIMIT_OPTIONS)[number])
     setPage(1)
+    setSelectedIds(new Set())
+  }
+
+  function handlePageChange(nextPage: number) {
+    setPage(nextPage)
+    setSelectedIds(new Set())
+  }
+
+  function toggleSelectAll(checked: boolean) {
+    setSelectedIds((current) => {
+      const next = new Set(current)
+      for (const transaction of transactions) {
+        if (checked) {
+          next.add(transaction.id)
+        } else {
+          next.delete(transaction.id)
+        }
+      }
+      return next
+    })
+  }
+
+  function toggleSelectRow(id: string, checked: boolean) {
+    setSelectedIds((current) => {
+      const next = new Set(current)
+      if (checked) {
+        next.add(id)
+      } else {
+        next.delete(id)
+      }
+      return next
+    })
+  }
+
+  const selectedIdsList = useMemo(() => [...selectedIds], [selectedIds])
+  const isAllSelected =
+    transactions.length > 0 &&
+    transactions.every((transaction) => selectedIds.has(transaction.id))
+
+  async function handleBulkChangeCategory(categoryId: string) {
+    await bulkUpdateCategory(selectedIdsList, categoryId)
+    setSelectedIds(new Set())
+  }
+
+  async function handleBulkChangeAccount(accountId: string) {
+    await bulkUpdateAccount(selectedIdsList, accountId)
+    setSelectedIds(new Set())
+  }
+
+  async function handleBulkDelete() {
+    await bulkDeleteTransactions(selectedIdsList)
+    setSelectedIds(new Set())
   }
 
   return (
@@ -253,6 +341,17 @@ export function TransactionsPage() {
               </CardDescription>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <TransactionsSearchInput
+                value={searchInput}
+                onChange={handleSearchChange}
+              />
+              {accounts.length > 1 && (
+                <TransactionsAccountFilter
+                  accounts={accounts}
+                  selectedAccountIds={accountIds}
+                  onChange={handleAccountFilterChange}
+                />
+              )}
               <TransactionsDateRangeFilter
                 value={dateRange}
                 onApply={handleDateRangeApply}
@@ -285,7 +384,18 @@ export function TransactionsPage() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col gap-4">
+          {selectedIds.size > 0 && (
+            <TransactionsBulkActionsBar
+              selectedCount={selectedIds.size}
+              categories={categories}
+              accounts={accounts}
+              onChangeCategory={handleBulkChangeCategory}
+              onChangeAccount={handleBulkChangeAccount}
+              onDelete={handleBulkDelete}
+              onClearSelection={() => setSelectedIds(new Set())}
+            />
+          )}
           {transactions.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               {t("transactions.empty")}
@@ -294,6 +404,13 @@ export function TransactionsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-9">
+                    <Checkbox
+                      checked={isAllSelected}
+                      onCheckedChange={toggleSelectAll}
+                      aria-label={t("transactions.bulk.selectAll")}
+                    />
+                  </TableHead>
                   <TableHead>{t("transactions.table.date")}</TableHead>
                   <TableHead>{t("transactions.table.description")}</TableHead>
                   <TableHead>{t("transactions.table.category")}</TableHead>
@@ -307,6 +424,15 @@ export function TransactionsPage() {
               <TableBody>
                 {transactions.map((transaction) => (
                   <TableRow key={transaction.id}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedIds.has(transaction.id)}
+                        onCheckedChange={(checked) =>
+                          toggleSelectRow(transaction.id, checked)
+                        }
+                        aria-label={t("transactions.bulk.selectRow")}
+                      />
+                    </TableCell>
                     <TableCell className="text-muted-foreground">
                       {new Date(transaction.date).toLocaleDateString(
                         i18n.language
@@ -374,7 +500,7 @@ export function TransactionsPage() {
             <TransactionsPagination
               page={meta.page}
               totalPages={meta.totalPages}
-              onPageChange={setPage}
+              onPageChange={handlePageChange}
             />
           </CardFooter>
         )}

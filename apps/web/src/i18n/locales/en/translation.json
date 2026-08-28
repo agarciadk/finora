@@ -150,7 +150,35 @@
       "apply": "Apply",
       "clear": "Clear",
       "limitLabel": "Results per page",
-      "perPage": "{{count}} / page"
+      "perPage": "{{count}} / page",
+      "searchPlaceholder": "Search by description…",
+      "accountsButton": "Accounts",
+      "accountsSelected_one": "{{count}} account",
+      "accountsSelected_other": "{{count}} accounts"
+    },
+    "bulk": {
+      "selectAll": "Select every transaction on this page",
+      "selectRow": "Select transaction",
+      "clearSelection": "Clear selection",
+      "selectedCount_one": "{{count}} transaction selected",
+      "selectedCount_other": "{{count}} transactions selected",
+      "changeCategory": "Change category",
+      "changeAccount": "Change account",
+      "deleteSelected": "Delete selected",
+      "changeCategoryTitle": "Change category",
+      "changeCategoryDescription_one": "This category will be assigned to {{count}} selected transaction.",
+      "changeCategoryDescription_other": "This category will be assigned to {{count}} selected transactions.",
+      "changeAccountTitle": "Change account",
+      "changeAccountDescription_one": "{{count}} selected transaction will be moved to this account.",
+      "changeAccountDescription_other": "{{count}} selected transactions will be moved to this account.",
+      "deleteTitle": "Delete the selected transactions?",
+      "deleteDescription_one": "{{count}} transaction will be deleted. This action cannot be undone.",
+      "deleteDescription_other": "{{count}} transactions will be deleted. This action cannot be undone.",
+      "errors": {
+        "categoryFailed": "Couldn't change the category of the selected transactions.",
+        "accountFailed": "Couldn't change the account of the selected transactions.",
+        "deleteFailed": "Couldn't delete the selected transactions."
+      }
     },
     "pagination": {
       "status": "Page {{page}} of {{totalPages}}",
@@ -170,16 +198,16 @@
     "import": {
       "button": "Import movements",
       "dialogTitle": "Import movements",
-      "dialogDescription": "Upload a CSV or XLSX file to import movements into an account.",
+      "dialogDescription": "Upload a CSV, XLSX or XLS file to import movements into an account.",
       "accountLabel": "Account",
       "accountPlaceholder": "Select an account",
-      "fileLabel": "File (CSV or XLSX)",
+      "fileLabel": "File (CSV, XLSX or XLS)",
       "dropHint": "Drag a file here or click to select one",
       "selectedFile": "Selected file: {{name}}",
       "analyzeButton": "Analyze file",
       "analyzing": "Analyzing file…",
       "errors": {
-        "invalidExtension": "Only CSV or XLSX files are supported.",
+        "invalidExtension": "Only CSV, XLSX or XLS files are supported.",
         "noAccount": "Select an account.",
         "noFile": "Select a file.",
         "previewFailed": "Couldn't analyze the file.",

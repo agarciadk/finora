@@ -150,7 +150,35 @@
       "apply": "Aplicar",
       "clear": "Limpiar",
       "limitLabel": "Resultados por página",
-      "perPage": "{{count}} / página"
+      "perPage": "{{count}} / página",
+      "searchPlaceholder": "Buscar por descripción…",
+      "accountsButton": "Cuentas",
+      "accountsSelected_one": "{{count}} cuenta",
+      "accountsSelected_other": "{{count}} cuentas"
+    },
+    "bulk": {
+      "selectAll": "Seleccionar todas las transacciones de esta página",
+      "selectRow": "Seleccionar transacción",
+      "clearSelection": "Cancelar selección",
+      "selectedCount_one": "{{count}} transacción seleccionada",
+      "selectedCount_other": "{{count}} transacciones seleccionadas",
+      "changeCategory": "Cambiar categoría",
+      "changeAccount": "Cambiar cuenta",
+      "deleteSelected": "Eliminar seleccionadas",
+      "changeCategoryTitle": "Cambiar categoría",
+      "changeCategoryDescription_one": "Se asignará esta categoría a {{count}} transacción seleccionada.",
+      "changeCategoryDescription_other": "Se asignará esta categoría a {{count}} transacciones seleccionadas.",
+      "changeAccountTitle": "Cambiar cuenta",
+      "changeAccountDescription_one": "Se moverá {{count}} transacción seleccionada a esta cuenta.",
+      "changeAccountDescription_other": "Se moverán {{count}} transacciones seleccionadas a esta cuenta.",
+      "deleteTitle": "¿Eliminar las transacciones seleccionadas?",
+      "deleteDescription_one": "Se eliminará {{count}} transacción. Esta acción no se puede deshacer.",
+      "deleteDescription_other": "Se eliminarán {{count}} transacciones. Esta acción no se puede deshacer.",
+      "errors": {
+        "categoryFailed": "No se ha podido cambiar la categoría de las transacciones seleccionadas.",
+        "accountFailed": "No se ha podido cambiar la cuenta de las transacciones seleccionadas.",
+        "deleteFailed": "No se han podido eliminar las transacciones seleccionadas."
+      }
     },
     "pagination": {
       "status": "Página {{page}} de {{totalPages}}",
@@ -170,16 +198,16 @@
     "import": {
       "button": "Importar movimientos",
       "dialogTitle": "Importar movimientos",
-      "dialogDescription": "Sube un archivo CSV o XLSX para importar movimientos en una cuenta.",
+      "dialogDescription": "Sube un archivo CSV, XLSX o XLS para importar movimientos en una cuenta.",
       "accountLabel": "Cuenta",
       "accountPlaceholder": "Selecciona una cuenta",
-      "fileLabel": "Archivo (CSV o XLSX)",
+      "fileLabel": "Archivo (CSV, XLSX o XLS)",
       "dropHint": "Arrastra un archivo aquí o haz clic para seleccionarlo",
       "selectedFile": "Archivo seleccionado: {{name}}",
       "analyzeButton": "Analizar archivo",
       "analyzing": "Analizando archivo…",
       "errors": {
-        "invalidExtension": "Solo se admiten archivos CSV o XLSX.",
+        "invalidExtension": "Solo se admiten archivos CSV, XLSX o XLS.",
         "noAccount": "Selecciona una cuenta.",
         "noFile": "Selecciona un archivo.",
         "previewFailed": "No se ha podido analizar el archivo.",
