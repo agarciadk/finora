@@ -30,7 +30,7 @@ test.describe("Import transactions", () => {
     await page.getByRole("option", { name: "Cuenta de importación" }).click()
 
     await page
-      .getByLabel("Archivo (CSV o XLSX)")
+      .getByLabel("Archivo (CSV, XLSX o XLS)")
       .setInputFiles(CSV_FIXTURE)
     await expect(
       page.getByText("Archivo seleccionado: movimientos.csv")
