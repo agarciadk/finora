@@ -42,16 +42,23 @@ export class AuditLogInterceptor implements NestInterceptor {
     }
 
     return next.handle().pipe(
-      tap((body: unknown) => {
+      tap((responseBody: unknown) => {
         const userId = request.user?.id;
 
         if (!userId) {
           return;
         }
 
+        const requestBody = request.body as Record<string, unknown> | undefined;
+        const bulkTransactionIds = Array.isArray(requestBody?.transactionIds)
+          ? (requestBody.transactionIds as unknown[]).filter(
+              (value): value is string => typeof value === 'string',
+            )
+          : undefined;
+
         const entityId =
           (request.params as Record<string, string> | undefined)?.['id'] ??
-          this.extractId(body);
+          (bulkTransactionIds ? undefined : this.extractId(responseBody));
 
         // Fire-and-forget: auditing must never slow down or break the
         // actual response.
@@ -62,6 +69,9 @@ export class AuditLogInterceptor implements NestInterceptor {
             entityName,
             entityId,
             ipAddress: getClientIp(request),
+            ...(bulkTransactionIds && {
+              details: { transactionIds: bulkTransactionIds },
+            }),
           })
           .catch((error: unknown) => {
             this.logger.error('Failed to record audit log', error);

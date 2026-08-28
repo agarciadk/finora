@@ -41,7 +41,7 @@ import type {
   ImportRowStatus,
 } from "@/lib/types"
 
-const ALLOWED_EXTENSIONS = [".csv", ".xlsx"]
+const ALLOWED_EXTENSIONS = [".csv", ".xlsx", ".xls"]
 const MAX_PREVIEW_ROWS = 200
 
 type Step = "select" | "preview" | "success"
@@ -262,7 +262,7 @@ export function ImportTransactionsDialog({
                       ref={fileInputRef}
                       id={fileInputId}
                       type="file"
-                      accept=".csv,.xlsx"
+                      accept=".csv,.xlsx,.xls"
                       onChange={handleFileInputChange}
                       className="text-sm"
                     />

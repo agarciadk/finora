@@ -35,8 +35,9 @@ A modern full-stack personal finance platform to manage accounts, track transact
 - Sessions end automatically after 15 minutes of inactivity, and any session end (inactivity or a failed silent refresh) redirects to the login page with a toast explaining why.
 - Loading spinners (`lucide-react`) on the login and logout buttons, and other in-flight actions, for clearer feedback while a request is pending.
 - Full CRUD backed by PostgreSQL/Prisma: accounts, categories, transactions and budgets (with progress vs. limit), each scoped to the authenticated user; categories can be global or created per-user.
-- Transactions support server-side date-range filtering, pagination (configurable page size, capped at 50 per request) and inline recategorization straight from the table, including quick creation of a new category without leaving the view.
-- Import transactions from CSV or XLSX files: a pluggable backend importer architecture (`papaparse`/`exceljs`) parses the file, the frontend previews the parsed rows and flags likely duplicates, and the user confirms before the batch is inserted atomically in a single Prisma transaction.
+- Transactions support server-side date-range filtering, case-insensitive description search, filtering by one or more accounts, pagination (configurable page size, capped at 50 per request) and inline recategorization straight from the table, including quick creation of a new category without leaving the view.
+- Bulk actions on transactions: select multiple rows (checkboxes plus a "select all" for the current page) to reassign their category or account, or soft-delete them, all in a single request; every bulk endpoint re-verifies that the transactions belong to the authenticated user.
+- Import transactions from CSV, XLSX or legacy XLS files (e.g. Santander exports): a pluggable backend importer architecture (`papaparse`/`exceljs`/`xlsx`) parses the file, the frontend previews the parsed rows and flags likely duplicates, and the user confirms before the batch is inserted atomically in a single Prisma transaction.
 - Analytics endpoint aggregating income/expenses/savings-rate trends and spending by category, used by the Resumen and Analítica pages.
 - Notification preferences and profile settings, persisted per user.
 - Route protection: every page except `/login` and `/registro` requires an active session.

@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-08-28
+
+### Added
+
+- **Advanced transaction search & filtering**: `GET /transactions` now supports a case-insensitive `search` on the description and filtering by one or more `accountIds`, alongside the existing date range and pagination. The Transacciones page gained a debounced search box (magnifying glass icon) and a multi-select account filter (only shown when the user has more than one account).
+- **Bulk actions on transactions**: `PATCH /transactions/bulk/category`, `PATCH /transactions/bulk/account` and `DELETE /transactions/bulk` let the frontend reassign the category/account of many transactions at once or soft-delete them, all after re-verifying every id belongs to the authenticated user. The table gained a checkbox column (with "select all" for the current page); selecting one or more rows reveals a bulk actions bar (change category/account via dialogs, delete via a destructive confirmation dialog) with loading spinners and automatic selection clearing on success.
+- **Legacy `.xls` import support**: a new `XlsTransactionImporter` (built on SheetJS `xlsx`, installed from the official `cdn.sheetjs.com` distribution to avoid the abandoned/vulnerable npm release) parses old-format Excel exports such as Santander's, reusing the same column-detection and amount/date parsing already shared by the CSV/XLSX importers. The upload dialog and Multer file filter now accept `.xls`/`application/vnd.ms-excel` in addition to `.csv`/`.xlsx`.
+- Swagger documentation for every new/changed endpoint: `@ApiOperation`/`@ApiQuery` on `GET /transactions` and the new bulk endpoints, `@ApiProperty` on the new bulk DTOs, and `@ApiOperation`/`@ApiConsumes`/`@ApiBody` on the import preview endpoint.
+
 ## [0.6.0] - 2026-08-28
 
 ### Added

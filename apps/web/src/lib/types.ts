@@ -97,6 +97,9 @@ export type ImportConfirmResult = {
   invalid: number
 }
 
+export type BulkUpdateResult = { updated: number }
+export type BulkDeleteResult = { deleted: number }
+
 export type SpendingByCategory = {
   categoryId: string
   category: string

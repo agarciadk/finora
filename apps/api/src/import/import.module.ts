@@ -5,6 +5,7 @@ import { ImportService } from './import.service';
 import { ImporterRegistryService } from './importers/importer-registry.service';
 import { CsvTransactionImporter } from './importers/csv-transaction-importer';
 import { XlsxTransactionImporter } from './importers/xlsx-transaction-importer';
+import { XlsTransactionImporter } from './importers/xls-transaction-importer';
 import { TRANSACTION_IMPORTERS } from './importers/transaction-importer.interface';
 import type { TransactionImporter } from './importers/transaction-importer.interface';
 
@@ -16,6 +17,7 @@ import type { TransactionImporter } from './importers/transaction-importer.inter
     ImporterRegistryService,
     CsvTransactionImporter,
     XlsxTransactionImporter,
+    XlsTransactionImporter,
     {
       provide: TRANSACTION_IMPORTERS,
       // Order matters: the first importer whose `canParse` returns true
@@ -24,8 +26,13 @@ import type { TransactionImporter } from './importers/transaction-importer.inter
       useFactory: (
         csv: CsvTransactionImporter,
         xlsx: XlsxTransactionImporter,
-      ): TransactionImporter[] => [csv, xlsx],
-      inject: [CsvTransactionImporter, XlsxTransactionImporter],
+        xls: XlsTransactionImporter,
+      ): TransactionImporter[] => [csv, xlsx, xls],
+      inject: [
+        CsvTransactionImporter,
+        XlsxTransactionImporter,
+        XlsTransactionImporter,
+      ],
     },
   ],
 })

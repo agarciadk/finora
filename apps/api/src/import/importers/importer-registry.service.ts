@@ -22,7 +22,7 @@ export class ImporterRegistryService {
     }
 
     throw new UnsupportedMediaTypeException(
-      'Formato de archivo no soportado. Solo se admiten CSV y XLSX.',
+      'Formato de archivo no soportado. Solo se admiten CSV, XLSX y XLS.',
     );
   }
 }

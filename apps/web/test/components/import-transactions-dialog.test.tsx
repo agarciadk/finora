@@ -61,12 +61,12 @@ describe("ImportTransactionsDialog", () => {
     const file = new File(["contenido"], "movimientos.pdf", {
       type: "application/pdf",
     })
-    const input = screen.getByLabelText(/archivo \(csv o xlsx\)/i)
+    const input = screen.getByLabelText(/archivo \(csv, xlsx o xls\)/i)
 
     await user.upload(input, file)
 
     expect(
-      await screen.findByText(/solo se admiten archivos csv o xlsx/i)
+      await screen.findByText(/solo se admiten archivos csv, xlsx o xls/i)
     ).toBeInTheDocument()
   })
 
@@ -77,7 +77,7 @@ describe("ImportTransactionsDialog", () => {
     const file = new File(["Fecha,Concepto,Importe"], "movimientos.csv", {
       type: "text/csv",
     })
-    const input = screen.getByLabelText(/archivo \(csv o xlsx\)/i)
+    const input = screen.getByLabelText(/archivo \(csv, xlsx o xls\)/i)
 
     await user.upload(input, file)
 

@@ -1,6 +1,11 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { api } from "@/lib/api"
-import type { Transaction, TransactionType } from "@/lib/types"
+import type {
+  BulkDeleteResult,
+  BulkUpdateResult,
+  Transaction,
+  TransactionType,
+} from "@/lib/types"
 
 export type TransactionInput = {
   description: string
@@ -14,6 +19,8 @@ export type TransactionInput = {
 export type TransactionsQuery = {
   startDate?: string
   endDate?: string
+  search?: string
+  accountIds?: string[]
   page?: number
   limit?: number
 }
@@ -37,6 +44,10 @@ function buildQueryString(query: Required<TransactionsQuery>) {
 
   if (query.startDate) params.set("startDate", query.startDate)
   if (query.endDate) params.set("endDate", query.endDate)
+  if (query.search) params.set("search", query.search)
+  for (const accountId of query.accountIds) {
+    params.append("accountIds", accountId)
+  }
   params.set("page", String(query.page))
   params.set("limit", String(query.limit))
 
@@ -44,13 +55,25 @@ function buildQueryString(query: Required<TransactionsQuery>) {
 }
 
 export function useTransactions(query: TransactionsQuery = {}) {
-  const { startDate = "", endDate = "", page = 1, limit = 10 } = query
+  const {
+    startDate = "",
+    endDate = "",
+    search = "",
+    accountIds = [],
+    page = 1,
+    limit = 10,
+  } = query
+  const accountIdsKey = accountIds.join(",")
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [meta, setMeta] = useState<TransactionsMeta>(DEFAULT_META)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // Guards against out-of-order responses (e.g. StrictMode double-effects or
+  // fast page changes) overwriting the state set by a more recent request.
+  const latestRequestId = useRef(0)
 
   const refresh = useCallback(async () => {
+    const requestId = (latestRequestId.current += 1)
     setIsLoading(true)
     setError(null)
 
@@ -58,15 +81,27 @@ export function useTransactions(query: TransactionsQuery = {}) {
       const response = await api.get<{
         data: Transaction[]
         meta: TransactionsMeta
-      }>(`/transactions?${buildQueryString({ startDate, endDate, page, limit })}`)
+      }>(
+        `/transactions?${buildQueryString({
+          startDate,
+          endDate,
+          search,
+          accountIds,
+          page,
+          limit,
+        })}`
+      )
+      if (requestId !== latestRequestId.current) return
       setTransactions(response.data)
       setMeta(response.meta)
     } catch {
+      if (requestId !== latestRequestId.current) return
       setError("transactions.errors.loadFailed")
     } finally {
-      setIsLoading(false)
+      if (requestId === latestRequestId.current) setIsLoading(false)
     }
-  }, [startDate, endDate, page, limit])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- accountIds is compared via accountIdsKey
+  }, [startDate, endDate, search, accountIdsKey, page, limit])
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount
@@ -115,6 +150,42 @@ export function useTransactions(query: TransactionsQuery = {}) {
     []
   )
 
+  const bulkUpdateCategory = useCallback(
+    async (transactionIds: string[], categoryId: string) => {
+      const result = await api.patch<BulkUpdateResult>(
+        "/transactions/bulk/category",
+        { transactionIds, categoryId }
+      )
+      await refresh()
+      return result
+    },
+    [refresh]
+  )
+
+  const bulkUpdateAccount = useCallback(
+    async (transactionIds: string[], accountId: string) => {
+      const result = await api.patch<BulkUpdateResult>(
+        "/transactions/bulk/account",
+        { transactionIds, accountId }
+      )
+      await refresh()
+      return result
+    },
+    [refresh]
+  )
+
+  const bulkDeleteTransactions = useCallback(
+    async (transactionIds: string[]) => {
+      const result = await api.delete<BulkDeleteResult>(
+        "/transactions/bulk",
+        { transactionIds }
+      )
+      await refresh()
+      return result
+    },
+    [refresh]
+  )
+
   return {
     transactions,
     meta,
@@ -125,5 +196,9 @@ export function useTransactions(query: TransactionsQuery = {}) {
     updateTransaction,
     deleteTransaction,
     updateTransactionCategory,
+    bulkUpdateCategory,
+    bulkUpdateAccount,
+    bulkDeleteTransactions,
   }
 }
+
