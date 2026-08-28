@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { api } from "@/lib/api"
 import type {
   BulkDeleteResult,
@@ -68,8 +68,12 @@ export function useTransactions(query: TransactionsQuery = {}) {
   const [meta, setMeta] = useState<TransactionsMeta>(DEFAULT_META)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // Guards against out-of-order responses (e.g. StrictMode double-effects or
+  // fast page changes) overwriting the state set by a more recent request.
+  const latestRequestId = useRef(0)
 
   const refresh = useCallback(async () => {
+    const requestId = (latestRequestId.current += 1)
     setIsLoading(true)
     setError(null)
 
@@ -87,12 +91,14 @@ export function useTransactions(query: TransactionsQuery = {}) {
           limit,
         })}`
       )
+      if (requestId !== latestRequestId.current) return
       setTransactions(response.data)
       setMeta(response.meta)
     } catch {
+      if (requestId !== latestRequestId.current) return
       setError("transactions.errors.loadFailed")
     } finally {
-      setIsLoading(false)
+      if (requestId === latestRequestId.current) setIsLoading(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- accountIds is compared via accountIdsKey
   }, [startDate, endDate, search, accountIdsKey, page, limit])

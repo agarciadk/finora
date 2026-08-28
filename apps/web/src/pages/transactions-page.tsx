@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react"
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react"
 import { MoreVertical, Plus, Upload } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -123,7 +123,17 @@ export function TransactionsPage() {
     limit,
   })
 
+  // Skip the debounce on mount: `searchInput`'s initial value already runs
+  // this effect once, and without this guard it would force `page` back to 1
+  // SEARCH_DEBOUNCE_MS after every load, even if the user never touched search.
+  const isFirstSearchRender = useRef(true)
+
   useEffect(() => {
+    if (isFirstSearchRender.current) {
+      isFirstSearchRender.current = false
+      return
+    }
+
     const timeout = setTimeout(() => {
       setSearch(searchInput)
       setPage(1)
