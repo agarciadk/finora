@@ -123,16 +123,16 @@ export function TransactionsPage() {
     limit,
   })
 
-  // Skip the debounce on mount: `searchInput`'s initial value already runs
-  // this effect once, and without this guard it would force `page` back to 1
-  // SEARCH_DEBOUNCE_MS after every load, even if the user never touched search.
-  const isFirstSearchRender = useRef(true)
+  // Only reset `page` when `searchInput` actually changed since the last run
+  // of this effect (compared by value, not a "have I run" flag) — a flag
+  // gets permanently consumed by React 18 StrictMode's dev-only double
+  // mount/unmount/mount of effects, which would still let the *second*
+  // simulated mount schedule an unconditional `setPage(1)`.
+  const previousSearchInput = useRef(searchInput)
 
   useEffect(() => {
-    if (isFirstSearchRender.current) {
-      isFirstSearchRender.current = false
-      return
-    }
+    if (previousSearchInput.current === searchInput) return
+    previousSearchInput.current = searchInput
 
     const timeout = setTimeout(() => {
       setSearch(searchInput)
