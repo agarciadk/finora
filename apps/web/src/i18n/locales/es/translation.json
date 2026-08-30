@@ -369,8 +369,16 @@
       "savingsRate": "Tasa de ahorro"
     },
     "noTrend": "Sin datos del mes anterior",
+    "monthSelector": {
+      "previous": "Mes anterior",
+      "next": "Mes siguiente",
+      "today": "Mes actual"
+    },
+    "evolutionTitle": "Evolución de ingresos y gastos",
+    "evolutionDescription": "Ingresos y gastos de los últimos 6 meses.",
     "byCategoryTitle": "Gastos por categoría",
-    "byCategoryDescription": "Distribución del gasto total del mes actual.",
+    "byCategoryDescription": "Distribución del gasto total del mes seleccionado.",
+    "byCategoryDetailTitle": "Detalle por categoría",
     "categoryProgressLabel": "Gasto en {{category}}",
     "empty": "Aún no hay gastos registrados este mes.",
     "errors": {

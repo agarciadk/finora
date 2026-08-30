@@ -369,8 +369,16 @@
       "savingsRate": "Savings rate"
     },
     "noTrend": "No data for last month",
+    "monthSelector": {
+      "previous": "Previous month",
+      "next": "Next month",
+      "today": "Current month"
+    },
+    "evolutionTitle": "Income vs. expenses evolution",
+    "evolutionDescription": "Income and expenses over the last 6 months.",
     "byCategoryTitle": "Spending by category",
-    "byCategoryDescription": "Distribution of total spending for the current month.",
+    "byCategoryDescription": "Distribution of total spending for the selected month.",
+    "byCategoryDetailTitle": "Breakdown by category",
     "categoryProgressLabel": "Spending on {{category}}",
     "empty": "There's no spending recorded for this month yet.",
     "errors": {

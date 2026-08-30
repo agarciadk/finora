@@ -10,8 +10,6 @@ import { useAccounts } from "@/hooks/use-accounts"
 import { useAnalytics } from "@/hooks/use-analytics"
 import { formatCurrency } from "@/lib/utils"
 
-const now = new Date()
-
 function formatTrend(trend: number | null) {
   if (trend === null) return null
   return `${trend >= 0 ? "+" : ""}${trend}%`
@@ -20,7 +18,7 @@ function formatTrend(trend: number | null) {
 export function DashboardPage() {
   const { t } = useTranslation()
   const { accounts } = useAccounts()
-  const { analytics } = useAnalytics(now.getMonth() + 1, now.getFullYear())
+  const { analytics } = useAnalytics()
 
   const totalBalance = accounts.reduce(
     (sum, account) => sum + Number(account.balance),
