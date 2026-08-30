@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-08-28
+
+### Added
+
+- **Category management page**: a new "Categorías" page (`/categorias`, linked from the sidebar) lists every category in a table with a type badge (Ingreso/Gasto), and lets the user create, edit and delete categories through the same Sheet/AlertDialog patterns used elsewhere in the app.
+- **Safe category deletion**: `DELETE /categories/:id` now runs inside a single Prisma transaction that finds or creates a fallback category named "Otros" matching the deleted category's type, reassigns every transaction and budget currently pointing at the deleted category to it (row-by-row for budgets, to avoid violating the `(userId, categoryId, month, year)` unique constraint when "Otros" already has a budget for the same period), and only then soft-deletes the requested category. The delete confirmation dialog explicitly warns the user about this reassignment.
+- `@ApiOperation` documentation on every `CategoriesController` endpoint and `@ApiProperty` on `CreateCategoryDto`, describing the reassignment behavior of the delete endpoint.
+
+### Changed
+
+- `PrismaService` gained a `runInTransaction()` helper (and an exported `PrismaTransactionClient` type) as the one safe way to run Prisma interactive transactions against the soft-delete-extended client — calling the proxy-forwarded `$transaction` directly would rebind `this` to the internal `Proxy` and break Prisma's runtime.
+
 ## [0.7.0] - 2026-08-28
 
 ### Added

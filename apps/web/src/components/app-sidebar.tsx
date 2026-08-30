@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   Wallet,
+  Tags,
   ArrowLeftRight,
   PiggyBank,
   BarChart3,
@@ -31,6 +32,12 @@ const navItems = [
     key: "accounts",
     url: "/cuentas",
     icon: Wallet,
+    end: false,
+  },
+  {
+    key: "categories",
+    url: "/categorias",
+    icon: Tags,
     end: false,
   },
   {

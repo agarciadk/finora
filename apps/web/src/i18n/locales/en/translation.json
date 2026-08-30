@@ -7,7 +7,8 @@
       "delete": "Delete",
       "cancel": "Cancel",
       "save": "Save",
-      "saving": "Saving…"
+      "saving": "Saving…",
+      "actionsMenu": "Open actions menu"
     },
     "confirmDelete": {
       "title": "Delete \"{{name}}\"?",
@@ -24,6 +25,7 @@
     "nav": {
       "dashboard": "Overview",
       "accounts": "Accounts",
+      "categories": "Categories",
       "transactions": "Transactions",
       "budgets": "Budgets",
       "analytics": "Analytics",
@@ -105,6 +107,32 @@
       "loadFailed": "Couldn't load your accounts.",
       "saveFailed": "Couldn't save the account.",
       "deleteFailed": "Couldn't delete the account."
+    }
+  },
+  "categories": {
+    "title": "Categories",
+    "description": "Organize your income and expenses into categories.",
+    "addButton": "Add category",
+    "empty": "You don't have any categories yet. Add the first one.",
+    "table": {
+      "name": "Name",
+      "type": "Type"
+    },
+    "form": {
+      "createTitle": "Add category",
+      "editTitle": "Edit category",
+      "description": "Enter the category details.",
+      "nameLabel": "Name",
+      "typeLabel": "Type"
+    },
+    "deleteDialog": {
+      "title": "Delete \"{{name}}\"?",
+      "description": "Transactions and budgets associated with this category will be automatically reassigned to \"Otros\"."
+    },
+    "errors": {
+      "loadFailed": "Couldn't load your categories.",
+      "saveFailed": "Couldn't save the category.",
+      "deleteFailed": "Couldn't delete the category."
     }
   },
   "transactions": {
