@@ -38,6 +38,9 @@ type TransactionsBulkActionsBarProps = {
   onChangeAccount: (accountId: string) => Promise<unknown>
   onDelete: () => Promise<unknown>
   onClearSelection: () => void
+  // Hidden when the table is already locked to a single account (e.g. the
+  // account detail page), where reassigning to another account makes no sense.
+  hideAccountAction?: boolean
 }
 
 export function TransactionsBulkActionsBar({
@@ -48,6 +51,7 @@ export function TransactionsBulkActionsBar({
   onChangeAccount,
   onDelete,
   onClearSelection,
+  hideAccountAction = false,
 }: TransactionsBulkActionsBarProps) {
   const { t } = useTranslation()
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false)
@@ -131,19 +135,21 @@ export function TransactionsBulkActionsBar({
           <Tags />
           {t("transactions.bulk.changeCategory")}
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            setSelectedAccountId("")
-            setError(null)
-            setAccountDialogOpen(true)
-          }}
-        >
-          <Landmark />
-          {t("transactions.bulk.changeAccount")}
-        </Button>
+        {!hideAccountAction && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setSelectedAccountId("")
+              setError(null)
+              setAccountDialogOpen(true)
+            }}
+          >
+            <Landmark />
+            {t("transactions.bulk.changeAccount")}
+          </Button>
+        )}
         <Button
           type="button"
           variant="destructive"
@@ -216,60 +222,64 @@ export function TransactionsBulkActionsBar({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={accountDialogOpen} onOpenChange={setAccountDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {t("transactions.bulk.changeAccountTitle")}
-            </DialogTitle>
-            <DialogDescription>
-              {t("transactions.bulk.changeAccountDescription", {
-                count: selectedCount,
-              })}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-2 py-2">
-            <Select
-              value={selectedAccountId}
-              onValueChange={(value) => setSelectedAccountId(value ?? "")}
-              items={Object.fromEntries(
-                accounts.map((account) => [account.id, account.name])
-              )}
-            >
-              <SelectTrigger aria-label={t("transactions.form.accountLabel")}>
-                <SelectValue
-                  placeholder={t("transactions.form.accountLabel")}
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {accounts.map((account) => (
-                  <SelectItem key={account.id} value={account.id}>
-                    {account.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setAccountDialogOpen(false)}
-            >
-              {t("common.actions.cancel")}
-            </Button>
-            <Button
-              type="button"
-              onClick={() => void handleConfirmAccount()}
-              disabled={!selectedAccountId || isAccountSaving}
-            >
-              {isAccountSaving && <Loader2 className="animate-spin" />}
-              {t("common.actions.save")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {!hideAccountAction && (
+        <Dialog open={accountDialogOpen} onOpenChange={setAccountDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {t("transactions.bulk.changeAccountTitle")}
+              </DialogTitle>
+              <DialogDescription>
+                {t("transactions.bulk.changeAccountDescription", {
+                  count: selectedCount,
+                })}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-2 py-2">
+              <Select
+                value={selectedAccountId}
+                onValueChange={(value) => setSelectedAccountId(value ?? "")}
+                items={Object.fromEntries(
+                  accounts.map((account) => [account.id, account.name])
+                )}
+              >
+                <SelectTrigger
+                  aria-label={t("transactions.form.accountLabel")}
+                >
+                  <SelectValue
+                    placeholder={t("transactions.form.accountLabel")}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {accounts.map((account) => (
+                    <SelectItem key={account.id} value={account.id}>
+                      {account.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {error && <p className="text-sm text-destructive">{error}</p>}
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setAccountDialogOpen(false)}
+              >
+                {t("common.actions.cancel")}
+              </Button>
+              <Button
+                type="button"
+                onClick={() => void handleConfirmAccount()}
+                disabled={!selectedAccountId || isAccountSaving}
+              >
+                {isAccountSaving && <Loader2 className="animate-spin" />}
+                {t("common.actions.save")}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>

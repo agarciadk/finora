@@ -88,6 +88,7 @@
     "description": "Check the balance of all your accounts and cards.",
     "addButton": "Add account",
     "empty": "You don't have any accounts yet. Add the first one.",
+    "interestBadge": "{{rate}}% APY",
     "types": {
       "CHECKING": "Checking",
       "SAVINGS": "Savings",
@@ -101,7 +102,26 @@
       "nameLabel": "Name",
       "bankLabel": "Bank",
       "typeLabel": "Type",
-      "balanceLabel": "Balance"
+      "balanceLabel": "Balance",
+      "interestBearingLabel": "Interest-bearing account",
+      "interestBearingDescription": "Turn this on if the account earns interest (e.g. a high-yield savings account).",
+      "interestRateLabel": "APY (%)",
+      "taxRateLabel": "Tax rate (%)",
+      "interestPaymentDayLabel": "Payment day (1-31)"
+    },
+    "detail": {
+      "backButton": "Back to accounts",
+      "notFound": "Account not found.",
+      "transactionsTitle": "Transactions for this account",
+      "interestCard": {
+        "title": "Interest-bearing account",
+        "description": "Summary of this account's interest.",
+        "tae": "APY",
+        "taxRate": "Tax rate",
+        "averageBalance": "Average balance (last 30 days)",
+        "projectedPayment": "Projected next interest payment",
+        "nextPaymentDate": "Next payment: {{date}}"
+      }
     },
     "errors": {
       "loadFailed": "Couldn't load your accounts.",

@@ -88,6 +88,7 @@
     "description": "Consulta el saldo de todas tus cuentas y tarjetas.",
     "addButton": "Añadir cuenta",
     "empty": "Aún no tienes cuentas. Añade la primera.",
+    "interestBadge": "TAE {{rate}}%",
     "types": {
       "CHECKING": "Corriente",
       "SAVINGS": "Ahorro",
@@ -101,7 +102,26 @@
       "nameLabel": "Nombre",
       "bankLabel": "Banco",
       "typeLabel": "Tipo",
-      "balanceLabel": "Saldo"
+      "balanceLabel": "Saldo",
+      "interestBearingLabel": "Cuenta remunerada",
+      "interestBearingDescription": "Actívalo si esta cuenta genera intereses (ej. una cuenta de ahorro remunerada).",
+      "interestRateLabel": "TAE (%)",
+      "taxRateLabel": "Retención (%)",
+      "interestPaymentDayLabel": "Día de pago (1-31)"
+    },
+    "detail": {
+      "backButton": "Volver a cuentas",
+      "notFound": "No se ha encontrado la cuenta.",
+      "transactionsTitle": "Movimientos de esta cuenta",
+      "interestCard": {
+        "title": "Cuenta remunerada",
+        "description": "Resumen de la remuneración de esta cuenta.",
+        "tae": "TAE",
+        "taxRate": "Retención",
+        "averageBalance": "Saldo medio (últimos 30 días)",
+        "projectedPayment": "Próximo interés estimado",
+        "nextPaymentDate": "Próximo pago: {{date}}"
+      }
     },
     "errors": {
       "loadFailed": "No se han podido cargar las cuentas.",

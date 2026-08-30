@@ -8,6 +8,9 @@ export type AccountInput = {
   type: AccountType
   balance: number
   currency?: string
+  interestRate?: number | null
+  taxRate?: number | null
+  interestPaymentDay?: number | null
 }
 
 export function useAccounts() {

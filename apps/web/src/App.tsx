@@ -7,6 +7,7 @@ import { DashboardLayout } from "@/components/dashboard-layout"
 import { Toaster } from "@/components/ui/sonner"
 import { DashboardPage } from "@/pages/dashboard-page"
 import { AccountsPage } from "@/pages/accounts-page"
+import { AccountDetailPage } from "@/pages/account-detail-page"
 import { CategoriesPage } from "@/pages/categories-page"
 import { TransactionsPage } from "@/pages/transactions-page"
 import { BudgetsPage } from "@/pages/budgets-page"
@@ -42,6 +43,7 @@ function App() {
               <Route element={<DashboardLayout />}>
                 <Route index element={<DashboardPage />} />
                 <Route path="cuentas" element={<AccountsPage />} />
+                <Route path="cuentas/:id" element={<AccountDetailPage />} />
                 <Route path="categorias" element={<CategoriesPage />} />
                 <Route path="transacciones" element={<TransactionsPage />} />
                 <Route path="presupuestos" element={<BudgetsPage />} />
