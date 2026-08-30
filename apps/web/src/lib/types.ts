@@ -151,6 +151,13 @@ export type Analytics = {
   spendingByCategory: SpendingByCategory[]
 }
 
+export type MonthlyEvolution = {
+  month: string
+  income: number
+  expenses: number
+  savingsRate: number
+}
+
 export type AuditAction = "CREATE" | "UPDATE" | "DELETE" | "LOGIN"
 
 export type AuditLog = {
