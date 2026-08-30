@@ -10,6 +10,7 @@ A modern full-stack personal finance platform to manage accounts, track transact
 - [React 19](https://react.dev/) + [Vite](https://vite.dev/) + TypeScript
 - [Tailwind CSS v4](https://tailwindcss.com/) with the [shadcn](https://ui.shadcn.com/) CLI (`base-luma` style, built on [Base UI](https://base-ui.com/) primitives)
 - [react-router-dom](https://reactrouter.com/) for client-side routing
+- [recharts](https://recharts.org/) for the analytics charts, wrapped in a reusable shadcn-style `Chart` component
 - [i18next](https://www.i18next.com/) + [react-i18next](https://react.i18next.com/) for internationalization
 
 **Backend** (`apps/api`)
@@ -41,7 +42,7 @@ A modern full-stack personal finance platform to manage accounts, track transact
 - Transactions support server-side date-range filtering, case-insensitive description search, filtering by one or more accounts, pagination (configurable page size, capped at 50 per request) and inline recategorization straight from the table, including quick creation of a new category without leaving the view.
 - Bulk actions on transactions: select multiple rows (checkboxes plus a "select all" for the current page) to reassign their category or account, or soft-delete them, all in a single request; every bulk endpoint re-verifies that the transactions belong to the authenticated user.
 - Import transactions from CSV, XLSX or legacy XLS files (e.g. Santander exports): a pluggable backend importer architecture (`papaparse`/`exceljs`/`xlsx`) parses the file, the frontend previews the parsed rows and flags likely duplicates, and the user confirms before the batch is inserted atomically in a single Prisma transaction.
-- Analytics endpoint aggregating income/expenses/savings-rate trends and spending by category, used by the Resumen and Analítica pages.
+- Analytics: `GET /analytics?month&year` aggregates income/expenses/savings-rate trends and spending by category for any past or current month, and `GET /analytics/evolution?months=` returns the income/expenses/savings-rate evolution for the trailing N months (default 6, max 12) in a single aggregated query. The Analítica page lets you browse any month with a previous/next month selector, and visualizes the data with `recharts`-powered area and pie charts (Resumen also shows the current month's KPIs).
 - Notification preferences and profile settings, persisted per user.
 - Route protection: every page except `/login` and `/registro` requires an active session.
 - Internationalized UI (Spanish and English) with automatic detection of the browser's preferred language and a manual language switcher.

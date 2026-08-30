@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2026-08-30
+
+### Added
+
+- **Time Machine Analytics & Charts (Epic 5)**: new `GET /analytics/evolution?months=` endpoint (default 6, max 12) returning `[{ month: 'YYYY-MM', income, expenses, savingsRate }]` for the trailing N months, oldest to newest. It runs a single `transaction.findMany` query for the whole window and aggregates the buckets in memory instead of one aggregate query pair per month, avoiding an N+1 loop.
+- `GET /analytics` query params (`month`/`year`) are now validated through `GetAnalyticsQueryDto` (1-12 / 2000-2100 ranges) instead of a bare `ParseIntPipe`, and both endpoints are fully documented with `@ApiOperation`/`@ApiQuery`.
+- Charts on the Analítica page, built with `recharts` and a reusable shadcn-style `ChartContainer`/`ChartTooltipContent`/`ChartLegendContent` wrapper (`components/ui/chart.tsx`): an area chart comparing income vs. expenses over the last 6 months, and a pie chart (plus a detailed list) for the spending-by-category breakdown of the selected month.
+- **Month selector** (previous/next buttons, localized month/year label, and a "current month" shortcut) at the top of the Analítica page lets the user browse the single-month KPIs (income, expenses, savings rate) and category breakdown for any past month; the evolution chart always shows the trailing 6 months regardless of the selected month.
+- `use-analytics.ts` rewritten to own the selected month/year internally (`goToPreviousMonth`/`goToNextMonth`/`goToCurrentMonth`) and to fetch the evolution data independently from the single-month analytics, so paging through months doesn't refetch the (unrelated) trend chart.
+
+### Changed
+
+- `DashboardPage` now calls `useAnalytics()` with no arguments (it only ever needed the current month, which is the hook's default).
+
 ## [0.10.0] - 2026-08-30
 
 ### Added
