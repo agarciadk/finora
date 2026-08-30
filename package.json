@@ -1,7 +1,7 @@
 {
   "name": "finora",
   "private": true,
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "A modern full-stack personal finance platform to manage accounts, track transactions, set budgets, and analyze financial health.",
   "homepage": "https://github.com/agarciadk/finora#readme",
   "bugs": {
