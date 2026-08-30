@@ -9,6 +9,7 @@ import { AccountsModule } from './accounts/accounts.module';
 import { CategoriesModule } from './categories/categories.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { BudgetsModule } from './budgets/budgets.module';
+import { RecurringPaymentsModule } from './recurring-payments/recurring-payments.module';
 import { UsersModule } from './users/users.module';
 import { NotificationPreferencesModule } from './notification-preferences/notification-preferences.module';
 import { AnalyticsModule } from './analytics/analytics.module';
@@ -31,6 +32,7 @@ import { SessionsModule } from './sessions/sessions.module';
     CategoriesModule,
     TransactionsModule,
     BudgetsModule,
+    RecurringPaymentsModule,
     UsersModule,
     NotificationPreferencesModule,
     AnalyticsModule,

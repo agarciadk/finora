@@ -38,6 +38,12 @@ enum AuditAction {
   LOGIN
 }
 
+enum RecurringFrequency {
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -57,6 +63,7 @@ model User {
   categories               Category[]
   transactions             Transaction[]
   budgets                  Budget[]
+  recurringPayments        RecurringPayment[]
   notificationPreferences  NotificationPreference[]
   refreshTokens            RefreshToken[]
   sessions                 Session[]
@@ -117,8 +124,9 @@ model Account {
   taxRate            Decimal? @db.Decimal(5, 2)
   interestPaymentDay Int?
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions Transaction[]
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions      Transaction[]
+  recurringPayments RecurringPayment[]
 
   @@index([userId])
 }
@@ -132,9 +140,10 @@ model Category {
   updatedAt DateTime        @updatedAt
   deletedAt DateTime?
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions Transaction[]
-  budgets      Budget[]
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions      Transaction[]
+  budgets           Budget[]
+  recurringPayments RecurringPayment[]
 
   @@unique([userId, name])
   @@index([userId])
@@ -178,6 +187,32 @@ model Budget {
 
   @@unique([userId, categoryId, month, year])
   @@index([userId])
+}
+
+model RecurringPayment {
+  id              String             @id @default(uuid())
+  userId          String
+  accountId       String
+  categoryId      String
+  name            String
+  amount          Decimal            @db.Decimal(12, 2)
+  type            TransactionType
+  frequency       RecurringFrequency
+  startDate       DateTime
+  nextPaymentDate DateTime
+  isActive        Boolean            @default(true)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  deletedAt       DateTime?
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account  Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+  @@index([accountId])
+  @@index([categoryId])
+  @@index([userId, nextPaymentDate])
 }
 
 model NotificationPreference {

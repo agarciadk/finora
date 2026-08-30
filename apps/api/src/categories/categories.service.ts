@@ -76,6 +76,11 @@ export class CategoriesService {
         data: { categoryId: fallback.id },
       });
 
+      await tx.recurringPayment.updateMany({
+        where: { userId, categoryId: category.id },
+        data: { categoryId: fallback.id },
+      });
+
       await this.reassignBudgets(tx, userId, category.id, fallback.id);
 
       await tx.category.delete({ where: { id: category.id } });

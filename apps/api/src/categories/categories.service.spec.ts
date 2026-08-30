@@ -14,6 +14,7 @@ describe('CategoriesService', () => {
       delete: jest.Mock;
     };
     transaction: { updateMany: jest.Mock };
+    recurringPayment: { updateMany: jest.Mock };
     budget: {
       findMany: jest.Mock;
       findFirst: jest.Mock;
@@ -35,6 +36,7 @@ describe('CategoriesService', () => {
         delete: jest.fn(),
       },
       transaction: { updateMany: jest.fn() },
+      recurringPayment: { updateMany: jest.fn() },
       budget: {
         findMany: jest.fn().mockResolvedValue([]),
         findFirst: jest.fn(),
