@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react"
+import { useNavigate } from "react-router-dom"
 import {
   Landmark,
   MoreVertical,
@@ -19,6 +20,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import {
   Select,
   SelectContent,
@@ -73,10 +75,15 @@ const EMPTY_FORM = {
   bank: "",
   type: "CHECKING" as AccountType,
   balance: "",
+  isInterestBearing: false,
+  interestRate: "",
+  taxRate: "",
+  interestPaymentDay: "",
 }
 
 export function AccountsPage() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const { accounts, createAccount, updateAccount, deleteAccount } =
     useAccounts()
 
@@ -101,6 +108,13 @@ export function AccountsPage() {
       bank: account.bank,
       type: account.type,
       balance: account.balance,
+      isInterestBearing: account.interestRate !== null,
+      interestRate: account.interestRate ?? "",
+      taxRate: account.taxRate ?? "",
+      interestPaymentDay:
+        account.interestPaymentDay === null
+          ? ""
+          : String(account.interestPaymentDay),
     })
     setFormError(null)
     setSheetOpen(true)
@@ -115,9 +129,22 @@ export function AccountsPage() {
       bank: form.bank.trim(),
       type: form.type,
       balance: Number(form.balance),
+      interestRate: form.isInterestBearing ? Number(form.interestRate) : null,
+      taxRate: form.isInterestBearing ? Number(form.taxRate) : null,
+      interestPaymentDay: form.isInterestBearing
+        ? Number(form.interestPaymentDay)
+        : null,
     }
 
-    if (!input.name || !input.bank || Number.isNaN(input.balance)) {
+    if (
+      !input.name ||
+      !input.bank ||
+      Number.isNaN(input.balance) ||
+      (form.isInterestBearing &&
+        (Number.isNaN(input.interestRate) ||
+          Number.isNaN(input.taxRate) ||
+          Number.isNaN(input.interestPaymentDay)))
+    ) {
       setFormError(t("common.errors.generic"))
       return
     }
@@ -173,14 +200,36 @@ export function AccountsPage() {
             const Icon = ACCOUNT_ICONS[account.type]
 
             return (
-              <Card key={account.id}>
+              <Card
+                key={account.id}
+                role="link"
+                tabIndex={0}
+                className="cursor-pointer transition-colors hover:bg-accent/50"
+                onClick={() => navigate(`/cuentas/${account.id}`)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault()
+                    navigate(`/cuentas/${account.id}`)
+                  }
+                }}
+              >
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <Icon className="size-5 text-muted-foreground" />
-                    <div className="flex items-center gap-2">
+                    <div
+                      className="flex items-center gap-2"
+                      onClick={(event) => event.stopPropagation()}
+                    >
                       <Badge variant="secondary">
                         {t(`accounts.types.${account.type}`)}
                       </Badge>
+                      {account.interestRate !== null && (
+                        <Badge variant="outline">
+                          {t("accounts.interestBadge", {
+                            rate: account.interestRate,
+                          })}
+                        </Badge>
+                      )}
                       <DropdownMenu>
                         <DropdownMenuTrigger
                           render={<Button variant="ghost" size="icon-sm" />}
@@ -232,7 +281,7 @@ export function AccountsPage() {
                 {t("accounts.form.description")}
               </SheetDescription>
             </SheetHeader>
-            <div className="flex flex-col gap-4 px-6">
+            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-6">
               <div className="flex flex-col gap-2">
                 <Label htmlFor="account-name">
                   {t("accounts.form.nameLabel")}
@@ -314,6 +363,90 @@ export function AccountsPage() {
                   required
                 />
               </div>
+              <div className="flex items-center justify-between gap-2 rounded-lg border p-3">
+                <div className="flex flex-col gap-0.5">
+                  <Label htmlFor="account-interest-bearing">
+                    {t("accounts.form.interestBearingLabel")}
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {t("accounts.form.interestBearingDescription")}
+                  </p>
+                </div>
+                <Switch
+                  id="account-interest-bearing"
+                  checked={form.isInterestBearing}
+                  onCheckedChange={(checked) =>
+                    setForm((current) => ({
+                      ...current,
+                      isInterestBearing: checked,
+                    }))
+                  }
+                />
+              </div>
+              {form.isInterestBearing && (
+                <>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="account-interest-rate">
+                      {t("accounts.form.interestRateLabel")}
+                    </Label>
+                    <Input
+                      id="account-interest-rate"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      value={form.interestRate}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          interestRate: event.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="account-tax-rate">
+                      {t("accounts.form.taxRateLabel")}
+                    </Label>
+                    <Input
+                      id="account-tax-rate"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      value={form.taxRate}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          taxRate: event.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="account-interest-payment-day">
+                      {t("accounts.form.interestPaymentDayLabel")}
+                    </Label>
+                    <Input
+                      id="account-interest-payment-day"
+                      type="number"
+                      step="1"
+                      min="1"
+                      max="31"
+                      value={form.interestPaymentDay}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          interestPaymentDay: event.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+                </>
+              )}
               {formError && (
                 <p className="text-sm text-destructive">{formError}</p>
               )}

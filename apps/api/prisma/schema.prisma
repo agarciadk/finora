@@ -111,6 +111,12 @@ model Account {
   updatedAt DateTime    @updatedAt
   deletedAt DateTime?
 
+  // Interest-bearing accounts (Cuentas Remuneradas): all three are optional
+  // because most accounts (checking, cash, credit cards) don't earn interest.
+  interestRate       Decimal? @db.Decimal(5, 2)
+  taxRate            Decimal? @db.Decimal(5, 2)
+  interestPaymentDay Int?
+
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
 

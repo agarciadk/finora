@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-08-30
+
+### Added
+
+- **Interest-bearing accounts (Cuentas Remuneradas)**: `Account` gains optional `interestRate` (TAE), `taxRate` and `interestPaymentDay` fields. The create/edit account form gained a "Cuenta remunerada" switch that reveals these three inputs; unchecking it clears them.
+- **Account detail page** (`/cuentas/:id`, reached by clicking an account card): shows the account header (name, type, bank, balance) and, for interest-bearing accounts, a metrics card with the TAE, tax rate, 30-day average daily balance and the projected next net interest payment with its date. Below it, a transactions table locked to that account (search, date range filter, pagination, inline recategorization and bulk category/delete actions).
+- `GET /accounts/:id` now returns the account plus a `stats` object (`averageBalanceLast30Days`, `projectedNextInterestPayment`, `nextInterestPaymentDate`). The 30-day average balance is reconstructed in TypeScript from the account's current `balance` and its transactions in that window (there's no stored running ledger), walking backward one day at a time and undoing each transaction's effect as the day boundary is crossed — O(transactions + 30) instead of re-scanning per day.
+- `TransactionsBulkActionsBar` gained an optional `hideAccountAction` prop, used by the account detail page to hide the "change account" bulk action (meaningless when the table is already locked to one account).
+
+### Changed
+
+- The account create/edit Sheet's field list is now scrollable (`overflow-y-auto`) so its footer/save button stays reachable now that the form can grow taller than the viewport.
+
 ## [0.8.0] - 2026-08-28
 
 ### Added

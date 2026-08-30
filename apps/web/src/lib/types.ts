@@ -12,9 +12,20 @@ export type Account = {
   type: AccountType
   balance: string
   currency: string
+  interestRate: string | null
+  taxRate: string | null
+  interestPaymentDay: number | null
   createdAt: string
   updatedAt: string
 }
+
+export type AccountStats = {
+  averageBalanceLast30Days: number
+  projectedNextInterestPayment: number | null
+  nextInterestPaymentDate: string | null
+}
+
+export type AccountDetail = Account & { stats: AccountStats }
 
 export type Category = {
   id: string
