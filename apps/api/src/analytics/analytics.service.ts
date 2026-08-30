@@ -9,6 +9,13 @@ type MonthStats = {
   savingsRate: number;
 };
 
+export type MonthlyEvolution = {
+  month: string;
+  income: number;
+  expenses: number;
+  savingsRate: number;
+};
+
 @Injectable()
 export class AnalyticsService {
   constructor(
@@ -75,6 +82,63 @@ export class AnalyticsService {
       ),
       spendingByCategory,
     };
+  }
+
+  async getEvolution(months: number): Promise<MonthlyEvolution[]> {
+    const userId = await this.currentUser.getUserId();
+    const now = new Date();
+    const rangeStart = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (months - 1), 1),
+    );
+    const rangeEnd = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1),
+    );
+
+    // Single query for the whole window, aggregated in memory per month
+    // bucket, instead of running two aggregate queries per month (N+1).
+    const transactions = await this.prisma.transaction.findMany({
+      where: { userId, date: { gte: rangeStart, lt: rangeEnd } },
+      select: { amount: true, type: true, date: true },
+    });
+
+    const buckets = new Map<string, { income: number; expenses: number }>();
+    for (let i = 0; i < months; i++) {
+      const bucketDate = new Date(
+        Date.UTC(rangeStart.getUTCFullYear(), rangeStart.getUTCMonth() + i, 1),
+      );
+      buckets.set(this.formatMonthKey(bucketDate), { income: 0, expenses: 0 });
+    }
+
+    for (const transaction of transactions) {
+      const bucket = buckets.get(this.formatMonthKey(transaction.date));
+      if (!bucket) {
+        continue;
+      }
+
+      const amount = Number(transaction.amount);
+      if (transaction.type === 'INCOME') {
+        bucket.income += amount;
+      } else {
+        bucket.expenses += amount;
+      }
+    }
+
+    return Array.from(buckets.entries()).map(
+      ([month, { income, expenses }]) => {
+        const savings = income - expenses;
+
+        return {
+          month,
+          income,
+          expenses,
+          savingsRate: income > 0 ? Math.round((savings / income) * 100) : 0,
+        };
+      },
+    );
+  }
+
+  private formatMonthKey(date: Date): string {
+    return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
   }
 
   private async computeMonthStats(

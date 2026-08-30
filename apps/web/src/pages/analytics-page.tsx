@@ -1,6 +1,9 @@
 import { TrendingDown, TrendingUp } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { AnalyticsCategoryChart } from "@/components/analytics/analytics-category-chart"
+import { AnalyticsEvolutionChart } from "@/components/analytics/analytics-evolution-chart"
+import { AnalyticsMonthSelector } from "@/components/analytics/analytics-month-selector"
 import {
   Card,
   CardContent,
@@ -12,11 +15,18 @@ import { Progress } from "@/components/ui/progress"
 import { useAnalytics } from "@/hooks/use-analytics"
 import { formatCurrency } from "@/lib/utils"
 
-const now = new Date()
-
 export function AnalyticsPage() {
   const { t } = useTranslation()
-  const { analytics } = useAnalytics(now.getMonth() + 1, now.getFullYear())
+  const {
+    analytics,
+    evolution,
+    month,
+    year,
+    isCurrentMonth,
+    goToPreviousMonth,
+    goToNextMonth,
+    goToCurrentMonth,
+  } = useAnalytics()
 
   const monthlyStats = [
     {
@@ -40,13 +50,23 @@ export function AnalyticsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="font-heading text-2xl font-semibold">
-          {t("analytics.title")}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {t("analytics.description")}
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="font-heading text-2xl font-semibold">
+            {t("analytics.title")}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {t("analytics.description")}
+          </p>
+        </div>
+        <AnalyticsMonthSelector
+          month={month}
+          year={year}
+          isCurrentMonth={isCurrentMonth}
+          onPreviousMonth={goToPreviousMonth}
+          onNextMonth={goToNextMonth}
+          onCurrentMonth={goToCurrentMonth}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -82,36 +102,58 @@ export function AnalyticsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{t("analytics.byCategoryTitle")}</CardTitle>
-          <CardDescription>
-            {t("analytics.byCategoryDescription")}
-          </CardDescription>
+          <CardTitle>{t("analytics.evolutionTitle")}</CardTitle>
+          <CardDescription>{t("analytics.evolutionDescription")}</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          {spendingByCategory.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {t("analytics.empty")}
-            </p>
-          ) : (
-            spendingByCategory.map((item) => (
-              <div key={item.categoryId} className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium">{item.category}</span>
-                  <span className="text-muted-foreground">
-                    {formatCurrency(item.amount)} · {item.percentage}%
-                  </span>
-                </div>
-                <Progress
-                  value={item.percentage}
-                  aria-label={t("analytics.categoryProgressLabel", {
-                    category: item.category,
-                  })}
-                />
-              </div>
-            ))
-          )}
+        <CardContent>
+          <AnalyticsEvolutionChart data={evolution} />
         </CardContent>
       </Card>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("analytics.byCategoryTitle")}</CardTitle>
+            <CardDescription>
+              {t("analytics.byCategoryDescription")}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AnalyticsCategoryChart data={spendingByCategory} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("analytics.byCategoryDetailTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            {spendingByCategory.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                {t("analytics.empty")}
+              </p>
+            ) : (
+              spendingByCategory.map((item) => (
+                <div key={item.categoryId} className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium">{item.category}</span>
+                    <span className="text-muted-foreground">
+                      {formatCurrency(item.amount)} · {item.percentage}%
+                    </span>
+                  </div>
+                  <Progress
+                    value={item.percentage}
+                    aria-label={t("analytics.categoryProgressLabel", {
+                      category: item.category,
+                    })}
+                  />
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
+
