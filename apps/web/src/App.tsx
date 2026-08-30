@@ -11,6 +11,7 @@ import { AccountDetailPage } from "@/pages/account-detail-page"
 import { CategoriesPage } from "@/pages/categories-page"
 import { TransactionsPage } from "@/pages/transactions-page"
 import { BudgetsPage } from "@/pages/budgets-page"
+import { RecurringPaymentsPage } from "@/pages/recurring-payments-page"
 import { AnalyticsPage } from "@/pages/analytics-page"
 import { SettingsPage } from "@/pages/settings-page"
 import { LoginPage } from "@/pages/login-page"
@@ -47,6 +48,10 @@ function App() {
                 <Route path="categorias" element={<CategoriesPage />} />
                 <Route path="transacciones" element={<TransactionsPage />} />
                 <Route path="presupuestos" element={<BudgetsPage />} />
+                <Route
+                  path="recurrentes"
+                  element={<RecurringPaymentsPage />}
+                />
                 <Route path="analitica" element={<AnalyticsPage />} />
                 <Route path="ajustes" element={<SettingsPage />} />
                 <Route path="*" element={<NotFoundPage />} />

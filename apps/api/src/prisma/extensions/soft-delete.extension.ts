@@ -7,6 +7,7 @@ const SOFT_DELETE_MODELS = [
   'transaction',
   'category',
   'budget',
+  'recurringPayment',
 ] as const;
 
 type SoftDeleteModel = (typeof SOFT_DELETE_MODELS)[number];

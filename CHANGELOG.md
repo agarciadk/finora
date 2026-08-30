@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-08-30
+
+### Added
+
+- **Recurring payments & subscriptions**: new `RecurringPayment` model (name, amount, type, `frequency` — WEEKLY/MONTHLY/YEARLY —, account, category, `startDate`/`nextPaymentDate`, `isActive`), soft-deletable like the other core models. Full CRUD via `RecurringPaymentsController`/`Service`, plus `POST /recurring-payments/:id/execute` ("Marcar como pagado"), which atomically creates the corresponding `Transaction` and advances `nextPaymentDate` inside a single Prisma transaction.
+- Next-occurrence date math anchors every monthly/yearly advance on `startDate`'s day-of-month (and month, for yearly payments) rather than the previous occurrence, so a day-31 or Feb-29th anchor is clamped down on short months without permanently drifting to a smaller day afterwards.
+- New "Recurrentes" page (`/recurrentes`, linked from the sidebar): a "Gastos fijos mensuales" summary card (active EXPENSE payments normalized to a monthly amount) plus a card grid of recurring payments (category/account badges, frequency, next payment date highlighted red when overdue or amber when due soon), with create/edit via a Sheet form and delete/mark-as-paid confirmations via `AlertDialog`.
+- `CategoriesService#remove()` now also reassigns `RecurringPayment.categoryId` to the fallback "Otros" category, matching the existing transaction/budget reassignment.
+- Swagger documentation (`@ApiTags`/`@ApiOperation`/`@ApiProperty`) for the new controller and DTOs.
+
 ## [0.9.0] - 2026-08-30
 
 ### Added
