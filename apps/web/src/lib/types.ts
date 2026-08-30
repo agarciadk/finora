@@ -4,6 +4,7 @@ export type NotificationPreferenceType =
   | "BUDGET_ALERTS"
   | "WEEKLY_SUMMARY"
   | "PRODUCT_NEWS"
+export type RecurringFrequency = "WEEKLY" | "MONTHLY" | "YEARLY"
 
 export type Account = {
   id: string
@@ -65,6 +66,28 @@ export type NotificationPreference = {
   id: string
   type: NotificationPreferenceType
   enabled: boolean
+}
+
+export type RecurringPayment = {
+  id: string
+  accountId: string
+  categoryId: string
+  name: string
+  amount: string
+  type: TransactionType
+  frequency: RecurringFrequency
+  startDate: string
+  nextPaymentDate: string
+  isActive: boolean
+  account: Account
+  category: Category
+  createdAt: string
+  updatedAt: string
+}
+
+export type ExecuteRecurringPaymentResult = {
+  transaction: Transaction
+  recurringPayment: RecurringPayment
 }
 
 export type User = {

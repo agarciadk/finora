@@ -4,6 +4,7 @@ import {
   Tags,
   ArrowLeftRight,
   PiggyBank,
+  Repeat,
   BarChart3,
   Settings,
 } from "lucide-react"
@@ -50,6 +51,12 @@ const navItems = [
     key: "budgets",
     url: "/presupuestos",
     icon: PiggyBank,
+    end: false,
+  },
+  {
+    key: "recurringPayments",
+    url: "/recurrentes",
+    icon: Repeat,
     end: false,
   },
   {

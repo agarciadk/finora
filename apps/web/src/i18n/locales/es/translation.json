@@ -28,6 +28,7 @@
       "categories": "Categorías",
       "transactions": "Transacciones",
       "budgets": "Presupuestos",
+      "recurringPayments": "Recurrentes",
       "analytics": "Analítica",
       "settings": "Ajustes"
     }
@@ -312,6 +313,51 @@
       "loadFailed": "No se han podido cargar los presupuestos.",
       "saveFailed": "No se ha podido guardar el presupuesto.",
       "deleteFailed": "No se ha podido eliminar el presupuesto."
+    }
+  },
+  "recurringPayments": {
+    "title": "Pagos recurrentes",
+    "description": "Gestiona tus suscripciones e ingresos/gastos periódicos.",
+    "addButton": "Añadir pago recurrente",
+    "empty": "Aún no tienes pagos recurrentes. Añade el primero.",
+    "summary": {
+      "title": "Gastos fijos mensuales",
+      "description": "Suma de tus gastos recurrentes activos, normalizada a un importe mensual."
+    },
+    "status": {
+      "paused": "Pausado"
+    },
+    "nextPayment": "Próximo pago: {{date}}",
+    "frequency": {
+      "WEEKLY": "Semanal",
+      "MONTHLY": "Mensual",
+      "YEARLY": "Anual"
+    },
+    "markAsPaid": "Marcar como pagado",
+    "markAsPaidDialog": {
+      "title": "¿Marcar \"{{name}}\" como pagado?",
+      "description": "Se creará una transacción de {{amount}} en la cuenta {{account}} y el próximo pago se recalculará automáticamente.",
+      "confirm": "Confirmar"
+    },
+    "form": {
+      "createTitle": "Añadir pago recurrente",
+      "editTitle": "Editar pago recurrente",
+      "description": "Define un ingreso o gasto que se repite periódicamente.",
+      "nameLabel": "Nombre",
+      "amountLabel": "Importe",
+      "typeLabel": "Tipo",
+      "frequencyLabel": "Frecuencia",
+      "startDateLabel": "Fecha de inicio",
+      "accountLabel": "Cuenta",
+      "categoryLabel": "Categoría",
+      "activeLabel": "Activo",
+      "activeDescription": "Pausa este pago recurrente sin eliminarlo; no podrás marcarlo como pagado mientras esté pausado."
+    },
+    "errors": {
+      "loadFailed": "No se han podido cargar los pagos recurrentes.",
+      "saveFailed": "No se ha podido guardar el pago recurrente.",
+      "deleteFailed": "No se ha podido eliminar el pago recurrente.",
+      "executeFailed": "No se ha podido marcar el pago como pagado."
     }
   },
   "analytics": {

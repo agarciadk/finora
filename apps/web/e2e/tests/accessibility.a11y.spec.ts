@@ -24,6 +24,7 @@ const authenticatedRoutes = [
   { name: "categorias", path: "/categorias" },
   { name: "transacciones", path: "/transacciones" },
   { name: "presupuestos", path: "/presupuestos" },
+  { name: "recurrentes", path: "/recurrentes" },
   { name: "analitica", path: "/analitica" },
   { name: "ajustes", path: "/ajustes" },
 ]

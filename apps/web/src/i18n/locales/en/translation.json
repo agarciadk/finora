@@ -28,6 +28,7 @@
       "categories": "Categories",
       "transactions": "Transactions",
       "budgets": "Budgets",
+      "recurringPayments": "Recurring",
       "analytics": "Analytics",
       "settings": "Settings"
     }
@@ -312,6 +313,51 @@
       "loadFailed": "Couldn't load your budgets.",
       "saveFailed": "Couldn't save the budget.",
       "deleteFailed": "Couldn't delete the budget."
+    }
+  },
+  "recurringPayments": {
+    "title": "Recurring payments",
+    "description": "Manage your subscriptions and periodic income/expenses.",
+    "addButton": "Add recurring payment",
+    "empty": "You don't have any recurring payments yet. Add the first one.",
+    "summary": {
+      "title": "Total monthly fixed expenses",
+      "description": "Sum of your active recurring expenses, normalized to a monthly amount."
+    },
+    "status": {
+      "paused": "Paused"
+    },
+    "nextPayment": "Next payment: {{date}}",
+    "frequency": {
+      "WEEKLY": "Weekly",
+      "MONTHLY": "Monthly",
+      "YEARLY": "Yearly"
+    },
+    "markAsPaid": "Mark as paid",
+    "markAsPaidDialog": {
+      "title": "Mark \"{{name}}\" as paid?",
+      "description": "A {{amount}} transaction will be created in the {{account}} account and the next payment date will be recalculated automatically.",
+      "confirm": "Confirm"
+    },
+    "form": {
+      "createTitle": "Add recurring payment",
+      "editTitle": "Edit recurring payment",
+      "description": "Define an income or expense that repeats periodically.",
+      "nameLabel": "Name",
+      "amountLabel": "Amount",
+      "typeLabel": "Type",
+      "frequencyLabel": "Frequency",
+      "startDateLabel": "Start date",
+      "accountLabel": "Account",
+      "categoryLabel": "Category",
+      "activeLabel": "Active",
+      "activeDescription": "Pause this recurring payment without deleting it; you won't be able to mark it as paid while it's paused."
+    },
+    "errors": {
+      "loadFailed": "Couldn't load your recurring payments.",
+      "saveFailed": "Couldn't save the recurring payment.",
+      "deleteFailed": "Couldn't delete the recurring payment.",
+      "executeFailed": "Couldn't mark the payment as paid."
     }
   },
   "analytics": {

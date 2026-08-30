@@ -6,6 +6,11 @@ const routes = [
   { link: "Cuentas", path: "/cuentas", heading: "Cuentas" },
   { link: "Transacciones", path: "/transacciones", heading: "Transacciones" },
   { link: "Presupuestos", path: "/presupuestos", heading: "Presupuestos" },
+  {
+    link: "Recurrentes",
+    path: "/recurrentes",
+    heading: "Pagos recurrentes",
+  },
   { link: "Analítica", path: "/analitica", heading: "Analítica" },
   { link: "Ajustes", path: "/ajustes", heading: "Ajustes" },
 ]
