@@ -8,7 +8,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { AuthService, IssuedSession } from './auth.service';
 import {
@@ -17,6 +17,7 @@ import {
   accessTokenCookieOptions,
   refreshTokenCookieOptions,
 } from './cookie.util';
+import { AuthSessionResponseDto } from './dto/auth-session-response.dto';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
@@ -45,6 +46,11 @@ export class AuthController {
   @Public()
   @Throttle(AUTH_THROTTLE)
   @Post('register')
+  @ApiOperation({
+    summary: 'Register a new account',
+    description:
+      'Does not authenticate: the backend requires a verified email before /auth/login succeeds, so no access/refresh token is issued and there is no expiresAt to report here.',
+  })
   async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
@@ -53,6 +59,7 @@ export class AuthController {
   @Throttle(AUTH_THROTTLE)
   @Post('verify-email')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify an account using its emailed token' })
   async verifyEmail(@Body() dto: VerifyEmailDto) {
     return this.authService.verifyEmail(dto);
   }
@@ -61,6 +68,10 @@ export class AuthController {
   @Throttle(PASSWORD_RESET_THROTTLE)
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      'Request a password reset email (always returns the same generic message)',
+  })
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.authService.forgotPassword(dto);
   }
@@ -69,6 +80,7 @@ export class AuthController {
   @Throttle(PASSWORD_RESET_THROTTLE)
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Reset the password using an emailed token' })
   async resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto);
   }
@@ -77,6 +89,11 @@ export class AuthController {
   @Throttle(AUTH_THROTTLE)
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      'Log in and open a session (access/refresh tokens set as HttpOnly cookies)',
+  })
+  @ApiOkResponse({ type: AuthSessionResponseDto })
   async login(
     @Body() dto: LoginDto,
     @Req() request: AuthenticatedRequest,
@@ -97,12 +114,19 @@ export class AuthController {
       ipAddress,
     });
 
-    return session.user;
+    return this.toSessionResponse(session);
   }
 
   @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      'Rotate the refresh token, slide the session and mint a new access token',
+    description:
+      "Also slides the underlying Session row's expiresAt. The response's expiresAt reflects the NEW access token, letting the frontend reschedule its next silent refresh without hardcoding the token lifespan.",
+  })
+  @ApiOkResponse({ type: AuthSessionResponseDto })
   async refresh(
     @Req() request: AuthenticatedRequest,
     @Res({ passthrough: true }) response: Response,
@@ -111,12 +135,13 @@ export class AuthController {
       this.getCookie(request, REFRESH_TOKEN_COOKIE),
     );
     this.setSessionCookies(response, session);
-    return session.user;
+    return this.toSessionResponse(session);
   }
 
   @Public()
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Log out and close the current session' })
   async logout(
     @Req() request: AuthenticatedRequest,
     @Res({ passthrough: true }) response: Response,
@@ -125,6 +150,13 @@ export class AuthController {
       this.getCookie(request, REFRESH_TOKEN_COOKIE),
     );
     this.clearSessionCookies(response);
+  }
+
+  private toSessionResponse(session: IssuedSession): AuthSessionResponseDto {
+    return {
+      ...session.user,
+      expiresAt: session.accessTokenExpiresAt.toISOString(),
+    };
   }
 
   private getCookie(

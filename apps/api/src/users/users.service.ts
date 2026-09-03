@@ -13,11 +13,16 @@ export class UsersService {
 
   async me() {
     const userId = await this.currentUser.getUserId();
+    const expiresAt = await this.currentUser.getAccessTokenExpiresAt();
 
-    return this.prisma.user.findUniqueOrThrow({
+    const user = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
       select: { id: true, email: true, name: true, createdAt: true },
     });
+
+    // Lets the frontend schedule its own silent refresh without hardcoding
+    // the backend's access token lifespan (see CurrentUserService).
+    return { ...user, expiresAt: expiresAt.toISOString() };
   }
 
   async updateMe(dto: UpdateUserDto) {

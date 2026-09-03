@@ -105,7 +105,14 @@ describe('AuthService', () => {
         { provide: PrismaService, useValue: prismaService },
         {
           provide: JwtService,
-          useValue: { signAsync: jest.fn().mockResolvedValue('signed.jwt') },
+          useValue: {
+            signAsync: jest.fn().mockResolvedValue('signed.jwt'),
+            // The service reads the access token's own `exp` claim back
+            // (instead of a separately hardcoded TTL) to report expiresAt.
+            decode: jest
+              .fn()
+              .mockReturnValue({ exp: Math.floor(Date.now() / 1000) + 300 }),
+          },
         },
         { provide: MailService, useValue: mailService },
       ],
@@ -215,6 +222,7 @@ describe('AuthService', () => {
 
       expect(session.rememberMe).toBe(true);
       expect(session.user.id).toBe('user-1');
+      expect(session.accessTokenExpiresAt).toBeInstanceOf(Date);
     });
 
     it('creates a Session row capturing the IP and user agent', async () => {
@@ -444,6 +452,7 @@ describe('AuthService', () => {
       });
       expect(session.rememberMe).toBe(true);
       expect(session.user.id).toBe('user-1');
+      expect(session.accessTokenExpiresAt).toBeInstanceOf(Date);
     });
 
     it('throws when no token is provided', async () => {

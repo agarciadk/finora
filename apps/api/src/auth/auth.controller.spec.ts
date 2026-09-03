@@ -16,6 +16,7 @@ function createMockResponse() {
 
 const session: IssuedSession = {
   accessToken: 'access-token',
+  accessTokenExpiresAt: new Date('2026-08-30T12:05:00.000Z'),
   refreshToken: 'refresh-token',
   rememberMe: false,
   user: { id: 'user-1', email: 'ada@example.com', name: 'Ada Lovelace' },
@@ -123,7 +124,10 @@ describe('AuthController', () => {
 
       await expect(
         authController.login(dto, request, response),
-      ).resolves.toEqual(session.user);
+      ).resolves.toEqual({
+        ...session.user,
+        expiresAt: session.accessTokenExpiresAt.toISOString(),
+      });
       expect(authService.login).toHaveBeenCalledWith(
         dto,
         '203.0.113.5',
@@ -147,9 +151,10 @@ describe('AuthController', () => {
         cookies: { [REFRESH_TOKEN_COOKIE]: 'raw-refresh-token' },
       } as unknown as AuthenticatedRequest;
 
-      await expect(authController.refresh(request, response)).resolves.toEqual(
-        session.user,
-      );
+      await expect(authController.refresh(request, response)).resolves.toEqual({
+        ...session.user,
+        expiresAt: session.accessTokenExpiresAt.toISOString(),
+      });
       expect(authService.refresh).toHaveBeenCalledWith('raw-refresh-token');
     });
   });

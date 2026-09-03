@@ -32,4 +32,16 @@ export class CurrentUserService {
 
     return this.request.user.sessionId;
   }
+
+  // Read from the JWT's own `exp` claim (set by JwtAuthGuard), not a
+  // separately hardcoded TTL, so it can never drift from what actually
+  // governs the cookie's validity.
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async getAccessTokenExpiresAt(): Promise<Date> {
+    if (!this.request.user) {
+      throw new UnauthorizedException();
+    }
+
+    return new Date(this.request.user.exp * 1000);
+  }
 }
