@@ -43,7 +43,13 @@
   },
   "session": {
     "idleEnded": "Your session has ended due to inactivity.",
-    "expired": "Your session has expired. Please sign in again."
+    "expired": "Your session has expired. Please sign in again.",
+    "idleWarning": {
+      "title": "Are you still there?",
+      "description": "For your security, your session will be closed due to inactivity in <strong>{{seconds}} seconds</strong>.",
+      "stay": "I'm still here",
+      "logout": "Log out"
+    }
   },
   "logout": {
     "trigger": "Sign out",
