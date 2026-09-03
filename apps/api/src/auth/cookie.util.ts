@@ -23,13 +23,20 @@ export function accessTokenCookieOptions(): CookieOptions {
   };
 }
 
-// Scoped to /auth so the refresh token is never sent to unrelated API routes.
+// Scoped to /api/auth (not just /auth) so the refresh token is never sent to
+// unrelated API routes. The prefix matters: the browser only ever calls this
+// backend through the frontend's same-origin `/api` proxy/rewrite (Vite dev
+// proxy locally, Vercel rewrite in prod - see apps/web/vite.config.ts and
+// apps/web/vercel.json), so from its point of view every request is under
+// `/api/...`, even though the backend's own route is `/auth/refresh`. A Path
+// of plain `/auth` never matches an actual `/api/auth/refresh` request, so
+// the cookie silently never gets sent and every refresh 401s.
 export function refreshTokenCookieOptions(persistent: boolean): CookieOptions {
   return {
     httpOnly: true,
     secure: true,
     sameSite: sameSite(),
-    path: '/auth',
+    path: '/api/auth',
     ...(persistent ? { maxAge: REFRESH_TOKEN_TTL_MS } : {}),
   };
 }
