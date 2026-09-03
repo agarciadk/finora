@@ -8,6 +8,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { AuthService } from './auth.service';
+import { AuthConfigService } from './auth-config.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
 
@@ -115,6 +116,16 @@ describe('AuthService', () => {
           },
         },
         { provide: MailService, useValue: mailService },
+        {
+          provide: AuthConfigService,
+          useValue: {
+            accessTokenExpiresIn: '5m',
+            accessTokenTtlMs: 5 * 60 * 1000,
+            accessTokenTtlSeconds: 5 * 60,
+            refreshTokenExpiresIn: '7d',
+            refreshTokenTtlMs: 7 * 24 * 60 * 60 * 1000,
+          },
+        },
       ],
     }).compile();
 

@@ -11,6 +11,7 @@ import { Throttle } from '@nestjs/throttler';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { AuthService, IssuedSession } from './auth.service';
+import { AuthConfigService } from './auth-config.service';
 import {
   ACCESS_TOKEN_COOKIE,
   REFRESH_TOKEN_COOKIE,
@@ -41,6 +42,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly auditLogService: AuditLogService,
+    private readonly authConfig: AuthConfigService,
   ) {}
 
   @Public()
@@ -171,17 +173,26 @@ export class AuthController {
     response.cookie(
       ACCESS_TOKEN_COOKIE,
       session.accessToken,
-      accessTokenCookieOptions(),
+      accessTokenCookieOptions(this.authConfig.accessTokenTtlMs),
     );
     response.cookie(
       REFRESH_TOKEN_COOKIE,
       session.refreshToken,
-      refreshTokenCookieOptions(session.rememberMe),
+      refreshTokenCookieOptions(
+        session.rememberMe,
+        this.authConfig.refreshTokenTtlMs,
+      ),
     );
   }
 
   private clearSessionCookies(response: Response) {
-    response.clearCookie(ACCESS_TOKEN_COOKIE, accessTokenCookieOptions());
-    response.clearCookie(REFRESH_TOKEN_COOKIE, refreshTokenCookieOptions(true));
+    response.clearCookie(
+      ACCESS_TOKEN_COOKIE,
+      accessTokenCookieOptions(this.authConfig.accessTokenTtlMs),
+    );
+    response.clearCookie(
+      REFRESH_TOKEN_COOKIE,
+      refreshTokenCookieOptions(true, this.authConfig.refreshTokenTtlMs),
+    );
   }
 }

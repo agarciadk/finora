@@ -14,7 +14,7 @@ import {
 } from '../common/default-user-data';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
-import { ACCESS_TOKEN_TTL_SECONDS, REFRESH_TOKEN_TTL_MS } from './cookie.util';
+import { AuthConfigService } from './auth-config.service';
 import { generateRawToken, hashToken, isTestEnv } from './token.util';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -59,6 +59,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly authConfig: AuthConfigService,
   ) {}
 
   async register(dto: RegisterDto): Promise<RegisterResult> {
@@ -292,7 +293,7 @@ export class AuthService {
   ): Promise<{ accessToken: string; accessTokenExpiresAt: Date }> {
     const accessToken = await this.jwtService.signAsync(
       { sub: userId, email, sessionId },
-      { expiresIn: ACCESS_TOKEN_TTL_SECONDS },
+      { expiresIn: this.authConfig.accessTokenTtlSeconds },
     );
     // Decode (not verify - we just signed it) to read back the exact `exp`
     // claim the token was issued with, instead of recomputing it separately.
@@ -311,7 +312,7 @@ export class AuthService {
   ): Promise<{ sessionId: string; rawRefreshToken: string }> {
     const rawRefreshToken = randomBytes(64).toString('hex');
     const tokenHash = hashToken(rawRefreshToken);
-    const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
+    const expiresAt = new Date(Date.now() + this.authConfig.refreshTokenTtlMs);
 
     const session = await this.prisma.session.create({
       data: {
@@ -340,7 +341,7 @@ export class AuthService {
   ): Promise<string> {
     const rawRefreshToken = randomBytes(64).toString('hex');
     const tokenHash = hashToken(rawRefreshToken);
-    const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
+    const expiresAt = new Date(Date.now() + this.authConfig.refreshTokenTtlMs);
 
     await this.prisma.refreshToken.create({
       data: { userId, sessionId, tokenHash, rememberMe, expiresAt },

@@ -2,9 +2,11 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 import { useAuth } from "@/hooks/use-auth"
 import { useIdleTimer } from "@/hooks/use-idle-timer"
+import {
+  IDLE_LOGOUT_TIMEOUT_MS,
+  IDLE_WARNING_TIMEOUT_MS,
+} from "@/lib/idle-config"
 
-const DEFAULT_WARNING_TIMEOUT_MS = 14 * 60 * 1000
-const DEFAULT_LOGOUT_TIMEOUT_MS = 15 * 60 * 1000
 // How often the visible countdown recomputes. Recomputing from a fixed
 // deadline (Date.now() diff) rather than decrementing by 1 each tick means
 // the displayed number can't drift even if the interval itself is delayed.
@@ -31,8 +33,8 @@ type UseIdleLogoutResult = {
 // listens for activity while there's an active session (ProtectedRoute
 // unmounts this once `endSession` flips `isAuthenticated` to false).
 export function useIdleLogout({
-  warningTimeoutMs = DEFAULT_WARNING_TIMEOUT_MS,
-  logoutTimeoutMs = DEFAULT_LOGOUT_TIMEOUT_MS,
+  warningTimeoutMs = IDLE_WARNING_TIMEOUT_MS,
+  logoutTimeoutMs = IDLE_LOGOUT_TIMEOUT_MS,
 }: UseIdleLogoutOptions = {}): UseIdleLogoutResult {
   const { isAuthenticated, endSession } = useAuth()
   const countdownSeconds = Math.round(

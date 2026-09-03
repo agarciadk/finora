@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import type { Response } from 'express';
 import { AuthController } from './auth.controller';
 import { AuthService, IssuedSession } from './auth.service';
+import { AuthConfigService } from './auth-config.service';
 import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from './cookie.util';
 import type { AuthenticatedRequest } from './auth.types';
 import { AuditLogService } from '../audit-log/audit-log.service';
@@ -52,6 +53,16 @@ describe('AuthController', () => {
       providers: [
         { provide: AuthService, useValue: authService },
         { provide: AuditLogService, useValue: auditLogService },
+        {
+          provide: AuthConfigService,
+          useValue: {
+            accessTokenExpiresIn: '5m',
+            accessTokenTtlMs: 5 * 60 * 1000,
+            accessTokenTtlSeconds: 5 * 60,
+            refreshTokenExpiresIn: '7d',
+            refreshTokenTtlMs: 7 * 24 * 60 * 60 * 1000,
+          },
+        },
       ],
     }).compile();
 
