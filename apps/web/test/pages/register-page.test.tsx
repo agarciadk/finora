@@ -6,8 +6,8 @@ import { MemoryRouter, Route, Routes } from "react-router-dom"
 import { AuthProvider } from "@/components/auth-provider"
 import { RegisterPage } from "@/pages/register-page"
 
-function renderRegisterPage() {
-  return render(
+async function renderRegisterPage() {
+  render(
     <MemoryRouter initialEntries={["/registro"]}>
       <AuthProvider>
         <Routes>
@@ -18,6 +18,9 @@ function renderRegisterPage() {
       </AuthProvider>
     </MemoryRouter>
   )
+  // AuthProvider shows a full-screen spinner (not `children`) until the
+  // initial /users/me check resolves, so wait for the real form to mount.
+  await screen.findByLabelText(/^nombre$/i)
 }
 
 async function fillValidForm(user: ReturnType<typeof userEvent.setup>) {
@@ -47,7 +50,7 @@ describe("RegisterPage", () => {
 
   it("shows validation errors when submitting empty fields", async () => {
     const user = userEvent.setup()
-    renderRegisterPage()
+    await renderRegisterPage()
 
     await user.click(screen.getByRole("button", { name: /crear cuenta/i }))
 
@@ -64,7 +67,7 @@ describe("RegisterPage", () => {
 
   it("shows an error when passwords don't match", async () => {
     const user = userEvent.setup()
-    renderRegisterPage()
+    await renderRegisterPage()
 
     await user.type(screen.getByLabelText(/^nombre$/i), "Ada Lovelace")
     await user.type(
@@ -97,7 +100,7 @@ describe("RegisterPage", () => {
     })
 
     const user = userEvent.setup()
-    renderRegisterPage()
+    await renderRegisterPage()
 
     await fillValidForm(user)
     await user.click(screen.getByRole("button", { name: /crear cuenta/i }))
@@ -124,7 +127,7 @@ describe("RegisterPage", () => {
     })
 
     const user = userEvent.setup()
-    renderRegisterPage()
+    await renderRegisterPage()
 
     await fillValidForm(user)
     await user.click(screen.getByRole("button", { name: /crear cuenta/i }))

@@ -6,8 +6,8 @@ import { MemoryRouter, Route, Routes } from "react-router-dom"
 import { AuthProvider } from "@/components/auth-provider"
 import { LoginPage } from "@/pages/login-page"
 
-function renderLoginPage() {
-  return render(
+async function renderLoginPage() {
+  render(
     <MemoryRouter initialEntries={["/login"]}>
       <AuthProvider>
         <Routes>
@@ -17,6 +17,9 @@ function renderLoginPage() {
       </AuthProvider>
     </MemoryRouter>
   )
+  // AuthProvider shows a full-screen spinner (not `children`) until the
+  // initial /users/me check resolves, so wait for the real form to mount.
+  await screen.findByLabelText(/correo electrónico/i)
 }
 
 describe("LoginPage", () => {
@@ -33,7 +36,7 @@ describe("LoginPage", () => {
 
   it("shows validation errors when submitting empty fields", async () => {
     const user = userEvent.setup()
-    renderLoginPage()
+    await renderLoginPage()
 
     await user.click(screen.getByRole("button", { name: /iniciar sesión/i }))
 
@@ -45,7 +48,7 @@ describe("LoginPage", () => {
 
   it("shows an error for an invalid email format", async () => {
     const user = userEvent.setup()
-    renderLoginPage()
+    await renderLoginPage()
 
     await user.type(
       screen.getByLabelText(/correo electrónico/i),
@@ -61,7 +64,7 @@ describe("LoginPage", () => {
 
   it("shows an error when the password is too short", async () => {
     const user = userEvent.setup()
-    renderLoginPage()
+    await renderLoginPage()
 
     await user.type(
       screen.getByLabelText(/correo electrónico/i),
@@ -95,7 +98,7 @@ describe("LoginPage", () => {
     })
 
     const user = userEvent.setup()
-    renderLoginPage()
+    await renderLoginPage()
 
     await user.type(
       screen.getByLabelText(/correo electrónico/i),
@@ -122,7 +125,7 @@ describe("LoginPage", () => {
     })
 
     const user = userEvent.setup()
-    renderLoginPage()
+    await renderLoginPage()
 
     await user.type(
       screen.getByLabelText(/correo electrónico/i),
@@ -150,7 +153,7 @@ describe("LoginPage", () => {
     })
 
     const user = userEvent.setup()
-    renderLoginPage()
+    await renderLoginPage()
 
     await user.type(
       screen.getByLabelText(/correo electrónico/i),

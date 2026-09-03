@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react"
+import { lazy } from "react"
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 
 import { ThemeProvider } from "@/components/theme-provider"
@@ -6,7 +6,18 @@ import { AuthProvider } from "@/components/auth-provider"
 import { ProtectedRoute } from "@/components/protected-route"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Toaster } from "@/components/ui/sonner"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import {
+  accountDetailPage,
+  accountsPage,
+  analyticsPage,
+  budgetsPage,
+  categoriesPage,
+  dashboardPage,
+  notFoundPage,
+  recurringPaymentsPage,
+  settingsPage,
+  transactionsPage,
+} from "@/lib/lazy-pages"
 import { LoginPage } from "@/pages/login-page"
 import { RegisterPage } from "@/pages/register-page"
 import { VerifyEmailPage } from "@/pages/verify-email-page"
@@ -16,42 +27,42 @@ import { ResetPasswordPage } from "@/pages/reset-password-page"
 // Authenticated pages are code-split so their (and their dependencies', e.g.
 // recharts) weight only loads once a user is signed in.
 const DashboardPage = lazy(() =>
-  import("@/pages/dashboard-page").then((m) => ({ default: m.DashboardPage }))
+  dashboardPage().then((m) => ({ default: m.DashboardPage }))
 )
 const AccountsPage = lazy(() =>
-  import("@/pages/accounts-page").then((m) => ({ default: m.AccountsPage }))
+  accountsPage().then((m) => ({ default: m.AccountsPage }))
 )
 const AccountDetailPage = lazy(() =>
-  import("@/pages/account-detail-page").then((m) => ({
+  accountDetailPage().then((m) => ({
     default: m.AccountDetailPage,
   }))
 )
 const CategoriesPage = lazy(() =>
-  import("@/pages/categories-page").then((m) => ({
+  categoriesPage().then((m) => ({
     default: m.CategoriesPage,
   }))
 )
 const TransactionsPage = lazy(() =>
-  import("@/pages/transactions-page").then((m) => ({
+  transactionsPage().then((m) => ({
     default: m.TransactionsPage,
   }))
 )
 const BudgetsPage = lazy(() =>
-  import("@/pages/budgets-page").then((m) => ({ default: m.BudgetsPage }))
+  budgetsPage().then((m) => ({ default: m.BudgetsPage }))
 )
 const RecurringPaymentsPage = lazy(() =>
-  import("@/pages/recurring-payments-page").then((m) => ({
+  recurringPaymentsPage().then((m) => ({
     default: m.RecurringPaymentsPage,
   }))
 )
 const AnalyticsPage = lazy(() =>
-  import("@/pages/analytics-page").then((m) => ({ default: m.AnalyticsPage }))
+  analyticsPage().then((m) => ({ default: m.AnalyticsPage }))
 )
 const SettingsPage = lazy(() =>
-  import("@/pages/settings-page").then((m) => ({ default: m.SettingsPage }))
+  settingsPage().then((m) => ({ default: m.SettingsPage }))
 )
 const NotFoundPage = lazy(() =>
-  import("@/pages/not-found-page").then((m) => ({ default: m.NotFoundPage }))
+  notFoundPage().then((m) => ({ default: m.NotFoundPage }))
 )
 
 function App() {
@@ -73,88 +84,24 @@ function App() {
               path="restablecer-password"
               element={<ResetPasswordPage />}
             />
+            {/* DashboardLayout owns the loading UI for these routes (both the
+            initial-mount Suspense fallback and the Sidebar-click pending
+            state), so no per-route wrapper is needed here. */}
             <Route element={<ProtectedRoute />}>
               <Route element={<DashboardLayout />}>
-                <Route
-                  index
-                  element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <DashboardPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="cuentas"
-                  element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <AccountsPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="cuentas/:id"
-                  element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <AccountDetailPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="categorias"
-                  element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <CategoriesPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="transacciones"
-                  element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <TransactionsPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="presupuestos"
-                  element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <BudgetsPage />
-                    </Suspense>
-                  }
-                />
+                <Route index element={<DashboardPage />} />
+                <Route path="cuentas" element={<AccountsPage />} />
+                <Route path="cuentas/:id" element={<AccountDetailPage />} />
+                <Route path="categorias" element={<CategoriesPage />} />
+                <Route path="transacciones" element={<TransactionsPage />} />
+                <Route path="presupuestos" element={<BudgetsPage />} />
                 <Route
                   path="recurrentes"
-                  element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <RecurringPaymentsPage />
-                    </Suspense>
-                  }
+                  element={<RecurringPaymentsPage />}
                 />
-                <Route
-                  path="analitica"
-                  element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <AnalyticsPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="ajustes"
-                  element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <SettingsPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="*"
-                  element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <NotFoundPage />
-                    </Suspense>
-                  }
-                />
+                <Route path="analitica" element={<AnalyticsPage />} />
+                <Route path="ajustes" element={<SettingsPage />} />
+                <Route path="*" element={<NotFoundPage />} />
               </Route>
             </Route>
           </Routes>
