@@ -34,7 +34,7 @@ A modern full-stack personal finance platform to manage accounts, track transact
 - Real authentication: register and log in against the API, short-lived JWT access tokens (5 min) plus rotating refresh tokens (7 days) in `HttpOnly`/`Secure` cookies, "remember me" (persistent vs. session-only refresh cookie), automatic silent refresh on the frontend, and a logout confirmation dialog. Refresh token reuse is detected and revokes every active session for that user.
 - Multi-device session management: every login creates a `Session` record (IP address, user agent, last-active timestamp) tied to its refresh token. The Ajustes page lists every active session, flags the current one, and lets the user log out a single device or every other device at once (both with a confirmation dialog).
 - Sessions end automatically after 15 minutes of inactivity: a warning modal appears 1 minute before the cutoff ("¿Sigues ahí?") with a live countdown, letting the user stay signed in ("Sigo aquí") or log out immediately. Any real activity — DOM events (mouse, keyboard, scroll) or an in-flight API call — resets the idle clock and silently dismisses an open warning, so actively using the app never triggers an unwanted logout. Any session end (inactivity or a failed silent refresh) redirects to the login page with a toast explaining why.
-- Dynamic session sync: the backend reports exactly when the current access token expires (`expiresAt`, from the JWT's own `exp` claim - never hardcoded on the frontend), and a heartbeat proactively refreshes the session ~1 minute before that, but only while the user has been active in the last 5 minutes - so a genuinely idle tab is still left to expire naturally.
+- Dynamic session sync: the backend reports exactly when the current access token expires (`expiresAt`, from the JWT's own `exp` claim - never hardcoded on the frontend), and a heartbeat proactively refreshes the session ~1 minute before that, but only while the user has been active recently (same configurable threshold as the idle-warning modal) - so a genuinely idle tab is still left to expire naturally instead of being kept alive forever.
 - Loading spinners (`lucide-react`) on the login and logout buttons, and other in-flight actions, for clearer feedback while a request is pending.
 - Full CRUD backed by PostgreSQL/Prisma: accounts, categories, transactions and budgets (with progress vs. limit), each scoped to the authenticated user; categories can be global or created per-user.
 - Interest-bearing accounts (Cuentas Remuneradas): an account can optionally track its TAE (annual percentage yield), tax rate and interest payment day. Each account has a detail page (`/cuentas/:id`) showing its transactions (search, date range, pagination, bulk actions) plus, for interest-bearing accounts, a metrics card with the 30-day average balance, the projected next net interest payment and the next payment date.
@@ -79,8 +79,8 @@ pnpm dev:api     # backend (NestJS), http://localhost:3000
 ## Environment variables
 
 - Root `.env` (used by `compose.yml`): `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT`.
-- `apps/api/.env`: `DATABASE_URL`, `JWT_ACCESS_SECRET` and `REFRESH_TOKEN_HASH_SECRET` (generate each with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`), `COOKIE_SAME_SITE` (`lax` by default), `CORS_ORIGIN`.
-- `apps/web/.env`: `VITE_API_URL` (defaults to `/api`, proxied to the API in dev by `vite.config.ts` so auth cookies work same-origin).
+- `apps/api/.env`: `DATABASE_URL`, `JWT_ACCESS_SECRET` and `REFRESH_TOKEN_HASH_SECRET` (generate each with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`), `COOKIE_SAME_SITE` (`lax` by default), `CORS_ORIGIN`, `JWT_ACCESS_EXPIRATION`/`JWT_REFRESH_EXPIRATION` (duration strings like `"5m"`/`"7d"`, default if unset - read via `ConfigService`/`AuthConfigService`).
+- `apps/web/.env`: `VITE_API_URL` (defaults to `/api`, proxied to the API in dev by `vite.config.ts` so auth cookies work same-origin), `VITE_IDLE_WARNING_MINUTES`/`VITE_IDLE_LOGOUT_MINUTES` (default 14/15 - see `lib/idle-config.ts`).
 
 See each `.env.example` file for details.
 
@@ -154,7 +154,7 @@ Both the e2e and accessibility Playwright suites drive real login/registration f
 
 Authentication is handled entirely by the API using short-lived JWT access tokens and rotating refresh tokens, both delivered as `HttpOnly`, `Secure` cookies (see `apps/api/src/auth/`):
 
-- `POST /auth/register` and `POST /auth/login` issue an access token (5 minutes, signed with `JWT_ACCESS_SECRET`) and a refresh token (7 days, a random 512-bit value hashed with `REFRESH_TOKEN_HASH_SECRET` before being stored).
+- `POST /auth/register` and `POST /auth/login` issue an access token (5 minutes, signed with `JWT_ACCESS_SECRET`) and a refresh token (7 days, a random 512-bit value hashed with `REFRESH_TOKEN_HASH_SECRET` before being stored). Both lifespans are configurable via `JWT_ACCESS_EXPIRATION`/`JWT_REFRESH_EXPIRATION` (`AuthConfigService`), not hardcoded.
 - `POST /auth/refresh` rotates the refresh token on every use; reusing an already-rotated (or expired) token is treated as a possible theft and revokes every active session for that user.
 - `POST /auth/logout` revokes the current refresh token and clears both cookies.
 - "Remember me" controls whether the refresh token cookie is persistent or session-only; everything else (accounts, transactions, budgets, ...) is scoped to the authenticated user via a request-scoped `CurrentUserService`.
