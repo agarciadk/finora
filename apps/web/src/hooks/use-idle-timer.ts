@@ -53,6 +53,10 @@ export function useIdleTimer({
   // Populated by the effect below; lets callers (the warning modal's
   // "I'm still here" button) force a reset from outside the effect.
   const resetTimersRef = useRef<() => void>(() => undefined)
+  // Mirrors "is the warning currently up" for the DOM listener below. A ref
+  // (not state) so handleActivity always reads the live value instead of
+  // one captured in a stale closure.
+  const isWarningActiveRef = useRef(false)
 
   useEffect(() => {
     onIdleWarningRef.current = onIdleWarning
@@ -76,9 +80,11 @@ export function useIdleTimer({
     let debounceTimeoutId: ReturnType<typeof setTimeout>
 
     function resetTimers() {
+      setWarningActive(false)
       clearTimeout(warningTimeoutId)
       clearTimeout(logoutTimeoutId)
       warningTimeoutId = setTimeout(() => {
+        setWarningActive(true)
         onIdleWarningRef.current()
         logoutTimeoutId = setTimeout(() => {
           onIdleRef.current()
@@ -86,7 +92,19 @@ export function useIdleTimer({
       }, warningTimeout)
     }
 
+    // Single spot that flips the ref used by handleActivity below; keep the
+    // two writes together so they can never fall out of sync.
+    function setWarningActive(active: boolean) {
+      isWarningActiveRef.current = active
+    }
+
     function handleActivity() {
+      // Once the warning is up, only an explicit reset (the "I'm still
+      // here" button, via resetIdleTimer) may dismiss it - passive activity
+      // must not silently reset the timer or hide the modal.
+      if (isWarningActiveRef.current) {
+        return
+      }
       onActivityRef.current?.()
       clearTimeout(debounceTimeoutId)
       debounceTimeoutId = setTimeout(resetTimers, ACTIVITY_DEBOUNCE_MS)

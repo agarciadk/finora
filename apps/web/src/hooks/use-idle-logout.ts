@@ -69,16 +69,13 @@ export function useIdleLogout({
     setIsIdleWarning(true)
   }, [countdownSeconds, logoutTimeoutMs, warningTimeoutMs])
 
-  // Any real activity (DOM event or API call, see use-idle-timer.ts) should
-  // silently dismiss an already-open warning instead of requiring the user
-  // to click "I'm still here" - this is what actually fixes the bug where
-  // active users got logged out.
+  // use-idle-timer.ts stops calling this once the warning is up, so this
+  // only ever runs pre-warning; it just keeps hasEndedRef fresh for the
+  // next cycle. Dismissing the modal itself requires an explicit
+  // resetIdleTimer() call (the "I'm still here" button).
   const handleActivity = useCallback(() => {
     hasEndedRef.current = false
-    if (countdownDeadlineRef.current !== null) {
-      clearWarning()
-    }
-  }, [clearWarning])
+  }, [])
 
   const { resetIdleTimer: resetIdleTimerInternal } = useIdleTimer({
     warningTimeout: warningTimeoutMs,
