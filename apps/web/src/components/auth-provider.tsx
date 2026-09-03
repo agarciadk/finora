@@ -59,9 +59,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [])
 
   useEffect(() => {
-    // Fired by lib/api.ts after ANY successful /auth/refresh (the reactive
-    // 401 retry or the proactive heartbeat), so this is the single place
-    // that keeps user.expiresAt current for the heartbeat to reschedule from.
+    // Fired by lib/api.ts after any successful reactive 401-retry refresh,
+    // so this is the single place that keeps user.expiresAt current.
     return onSessionRefreshed((refreshedUser) => {
       setUser(refreshedUser)
       setIsAuthenticated(true)

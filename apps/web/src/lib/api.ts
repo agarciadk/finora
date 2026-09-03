@@ -37,8 +37,7 @@ function refreshSession(): Promise<boolean> {
         emitSessionEnded("expired")
         return false
       }
-      // Keeps user.expiresAt fresh so the heartbeat can reschedule its next
-      // silent refresh from the NEW expiry instead of a stale one.
+      // Keeps user.expiresAt fresh in AuthProvider after any silent refresh.
       const user = (await response.json()) as AuthUser
       emitSessionRefreshed(user)
       return true
@@ -52,16 +51,6 @@ function refreshSession(): Promise<boolean> {
     })
 
   return refreshPromise
-}
-
-// Used by use-session-heartbeat.ts to proactively refresh shortly before
-// the access token expires. Reuses the same `refreshPromise` single-flight
-// guard as the reactive 401 retry below, so a heartbeat refresh racing an
-// organic one never sends two concurrent /auth/refresh requests (which,
-// since refresh tokens rotate on every use, would make the loser look like
-// a stolen/reused token and revoke every session for the user).
-export function triggerSilentRefresh(): Promise<boolean> {
-  return refreshSession()
 }
 
 async function request<T>(

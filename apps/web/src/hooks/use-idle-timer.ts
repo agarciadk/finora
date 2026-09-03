@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from "react"
 
 import { USER_ACTIVITY_EVENT } from "@/lib/api"
 
-const DEFAULT_EVENTS = [
+const ACTIVITY_EVENTS = [
   "mousemove",
   "mousedown",
   "click",
@@ -12,10 +12,9 @@ const DEFAULT_EVENTS = [
   "wheel",
 ] as const
 
-// Minimum time between activity-triggered timer resets, so a burst of
-// mousemove/wheel events doesn't cause a reset (and its listener churn) on
-// every single event.
-const DEFAULT_THROTTLE_MS = 1000
+// Coalesces a burst of activity (continuous mousemove, scroll, etc.) into a
+// single timer reset instead of clearing/recreating setTimeouts on every event.
+const ACTIVITY_DEBOUNCE_MS = 300
 
 type UseIdleTimerOptions = {
   /** Milliseconds of inactivity after which `onIdleWarning` fires. */
@@ -26,12 +25,8 @@ type UseIdleTimerOptions = {
   onIdleWarning: () => void
   /** Called once the user has been inactive for `logoutTimeout` ms. */
   onIdle: () => void
-  /** Called on every (throttled) activity, even if it didn't reset the timers. */
+  /** Called on every real activity event, even before the debounce settles. */
   onActivity?: () => void
-  /** DOM events considered "activity". Defaults to mouse/keyboard/touch. */
-  events?: readonly string[]
-  /** Minimum gap between activity-triggered timer resets. */
-  throttleMs?: number
   /** Set to false to stop listening without unmounting the component. */
   enabled?: boolean
 }
@@ -41,14 +36,15 @@ type UseIdleTimerResult = {
   resetIdleTimer: () => void
 }
 
+// Plain setTimeout-based idle timer: everything lives inside a single
+// effect, scoped to this hook instance - no shared/module-level state, no
+// polling, nothing for a token refresh elsewhere in the app to desync from.
 export function useIdleTimer({
   warningTimeout,
   logoutTimeout,
   onIdleWarning,
   onIdle,
   onActivity,
-  events = DEFAULT_EVENTS,
-  throttleMs = DEFAULT_THROTTLE_MS,
   enabled = true,
 }: UseIdleTimerOptions): UseIdleTimerResult {
   const onIdleWarningRef = useRef(onIdleWarning)
@@ -77,52 +73,45 @@ export function useIdleTimer({
 
     let warningTimeoutId: ReturnType<typeof setTimeout>
     let logoutTimeoutId: ReturnType<typeof setTimeout>
-    let lastReset = 0
+    let debounceTimeoutId: ReturnType<typeof setTimeout>
 
     function resetTimers() {
       clearTimeout(warningTimeoutId)
       clearTimeout(logoutTimeoutId)
       warningTimeoutId = setTimeout(() => {
         onIdleWarningRef.current()
+        logoutTimeoutId = setTimeout(() => {
+          onIdleRef.current()
+        }, logoutTimeout - warningTimeout)
       }, warningTimeout)
-      logoutTimeoutId = setTimeout(() => {
-        onIdleRef.current()
-      }, logoutTimeout)
     }
 
     function handleActivity() {
-      const now = Date.now()
       onActivityRef.current?.()
-      if (now - lastReset < throttleMs) {
-        return
-      }
-      lastReset = now
-      resetTimers()
+      clearTimeout(debounceTimeoutId)
+      debounceTimeoutId = setTimeout(resetTimers, ACTIVITY_DEBOUNCE_MS)
     }
 
-    resetTimersRef.current = () => {
-      lastReset = Date.now()
-      resetTimers()
-    }
-
+    resetTimersRef.current = resetTimers
     resetTimers()
 
-    for (const eventName of events) {
+    for (const eventName of ACTIVITY_EVENTS) {
       window.addEventListener(eventName, handleActivity, { passive: true })
     }
-    // Emitted by lib/api.ts on every API call, so an in-flight fetch (or a
-    // background mutation) counts as activity even without mouse/keyboard input.
+    // Emitted by lib/api.ts on every real API call, so an in-flight fetch
+    // counts as activity even without mouse/keyboard input.
     window.addEventListener(USER_ACTIVITY_EVENT, handleActivity)
 
     return () => {
       clearTimeout(warningTimeoutId)
       clearTimeout(logoutTimeoutId)
-      for (const eventName of events) {
+      clearTimeout(debounceTimeoutId)
+      for (const eventName of ACTIVITY_EVENTS) {
         window.removeEventListener(eventName, handleActivity)
       }
       window.removeEventListener(USER_ACTIVITY_EVENT, handleActivity)
     }
-  }, [warningTimeout, logoutTimeout, events, throttleMs, enabled])
+  }, [warningTimeout, logoutTimeout, enabled])
 
   const resetIdleTimer = useCallback(() => {
     resetTimersRef.current()

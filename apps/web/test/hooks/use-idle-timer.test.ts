@@ -36,52 +36,30 @@ describe("useIdleTimer", () => {
     expect(onIdle).toHaveBeenCalledTimes(1)
   })
 
-  it("resets both timers when activity is detected", () => {
+  it("resets both timers once the activity debounce settles", () => {
     const onIdleWarning = vi.fn()
     const onIdle = vi.fn()
     renderHook(() =>
       useIdleTimer({
-        warningTimeout: 1000,
-        logoutTimeout: 1500,
+        warningTimeout: 2000,
+        logoutTimeout: 3000,
         onIdleWarning,
         onIdle,
-        throttleMs: 0,
       })
     )
 
-    vi.advanceTimersByTime(700)
+    vi.advanceTimersByTime(500)
     window.dispatchEvent(new Event("mousemove"))
-    vi.advanceTimersByTime(700)
-    // 1400ms have passed in total, but activity at 700ms reset the clock, so
-    // only 700ms have elapsed since the last reset: onIdleWarning shouldn't
-    // fire yet.
+    // The reset only takes effect once the 300ms debounce settles (t=800),
+    // well before the original t=2000 deadline, so there's no ambiguity
+    // about which timer "wins".
+    vi.advanceTimersByTime(300)
+
+    // From the reset point (t=800), the warning should fire at t=2800.
+    vi.advanceTimersByTime(1999)
     expect(onIdleWarning).not.toHaveBeenCalled()
 
-    vi.advanceTimersByTime(300)
-    expect(onIdleWarning).toHaveBeenCalledTimes(1)
-  })
-
-  it("ignores activity within the throttle window", () => {
-    const onIdleWarning = vi.fn()
-    const onIdle = vi.fn()
-    renderHook(() =>
-      useIdleTimer({
-        warningTimeout: 1000,
-        logoutTimeout: 1500,
-        onIdleWarning,
-        onIdle,
-        throttleMs: 500,
-      })
-    )
-
-    // First activity resets the deadline to t=1000 (relative to now).
-    window.dispatchEvent(new Event("mousemove"))
-    vi.advanceTimersByTime(400)
-    // Second activity, 400ms later, falls within the 500ms throttle window
-    // and must be ignored, so the deadline stays at t=1000.
-    window.dispatchEvent(new Event("mousemove"))
-    vi.advanceTimersByTime(600)
-
+    vi.advanceTimersByTime(1)
     expect(onIdleWarning).toHaveBeenCalledTimes(1)
   })
 
@@ -90,24 +68,25 @@ describe("useIdleTimer", () => {
     const onIdle = vi.fn()
     renderHook(() =>
       useIdleTimer({
-        warningTimeout: 1000,
-        logoutTimeout: 1500,
+        warningTimeout: 2000,
+        logoutTimeout: 3000,
         onIdleWarning,
         onIdle,
-        throttleMs: 0,
       })
     )
 
-    vi.advanceTimersByTime(700)
+    vi.advanceTimersByTime(500)
     window.dispatchEvent(new Event(USER_ACTIVITY_EVENT))
-    vi.advanceTimersByTime(700)
+    vi.advanceTimersByTime(300)
+
+    vi.advanceTimersByTime(1999)
     expect(onIdleWarning).not.toHaveBeenCalled()
 
-    vi.advanceTimersByTime(300)
+    vi.advanceTimersByTime(1)
     expect(onIdleWarning).toHaveBeenCalledTimes(1)
   })
 
-  it("calls onActivity on every throttled activity even before the timers fire", () => {
+  it("calls onActivity immediately, without waiting for the debounce", () => {
     const onActivity = vi.fn()
     renderHook(() =>
       useIdleTimer({
@@ -116,7 +95,6 @@ describe("useIdleTimer", () => {
         onIdleWarning: vi.fn(),
         onIdle: vi.fn(),
         onActivity,
-        throttleMs: 0,
       })
     )
 

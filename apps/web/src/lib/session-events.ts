@@ -22,9 +22,9 @@ export function onSessionEnded(handler: (reason: SessionEndReason) => void) {
   return () => target.removeEventListener(EVENT_NAME, listener)
 }
 
-// Emitted after ANY successful /auth/refresh (reactive 401 retry or the
-// proactive heartbeat), so AuthProvider can keep `user.expiresAt` (and the
-// rest of the profile) in sync without lib/api.ts touching React state.
+// Emitted after any successful reactive /auth/refresh, so AuthProvider can
+// keep `user.expiresAt` (and the rest of the profile) in sync without
+// lib/api.ts touching React state.
 export function emitSessionRefreshed(user: AuthUser) {
   target.dispatchEvent(new CustomEvent(REFRESHED_EVENT_NAME, { detail: user }))
 }

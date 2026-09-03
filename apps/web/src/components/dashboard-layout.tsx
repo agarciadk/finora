@@ -8,7 +8,6 @@ import { LogoutButton } from "@/components/logout-button"
 import { IdleWarningModal } from "@/components/idle-warning-modal"
 import { Separator } from "@/components/ui/separator"
 import { useIdleLogout } from "@/hooks/use-idle-logout"
-import { useSessionHeartbeat } from "@/hooks/use-session-heartbeat"
 import {
   SidebarInset,
   SidebarProvider,
@@ -18,7 +17,6 @@ import {
 export function DashboardLayout() {
   const { t } = useTranslation()
   const { isIdleWarning, remainingSeconds, resetIdleTimer } = useIdleLogout()
-  useSessionHeartbeat()
 
   return (
     <SidebarProvider>
