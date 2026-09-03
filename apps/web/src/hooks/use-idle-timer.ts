@@ -1,79 +1,139 @@
-import { useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 
-const DEFAULT_EVENTS = [
+import { USER_ACTIVITY_EVENT } from "@/lib/api"
+
+const ACTIVITY_EVENTS = [
   "mousemove",
   "mousedown",
+  "click",
   "keydown",
+  "scroll",
   "touchstart",
   "wheel",
 ] as const
 
-// Minimum time between activity-triggered timer resets, so a burst of
-// mousemove/wheel events doesn't cause a reset (and its listener churn) on
-// every single event.
-const DEFAULT_THROTTLE_MS = 1000
+// Coalesces a burst of activity (continuous mousemove, scroll, etc.) into a
+// single timer reset instead of clearing/recreating setTimeouts on every event.
+const ACTIVITY_DEBOUNCE_MS = 300
 
 type UseIdleTimerOptions = {
-  /** Milliseconds of inactivity after which `onIdle` fires. */
-  timeout: number
-  /** Called once the user has been inactive for `timeout` ms. */
+  /** Milliseconds of inactivity after which `onIdleWarning` fires. */
+  warningTimeout: number
+  /** Milliseconds of inactivity after which `onIdle` (real logout) fires. */
+  logoutTimeout: number
+  /** Called once the user has been inactive for `warningTimeout` ms. */
+  onIdleWarning: () => void
+  /** Called once the user has been inactive for `logoutTimeout` ms. */
   onIdle: () => void
-  /** DOM events considered "activity". Defaults to mouse/keyboard/touch. */
-  events?: readonly string[]
-  /** Minimum gap between activity-triggered timer resets. */
-  throttleMs?: number
+  /** Called on every real activity event, even before the debounce settles. */
+  onActivity?: () => void
   /** Set to false to stop listening without unmounting the component. */
   enabled?: boolean
 }
 
+type UseIdleTimerResult = {
+  /** Clears both timers and restarts the countdown from now. */
+  resetIdleTimer: () => void
+}
+
+// Plain setTimeout-based idle timer: everything lives inside a single
+// effect, scoped to this hook instance - no shared/module-level state, no
+// polling, nothing for a token refresh elsewhere in the app to desync from.
 export function useIdleTimer({
-  timeout,
+  warningTimeout,
+  logoutTimeout,
+  onIdleWarning,
   onIdle,
-  events = DEFAULT_EVENTS,
-  throttleMs = DEFAULT_THROTTLE_MS,
+  onActivity,
   enabled = true,
-}: UseIdleTimerOptions) {
+}: UseIdleTimerOptions): UseIdleTimerResult {
+  const onIdleWarningRef = useRef(onIdleWarning)
   const onIdleRef = useRef(onIdle)
+  const onActivityRef = useRef(onActivity)
+  // Populated by the effect below; lets callers (the warning modal's
+  // "I'm still here" button) force a reset from outside the effect.
+  const resetTimersRef = useRef<() => void>(() => undefined)
+  // Mirrors "is the warning currently up" for the DOM listener below. A ref
+  // (not state) so handleActivity always reads the live value instead of
+  // one captured in a stale closure.
+  const isWarningActiveRef = useRef(false)
+
+  useEffect(() => {
+    onIdleWarningRef.current = onIdleWarning
+  }, [onIdleWarning])
 
   useEffect(() => {
     onIdleRef.current = onIdle
   }, [onIdle])
 
   useEffect(() => {
+    onActivityRef.current = onActivity
+  }, [onActivity])
+
+  useEffect(() => {
     if (!enabled) {
       return
     }
 
-    let timeoutId: ReturnType<typeof setTimeout>
-    let lastReset = 0
+    let warningTimeoutId: ReturnType<typeof setTimeout>
+    let logoutTimeoutId: ReturnType<typeof setTimeout>
+    let debounceTimeoutId: ReturnType<typeof setTimeout>
 
-    function resetTimer() {
-      clearTimeout(timeoutId)
-      timeoutId = setTimeout(() => {
-        onIdleRef.current()
-      }, timeout)
+    function resetTimers() {
+      setWarningActive(false)
+      clearTimeout(warningTimeoutId)
+      clearTimeout(logoutTimeoutId)
+      warningTimeoutId = setTimeout(() => {
+        setWarningActive(true)
+        onIdleWarningRef.current()
+        logoutTimeoutId = setTimeout(() => {
+          onIdleRef.current()
+        }, logoutTimeout - warningTimeout)
+      }, warningTimeout)
+    }
+
+    // Single spot that flips the ref used by handleActivity below; keep the
+    // two writes together so they can never fall out of sync.
+    function setWarningActive(active: boolean) {
+      isWarningActiveRef.current = active
     }
 
     function handleActivity() {
-      const now = Date.now()
-      if (now - lastReset < throttleMs) {
+      // Once the warning is up, only an explicit reset (the "I'm still
+      // here" button, via resetIdleTimer) may dismiss it - passive activity
+      // must not silently reset the timer or hide the modal.
+      if (isWarningActiveRef.current) {
         return
       }
-      lastReset = now
-      resetTimer()
+      onActivityRef.current?.()
+      clearTimeout(debounceTimeoutId)
+      debounceTimeoutId = setTimeout(resetTimers, ACTIVITY_DEBOUNCE_MS)
     }
 
-    resetTimer()
+    resetTimersRef.current = resetTimers
+    resetTimers()
 
-    for (const eventName of events) {
+    for (const eventName of ACTIVITY_EVENTS) {
       window.addEventListener(eventName, handleActivity, { passive: true })
     }
+    // Emitted by lib/api.ts on every real API call, so an in-flight fetch
+    // counts as activity even without mouse/keyboard input.
+    window.addEventListener(USER_ACTIVITY_EVENT, handleActivity)
 
     return () => {
-      clearTimeout(timeoutId)
-      for (const eventName of events) {
+      clearTimeout(warningTimeoutId)
+      clearTimeout(logoutTimeoutId)
+      clearTimeout(debounceTimeoutId)
+      for (const eventName of ACTIVITY_EVENTS) {
         window.removeEventListener(eventName, handleActivity)
       }
+      window.removeEventListener(USER_ACTIVITY_EVENT, handleActivity)
     }
-  }, [timeout, events, throttleMs, enabled])
+  }, [warningTimeout, logoutTimeout, enabled])
+
+  const resetIdleTimer = useCallback(() => {
+    resetTimersRef.current()
+  }, [])
+
+  return { resetIdleTimer }
 }

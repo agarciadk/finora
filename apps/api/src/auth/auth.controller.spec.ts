@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import type { Response } from 'express';
 import { AuthController } from './auth.controller';
 import { AuthService, IssuedSession } from './auth.service';
+import { AuthConfigService } from './auth-config.service';
 import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from './cookie.util';
 import type { AuthenticatedRequest } from './auth.types';
 import { AuditLogService } from '../audit-log/audit-log.service';
@@ -16,6 +17,7 @@ function createMockResponse() {
 
 const session: IssuedSession = {
   accessToken: 'access-token',
+  accessTokenExpiresAt: new Date('2026-08-30T12:05:00.000Z'),
   refreshToken: 'refresh-token',
   rememberMe: false,
   user: { id: 'user-1', email: 'ada@example.com', name: 'Ada Lovelace' },
@@ -51,6 +53,16 @@ describe('AuthController', () => {
       providers: [
         { provide: AuthService, useValue: authService },
         { provide: AuditLogService, useValue: auditLogService },
+        {
+          provide: AuthConfigService,
+          useValue: {
+            accessTokenExpiresIn: '5m',
+            accessTokenTtlMs: 5 * 60 * 1000,
+            accessTokenTtlSeconds: 5 * 60,
+            refreshTokenExpiresIn: '7d',
+            refreshTokenTtlMs: 7 * 24 * 60 * 60 * 1000,
+          },
+        },
       ],
     }).compile();
 
@@ -123,7 +135,10 @@ describe('AuthController', () => {
 
       await expect(
         authController.login(dto, request, response),
-      ).resolves.toEqual(session.user);
+      ).resolves.toEqual({
+        ...session.user,
+        expiresAt: session.accessTokenExpiresAt.toISOString(),
+      });
       expect(authService.login).toHaveBeenCalledWith(
         dto,
         '203.0.113.5',
@@ -147,9 +162,10 @@ describe('AuthController', () => {
         cookies: { [REFRESH_TOKEN_COOKIE]: 'raw-refresh-token' },
       } as unknown as AuthenticatedRequest;
 
-      await expect(authController.refresh(request, response)).resolves.toEqual(
-        session.user,
-      );
+      await expect(authController.refresh(request, response)).resolves.toEqual({
+        ...session.user,
+        expiresAt: session.accessTokenExpiresAt.toISOString(),
+      });
       expect(authService.refresh).toHaveBeenCalledWith('raw-refresh-token');
     });
   });

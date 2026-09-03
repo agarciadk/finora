@@ -1,8 +1,18 @@
-import { emitSessionEnded } from "@/lib/session-events"
+import { emitSessionEnded, emitSessionRefreshed } from "@/lib/session-events"
+import type { AuthUser } from "@/lib/types"
 
 const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "/api"
 const HTTP_UNAUTHORIZED = 401
 const HTTP_NO_CONTENT = 204
+
+// Listened to by use-idle-timer.ts, which lives outside this module: any API
+// call counts as "activity", so a background fetch (or a user actively
+// working through a slow mutation) never gets silently idle-logged-out.
+export const USER_ACTIVITY_EVENT = "finora:user-activity"
+
+function emitUserActivity() {
+  window.dispatchEvent(new CustomEvent(USER_ACTIVITY_EVENT))
+}
 
 export class ApiError extends Error {
   status: number
@@ -20,13 +30,17 @@ function refreshSession(): Promise<boolean> {
     method: "POST",
     credentials: "include",
   })
-    .then((response) => {
+    .then(async (response) => {
       if (!response.ok) {
         // The AuthProvider decides whether this matters (it ignores it
         // unless a session was actually active), so it's safe to always emit.
         emitSessionEnded("expired")
+        return false
       }
-      return response.ok
+      // Keeps user.expiresAt fresh in AuthProvider after any silent refresh.
+      const user = (await response.json()) as AuthUser
+      emitSessionRefreshed(user)
+      return true
     })
     .catch(() => {
       emitSessionEnded("expired")
@@ -44,6 +58,8 @@ async function request<T>(
   options: RequestInit = {},
   isRetry = false
 ): Promise<T> {
+  emitUserActivity()
+
   const isFormData = options.body instanceof FormData
   const response = await fetch(`${API_URL}${path}`, {
     ...options,

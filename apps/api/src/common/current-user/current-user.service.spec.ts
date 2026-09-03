@@ -20,4 +20,16 @@ describe('CurrentUserService', () => {
       UnauthorizedException,
     );
   });
+
+  it("derives the access token's expiry from the JWT exp claim", async () => {
+    const exp = Math.floor(Date.now() / 1000) + 300;
+    const request = {
+      user: { id: 'user-1', email: 'ada@example.com', exp },
+    } as unknown as AuthenticatedRequest;
+    const service = new CurrentUserService(request);
+
+    await expect(service.getAccessTokenExpiresAt()).resolves.toEqual(
+      new Date(exp * 1000),
+    );
+  });
 });

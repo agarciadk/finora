@@ -50,7 +50,13 @@
   },
   "session": {
     "idleEnded": "Tu sesión se ha cerrado por inactividad.",
-    "expired": "Tu sesión ha expirado. Por favor, vuelve a iniciar sesión."
+    "expired": "Tu sesión ha expirado. Por favor, vuelve a iniciar sesión.",
+    "idleWarning": {
+      "title": "¿Sigues ahí?",
+      "description": "Por tu seguridad, tu sesión se cerrará por inactividad en <strong>{{seconds}} segundos</strong>.",
+      "stay": "Sigo aquí",
+      "logout": "Cerrar sesión"
+    }
   },
   "notFound": {
     "title": "404",

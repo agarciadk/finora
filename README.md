@@ -33,7 +33,8 @@ A modern full-stack personal finance platform to manage accounts, track transact
 - Pages: Resumen (dashboard), Cuentas, Categorías, Transacciones, Presupuestos, Analítica, Ajustes and a custom 404 page.
 - Real authentication: register and log in against the API, short-lived JWT access tokens (5 min) plus rotating refresh tokens (7 days) in `HttpOnly`/`Secure` cookies, "remember me" (persistent vs. session-only refresh cookie), automatic silent refresh on the frontend, and a logout confirmation dialog. Refresh token reuse is detected and revokes every active session for that user.
 - Multi-device session management: every login creates a `Session` record (IP address, user agent, last-active timestamp) tied to its refresh token. The Ajustes page lists every active session, flags the current one, and lets the user log out a single device or every other device at once (both with a confirmation dialog).
-- Sessions end automatically after 15 minutes of inactivity, and any session end (inactivity or a failed silent refresh) redirects to the login page with a toast explaining why.
+- Sessions end automatically after 15 minutes of inactivity: a warning modal appears 1 minute before the cutoff ("¿Sigues ahí?") with a live countdown, letting the user stay signed in ("Sigo aquí") or log out immediately. Real activity — DOM events (mouse, keyboard, scroll) or an in-flight API call — resets the idle clock while the app is otherwise unattended, but once the warning modal is up only the explicit "Sigo aquí" click dismisses it: passive activity (e.g. moving the mouse toward the button) is ignored, so the countdown can't be reset by accident. Any session end (inactivity or a failed silent refresh) redirects to the login page with a toast explaining why.
+- Dynamic session sync: the backend reports exactly when the current access token expires (`expiresAt`, from the JWT's own `exp` claim - never hardcoded on the frontend); the frontend never proactively refreshes, it just relies on the existing silent-refresh-on-401 mechanism, so a genuinely idle tab is naturally left to expire.
 - Loading spinners (`lucide-react`) on the login and logout buttons, and other in-flight actions, for clearer feedback while a request is pending.
 - Full CRUD backed by PostgreSQL/Prisma: accounts, categories, transactions and budgets (with progress vs. limit), each scoped to the authenticated user; categories can be global or created per-user.
 - Interest-bearing accounts (Cuentas Remuneradas): an account can optionally track its TAE (annual percentage yield), tax rate and interest payment day. Each account has a detail page (`/cuentas/:id`) showing its transactions (search, date range, pagination, bulk actions) plus, for interest-bearing accounts, a metrics card with the 30-day average balance, the projected next net interest payment and the next payment date.
@@ -78,8 +79,8 @@ pnpm dev:api     # backend (NestJS), http://localhost:3000
 ## Environment variables
 
 - Root `.env` (used by `compose.yml`): `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT`.
-- `apps/api/.env`: `DATABASE_URL`, `JWT_ACCESS_SECRET` and `REFRESH_TOKEN_HASH_SECRET` (generate each with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`), `COOKIE_SAME_SITE` (`lax` by default), `CORS_ORIGIN`.
-- `apps/web/.env`: `VITE_API_URL` (defaults to `/api`, proxied to the API in dev by `vite.config.ts` so auth cookies work same-origin).
+- `apps/api/.env`: `DATABASE_URL`, `JWT_ACCESS_SECRET` and `REFRESH_TOKEN_HASH_SECRET` (generate each with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`), `COOKIE_SAME_SITE` (`lax` by default), `CORS_ORIGIN`, `JWT_ACCESS_EXPIRATION`/`JWT_REFRESH_EXPIRATION` (duration strings like `"5m"`/`"7d"`, default if unset - read via `ConfigService`/`AuthConfigService`).
+- `apps/web/.env`: `VITE_API_URL` (defaults to `/api`, proxied to the API in dev by `vite.config.ts` so auth cookies work same-origin), `VITE_IDLE_WARNING_MINUTES`/`VITE_IDLE_LOGOUT_MINUTES` (default 14/15 - see `lib/idle-config.ts`).
 
 See each `.env.example` file for details.
 
@@ -145,7 +146,7 @@ pnpm --filter @finora/e2e install-browsers
 Both the e2e and accessibility Playwright suites drive real login/registration flows, so the API and a PostgreSQL database must be running (`pnpm db:up && pnpm db:migrate`) before `pnpm test:e2e` or `pnpm test:a11y`.
 
 - **Frontend unit tests** (`apps/web/test/`): Vitest + React Testing Library, covering hooks (`useAuth`, `useIdleTimer`), utilities, and key pages/components (login/register validation, route protection); network calls are mocked, so no backend is required. The idle-timeout logic is verified with Vitest's simulated timers (`vi.useFakeTimers()`) instead of real waits.
-- **Frontend end-to-end tests** (`apps/web/e2e/tests/*.spec.ts`): Playwright drives a real browser against the app (the API and the web dev server are started automatically, see `playwright.config.ts`), covering login, registration, navigation, logout, session expiration (forced refresh-token failure), "remember me" (cookie persistence), CSV/XLSX transaction import (using fixture files under `apps/web/e2e/tests/fixtures/`) and the 404 page.
+- **Frontend end-to-end tests** (`apps/web/e2e/tests/*.spec.ts`): Playwright drives a real browser against the app (the API and the web dev server are started automatically, see `playwright.config.ts`), covering login, registration, navigation, logout, session expiration (forced refresh-token failure), session sync with the backend (real `expiresAt`/`refresh` round-trips, see `session-sync.spec.ts`), "remember me" (cookie persistence), CSV/XLSX transaction import (using fixture files under `apps/web/e2e/tests/fixtures/`) and the 404 page.
 - **Frontend accessibility tests** (`apps/web/e2e/tests/*.a11y.spec.ts`): Playwright + `@axe-core/playwright` scan every page and key interactive states (dialogs, forms) for automatically detectable WCAG issues.
 - **Backend tests** (`apps/api/src/**/*.spec.ts` and `apps/api/test/`): Jest unit and e2e tests, run with `pnpm --filter @finora/api test` and `pnpm --filter @finora/api test:e2e`.
 
@@ -153,7 +154,7 @@ Both the e2e and accessibility Playwright suites drive real login/registration f
 
 Authentication is handled entirely by the API using short-lived JWT access tokens and rotating refresh tokens, both delivered as `HttpOnly`, `Secure` cookies (see `apps/api/src/auth/`):
 
-- `POST /auth/register` and `POST /auth/login` issue an access token (5 minutes, signed with `JWT_ACCESS_SECRET`) and a refresh token (7 days, a random 512-bit value hashed with `REFRESH_TOKEN_HASH_SECRET` before being stored).
+- `POST /auth/register` and `POST /auth/login` issue an access token (5 minutes, signed with `JWT_ACCESS_SECRET`) and a refresh token (7 days, a random 512-bit value hashed with `REFRESH_TOKEN_HASH_SECRET` before being stored). Both lifespans are configurable via `JWT_ACCESS_EXPIRATION`/`JWT_REFRESH_EXPIRATION` (`AuthConfigService`), not hardcoded.
 - `POST /auth/refresh` rotates the refresh token on every use; reusing an already-rotated (or expired) token is treated as a possible theft and revokes every active session for that user.
 - `POST /auth/logout` revokes the current refresh token and clears both cookies.
 - "Remember me" controls whether the refresh token cookie is persistent or session-only; everything else (accounts, transactions, budgets, ...) is scoped to the authenticated user via a request-scoped `CurrentUserService`.

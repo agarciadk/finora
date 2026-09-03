@@ -14,7 +14,7 @@ import {
 } from '../common/default-user-data';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
-import { ACCESS_TOKEN_TTL_SECONDS, REFRESH_TOKEN_TTL_MS } from './cookie.util';
+import { AuthConfigService } from './auth-config.service';
 import { generateRawToken, hashToken, isTestEnv } from './token.util';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -31,6 +31,11 @@ const FORGOT_PASSWORD_GENERIC_MESSAGE =
 
 export type IssuedSession = {
   accessToken: string;
+  // Derived from the freshly-signed JWT's own `exp` claim, never a
+  // separately hardcoded TTL, so it can never drift from the cookie's
+  // actual validity. The frontend uses this to schedule its own silent
+  // refresh instead of hardcoding the backend's token lifespan.
+  accessTokenExpiresAt: Date;
   refreshToken: string;
   rememberMe: boolean;
   user: { id: string; email: string; name: string | null };
@@ -54,6 +59,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly authConfig: AuthConfigService,
   ) {}
 
   async register(dto: RegisterDto): Promise<RegisterResult> {
@@ -135,7 +141,7 @@ export class AuthService {
       userAgent,
       rememberMe,
     );
-    const accessToken = await this.signAccessToken(
+    const { accessToken, accessTokenExpiresAt } = await this.signAccessToken(
       user.id,
       user.email,
       sessionId,
@@ -143,6 +149,7 @@ export class AuthService {
 
     return {
       accessToken,
+      accessTokenExpiresAt,
       refreshToken: rawRefreshToken,
       rememberMe,
       user: { id: user.id, email: user.email, name: user.name },
@@ -246,7 +253,7 @@ export class AuthService {
       user.id,
       existing.rememberMe,
     );
-    const accessToken = await this.signAccessToken(
+    const { accessToken, accessTokenExpiresAt } = await this.signAccessToken(
       user.id,
       user.email,
       existing.sessionId,
@@ -254,6 +261,7 @@ export class AuthService {
 
     return {
       accessToken,
+      accessTokenExpiresAt,
       refreshToken: rawRefreshToken,
       rememberMe: existing.rememberMe,
       user: { id: user.id, email: user.email, name: user.name },
@@ -282,11 +290,16 @@ export class AuthService {
     userId: string,
     email: string,
     sessionId: string,
-  ): Promise<string> {
-    return this.jwtService.signAsync(
+  ): Promise<{ accessToken: string; accessTokenExpiresAt: Date }> {
+    const accessToken = await this.jwtService.signAsync(
       { sub: userId, email, sessionId },
-      { expiresIn: ACCESS_TOKEN_TTL_SECONDS },
+      { expiresIn: this.authConfig.accessTokenTtlSeconds },
     );
+    // Decode (not verify - we just signed it) to read back the exact `exp`
+    // claim the token was issued with, instead of recomputing it separately.
+    const { exp } = this.jwtService.decode<{ exp: number }>(accessToken);
+
+    return { accessToken, accessTokenExpiresAt: new Date(exp * 1000) };
   }
 
   // Creates the stable Session row (one per logged-in device/browser) plus
@@ -299,7 +312,7 @@ export class AuthService {
   ): Promise<{ sessionId: string; rawRefreshToken: string }> {
     const rawRefreshToken = randomBytes(64).toString('hex');
     const tokenHash = hashToken(rawRefreshToken);
-    const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
+    const expiresAt = new Date(Date.now() + this.authConfig.refreshTokenTtlMs);
 
     const session = await this.prisma.session.create({
       data: {
@@ -328,7 +341,7 @@ export class AuthService {
   ): Promise<string> {
     const rawRefreshToken = randomBytes(64).toString('hex');
     const tokenHash = hashToken(rawRefreshToken);
-    const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
+    const expiresAt = new Date(Date.now() + this.authConfig.refreshTokenTtlMs);
 
     await this.prisma.refreshToken.create({
       data: { userId, sessionId, tokenHash, rememberMe, expiresAt },

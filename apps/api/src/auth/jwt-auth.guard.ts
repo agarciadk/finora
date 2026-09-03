@@ -10,7 +10,12 @@ import { ACCESS_TOKEN_COOKIE } from './cookie.util';
 import { IS_PUBLIC_KEY } from './public.decorator';
 import { AuthenticatedRequest } from './auth.types';
 
-type AccessTokenPayload = { sub: string; email: string; sessionId: string };
+type AccessTokenPayload = {
+  sub: string;
+  email: string;
+  sessionId: string;
+  exp: number;
+};
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -43,6 +48,7 @@ export class JwtAuthGuard implements CanActivate {
         id: payload.sub,
         email: payload.email,
         sessionId: payload.sessionId,
+        exp: payload.exp,
       };
       return true;
     } catch {

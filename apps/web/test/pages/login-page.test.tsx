@@ -85,6 +85,7 @@ describe("LoginPage", () => {
               id: "user-1",
               email: "ada@example.com",
               name: "Ada Lovelace",
+              expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
             }),
             { status: 200 }
           )

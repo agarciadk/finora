@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { AuthConfigService } from './auth-config.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { MailModule } from '../mail/mail.module';
 import { AuditLogModule } from '../audit-log/audit-log.module';
@@ -24,7 +25,11 @@ import { AuditLogModule } from '../audit-log/audit-log.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, { provide: APP_GUARD, useClass: JwtAuthGuard }],
+  providers: [
+    AuthService,
+    AuthConfigService,
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+  ],
   exports: [JwtModule],
 })
 export class AuthModule {}

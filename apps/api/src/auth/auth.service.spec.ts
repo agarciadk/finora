@@ -8,6 +8,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { AuthService } from './auth.service';
+import { AuthConfigService } from './auth-config.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
 
@@ -105,9 +106,26 @@ describe('AuthService', () => {
         { provide: PrismaService, useValue: prismaService },
         {
           provide: JwtService,
-          useValue: { signAsync: jest.fn().mockResolvedValue('signed.jwt') },
+          useValue: {
+            signAsync: jest.fn().mockResolvedValue('signed.jwt'),
+            // The service reads the access token's own `exp` claim back
+            // (instead of a separately hardcoded TTL) to report expiresAt.
+            decode: jest
+              .fn()
+              .mockReturnValue({ exp: Math.floor(Date.now() / 1000) + 300 }),
+          },
         },
         { provide: MailService, useValue: mailService },
+        {
+          provide: AuthConfigService,
+          useValue: {
+            accessTokenExpiresIn: '5m',
+            accessTokenTtlMs: 5 * 60 * 1000,
+            accessTokenTtlSeconds: 5 * 60,
+            refreshTokenExpiresIn: '7d',
+            refreshTokenTtlMs: 7 * 24 * 60 * 60 * 1000,
+          },
+        },
       ],
     }).compile();
 
@@ -215,6 +233,7 @@ describe('AuthService', () => {
 
       expect(session.rememberMe).toBe(true);
       expect(session.user.id).toBe('user-1');
+      expect(session.accessTokenExpiresAt).toBeInstanceOf(Date);
     });
 
     it('creates a Session row capturing the IP and user agent', async () => {
@@ -444,6 +463,7 @@ describe('AuthService', () => {
       });
       expect(session.rememberMe).toBe(true);
       expect(session.user.id).toBe('user-1');
+      expect(session.accessTokenExpiresAt).toBeInstanceOf(Date);
     });
 
     it('throws when no token is provided', async () => {

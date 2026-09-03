@@ -101,6 +101,11 @@ export type AuthUser = {
   id: string
   email: string
   name: string | null
+  /**
+   * ISO8601 timestamp of when the current access token (HttpOnly cookie)
+   * expires, straight from the backend - never hardcoded on the frontend.
+   */
+  expiresAt: string
 }
 
 export type ImportRowStatus = "valid" | "invalid" | "duplicate"

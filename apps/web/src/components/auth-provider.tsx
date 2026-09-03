@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from "react"
 import { AuthProviderContext } from "@/contexts/auth-context"
 import { api } from "@/lib/api"
-import { onSessionEnded, type SessionEndReason } from "@/lib/session-events"
+import {
+  onSessionEnded,
+  onSessionRefreshed,
+  type SessionEndReason,
+} from "@/lib/session-events"
 import type { AuthUser } from "@/lib/types"
 
 type AuthProviderProps = {
@@ -51,6 +55,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(null)
       setIsAuthenticated(false)
       setSessionEndReason(reason)
+    })
+  }, [])
+
+  useEffect(() => {
+    // Fired by lib/api.ts after any successful reactive 401-retry refresh,
+    // so this is the single place that keeps user.expiresAt current.
+    return onSessionRefreshed((refreshedUser) => {
+      setUser(refreshedUser)
+      setIsAuthenticated(true)
     })
   }, [])
 
