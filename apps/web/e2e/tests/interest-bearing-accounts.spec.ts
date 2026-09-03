@@ -8,7 +8,7 @@ test.describe("Interest-bearing accounts", () => {
   }) => {
     await login(page)
 
-    await page.getByRole("link", { name: "Cuentas" }).click()
+    await page.getByRole("link", { name: "Patrimonio" }).click()
     await page.getByRole("button", { name: "Añadir cuenta" }).click()
 
     await page.getByLabel("Nombre").fill("Cuenta Naranja")
@@ -24,7 +24,7 @@ test.describe("Interest-bearing accounts", () => {
 
     await page.getByText("Cuenta Naranja").click()
 
-    await expect(page).toHaveURL(/\/cuentas\/[^/]+$/)
+    await expect(page).toHaveURL(/\/patrimonio\/cuentas\/[^/]+$/)
     await expect(
       page.getByRole("heading", { name: "Cuenta Naranja" })
     ).toBeVisible()
@@ -40,7 +40,7 @@ test.describe("Interest-bearing accounts", () => {
   }) => {
     await login(page)
 
-    await page.getByRole("link", { name: "Cuentas" }).click()
+    await page.getByRole("link", { name: "Patrimonio" }).click()
     await page.getByRole("button", { name: "Añadir cuenta" }).click()
 
     await page.getByLabel("Nombre").fill("Cuenta Corriente")
@@ -50,7 +50,7 @@ test.describe("Interest-bearing accounts", () => {
 
     await page.getByText("Cuenta Corriente").click()
 
-    await expect(page).toHaveURL(/\/cuentas\/[^/]+$/)
+    await expect(page).toHaveURL(/\/patrimonio\/cuentas\/[^/]+$/)
     await expect(
       page.getByRole("heading", { name: "Cuenta Corriente" })
     ).toBeVisible()

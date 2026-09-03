@@ -23,7 +23,8 @@ test.describe("Import transactions", () => {
     })
     expect(account.ok()).toBeTruthy()
 
-    await page.goto("/transacciones")
+    await page.goto("/patrimonio")
+    await page.getByRole("tab", { name: "Movimientos" }).click()
     await page.getByRole("button", { name: "Importar movimientos" }).click()
 
     await page.getByLabel("Cuenta").click()

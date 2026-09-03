@@ -54,7 +54,8 @@ test.describe("Soft delete and activity log", () => {
     const description = `Movimiento a borrar ${Date.now()}`
     await createTransaction(page, account.id, category.id, description)
 
-    await page.goto("/transacciones")
+    await page.goto("/patrimonio")
+    await page.getByRole("tab", { name: "Movimientos" }).click()
     const row = page.getByRole("row", { name: new RegExp(description) })
     await expect(row).toBeVisible()
 
@@ -69,6 +70,7 @@ test.describe("Soft delete and activity log", () => {
 
     await page.getByRole("link", { name: "Ajustes" }).click()
     await expect(page.getByRole("heading", { name: "Ajustes" })).toBeVisible()
+    await page.getByRole("tab", { name: "Preferencias" }).click()
 
     const activityRow = page.getByRole("row", { name: /Eliminación/ }).first()
     await expect(activityRow).toBeVisible()

@@ -175,7 +175,7 @@ export function AccountDetailPage() {
         <p className="text-sm text-destructive">
           {t("accounts.detail.notFound")}
         </p>
-        <Button variant="outline" onClick={() => navigate("/cuentas")}>
+        <Button variant="outline" onClick={() => navigate("/patrimonio")}>
           <ArrowLeft />
           {t("accounts.detail.backButton")}
         </Button>
@@ -189,7 +189,7 @@ export function AccountDetailPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <Button variant="ghost" size="sm" render={<Link to="/cuentas" />}>
+        <Button variant="ghost" size="sm" render={<Link to="/patrimonio" />}>
           <ArrowLeft />
           {t("accounts.detail.backButton")}
         </Button>

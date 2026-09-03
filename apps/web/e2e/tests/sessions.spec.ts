@@ -8,6 +8,7 @@ test.describe("Active sessions", () => {
 
     await page.getByRole("link", { name: "Ajustes" }).click()
     await expect(page.getByRole("heading", { name: "Ajustes" })).toBeVisible()
+    await page.getByRole("tab", { name: "Preferencias" }).click()
 
     await expect(page.getByText("Sesiones activas")).toBeVisible()
     await expect(page.getByText("Sesión actual")).toBeVisible()

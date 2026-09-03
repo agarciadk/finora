@@ -1,10 +1,7 @@
 import {
   LayoutDashboard,
   Wallet,
-  Tags,
-  ArrowLeftRight,
   PiggyBank,
-  Repeat,
   BarChart3,
   Settings,
 } from "lucide-react"
@@ -30,33 +27,15 @@ const navItems = [
     end: true,
   },
   {
-    key: "accounts",
-    url: "/cuentas",
+    key: "wealth",
+    url: "/patrimonio",
     icon: Wallet,
     end: false,
   },
   {
-    key: "categories",
-    url: "/categorias",
-    icon: Tags,
-    end: false,
-  },
-  {
-    key: "transactions",
-    url: "/transacciones",
-    icon: ArrowLeftRight,
-    end: false,
-  },
-  {
-    key: "budgets",
-    url: "/presupuestos",
+    key: "planning",
+    url: "/planificacion",
     icon: PiggyBank,
-    end: false,
-  },
-  {
-    key: "recurringPayments",
-    url: "/recurrentes",
-    icon: Repeat,
     end: false,
   },
   {

@@ -3,14 +3,8 @@ import { expect, test } from "@playwright/test"
 import { login } from "./support/auth"
 
 const routes = [
-  { link: "Cuentas", path: "/cuentas", heading: "Cuentas" },
-  { link: "Transacciones", path: "/transacciones", heading: "Transacciones" },
-  { link: "Presupuestos", path: "/presupuestos", heading: "Presupuestos" },
-  {
-    link: "Recurrentes",
-    path: "/recurrentes",
-    heading: "Pagos recurrentes",
-  },
+  { link: "Patrimonio", path: "/patrimonio", heading: "Patrimonio" },
+  { link: "Planificación", path: "/planificacion", heading: "Planificación" },
   { link: "Analítica", path: "/analitica", heading: "Analítica" },
   { link: "Ajustes", path: "/ajustes", heading: "Ajustes" },
 ]
@@ -30,7 +24,7 @@ test.describe("Sidebar navigation", () => {
   }
 
   test("navigates back to the dashboard", async ({ page }) => {
-    await page.getByRole("link", { name: "Cuentas" }).click()
+    await page.getByRole("link", { name: "Patrimonio" }).click()
     await page.getByRole("link", { name: "Resumen" }).click()
 
     await expect(page).toHaveURL(/\/$/)

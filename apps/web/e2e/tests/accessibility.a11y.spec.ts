@@ -20,11 +20,8 @@ async function expectNoViolations(builder: AxeBuilder) {
 
 const authenticatedRoutes = [
   { name: "dashboard", path: "/" },
-  { name: "cuentas", path: "/cuentas" },
-  { name: "categorias", path: "/categorias" },
-  { name: "transacciones", path: "/transacciones" },
-  { name: "presupuestos", path: "/presupuestos" },
-  { name: "recurrentes", path: "/recurrentes" },
+  { name: "patrimonio", path: "/patrimonio" },
+  { name: "planificacion", path: "/planificacion" },
   { name: "analitica", path: "/analitica" },
   { name: "ajustes", path: "/ajustes" },
 ]
@@ -109,7 +106,8 @@ test.describe("Accessibility", () => {
         balance: 0,
       },
     })
-    await page.goto("/transacciones")
+    await page.goto("/patrimonio")
+    await page.getByRole("tab", { name: "Movimientos" }).click()
     await page.getByRole("button", { name: "Importar movimientos" }).click()
 
     await expect(page.getByRole("dialog")).toBeVisible()
