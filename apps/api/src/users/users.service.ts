@@ -17,7 +17,14 @@ export class UsersService {
 
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
-      select: { id: true, email: true, name: true, createdAt: true },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        createdAt: true,
+        mainIncomeSource: true,
+        payday: true,
+      },
     });
 
     // Lets the frontend schedule its own silent refresh without hardcoding
@@ -32,7 +39,14 @@ export class UsersService {
       return await this.prisma.user.update({
         where: { id: userId },
         data: dto,
-        select: { id: true, email: true, name: true, createdAt: true },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          createdAt: true,
+          mainIncomeSource: true,
+          payday: true,
+        },
       });
     } catch (error) {
       if (

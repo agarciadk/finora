@@ -50,4 +50,13 @@ export class AnalyticsController {
   getEvolution(@Query() query: AnalyticsEvolutionQueryDto) {
     return this.analyticsService.getEvolution(query.months);
   }
+
+  @Get('vital-margin')
+  @ApiOperation({
+    summary:
+      '"Margen Vital": active recurring income minus active recurring expenses, normalized to a monthly figure',
+  })
+  getVitalMargin() {
+    return this.analyticsService.getVitalMargin();
+  }
 }

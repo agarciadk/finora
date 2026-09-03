@@ -90,6 +90,7 @@ export class TransactionsService {
         amount: dto.amount,
         type: dto.type,
         date: new Date(dto.date),
+        isTransfer: dto.isTransfer ?? false,
         accountId: dto.accountId,
         categoryId: dto.categoryId,
         userId,
@@ -114,6 +115,7 @@ export class TransactionsService {
       ...(dto.amount !== undefined && { amount: dto.amount }),
       ...(dto.type !== undefined && { type: dto.type }),
       ...(dto.date !== undefined && { date: new Date(dto.date) }),
+      ...(dto.isTransfer !== undefined && { isTransfer: dto.isTransfer }),
       ...(dto.accountId !== undefined && {
         account: { connect: { id: dto.accountId } },
       }),

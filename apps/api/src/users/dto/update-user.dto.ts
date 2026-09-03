@@ -1,4 +1,12 @@
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+  MinLength,
+} from 'class-validator';
 import { SanitizeHtml } from '../../common/sanitize-html.decorator';
 
 export class UpdateUserDto {
@@ -11,4 +19,16 @@ export class UpdateUserDto {
   @IsOptional()
   @IsEmail()
   email?: string;
+
+  @SanitizeHtml()
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  mainIncomeSource?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(31)
+  payday?: number;
 }
