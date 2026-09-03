@@ -1,8 +1,18 @@
-import { emitSessionEnded } from "@/lib/session-events"
+import { emitSessionEnded, emitSessionRefreshed } from "@/lib/session-events"
+import type { AuthUser } from "@/lib/types"
 
 const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "/api"
 const HTTP_UNAUTHORIZED = 401
 const HTTP_NO_CONTENT = 204
+
+// Listened to by use-idle-timer.ts, which lives outside this module: any API
+// call counts as "activity", so a background fetch (or a user actively
+// working through a slow mutation) never gets silently idle-logged-out.
+export const USER_ACTIVITY_EVENT = "finora:user-activity"
+
+function emitUserActivity() {
+  window.dispatchEvent(new CustomEvent(USER_ACTIVITY_EVENT))
+}
 
 export class ApiError extends Error {
   status: number
@@ -20,13 +30,18 @@ function refreshSession(): Promise<boolean> {
     method: "POST",
     credentials: "include",
   })
-    .then((response) => {
+    .then(async (response) => {
       if (!response.ok) {
         // The AuthProvider decides whether this matters (it ignores it
         // unless a session was actually active), so it's safe to always emit.
         emitSessionEnded("expired")
+        return false
       }
-      return response.ok
+      // Keeps user.expiresAt fresh so the heartbeat can reschedule its next
+      // silent refresh from the NEW expiry instead of a stale one.
+      const user = (await response.json()) as AuthUser
+      emitSessionRefreshed(user)
+      return true
     })
     .catch(() => {
       emitSessionEnded("expired")
@@ -39,11 +54,23 @@ function refreshSession(): Promise<boolean> {
   return refreshPromise
 }
 
+// Used by use-session-heartbeat.ts to proactively refresh shortly before
+// the access token expires. Reuses the same `refreshPromise` single-flight
+// guard as the reactive 401 retry below, so a heartbeat refresh racing an
+// organic one never sends two concurrent /auth/refresh requests (which,
+// since refresh tokens rotate on every use, would make the loser look like
+// a stolen/reused token and revoke every session for the user).
+export function triggerSilentRefresh(): Promise<boolean> {
+  return refreshSession()
+}
+
 async function request<T>(
   path: string,
   options: RequestInit = {},
   isRetry = false
 ): Promise<T> {
+  emitUserActivity()
+
   const isFormData = options.body instanceof FormData
   const response = await fetch(`${API_URL}${path}`, {
     ...options,

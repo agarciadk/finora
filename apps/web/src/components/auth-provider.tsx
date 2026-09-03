@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from "react"
 import { AuthProviderContext } from "@/contexts/auth-context"
 import { api } from "@/lib/api"
-import { onSessionEnded, type SessionEndReason } from "@/lib/session-events"
+import {
+  onSessionEnded,
+  onSessionRefreshed,
+  type SessionEndReason,
+} from "@/lib/session-events"
 import type { AuthUser } from "@/lib/types"
 
 type AuthProviderProps = {
@@ -51,6 +55,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(null)
       setIsAuthenticated(false)
       setSessionEndReason(reason)
+    })
+  }, [])
+
+  useEffect(() => {
+    // Fired by lib/api.ts after ANY successful /auth/refresh (the reactive
+    // 401 retry or the proactive heartbeat), so this is the single place
+    // that keeps user.expiresAt current for the heartbeat to reschedule from.
+    return onSessionRefreshed((refreshedUser) => {
+      setUser(refreshedUser)
+      setIsAuthenticated(true)
     })
   }, [])
 

@@ -37,7 +37,12 @@ describe("useAuth", () => {
   })
 
   it("logs in and stores the returned user", async () => {
-    const user = { id: "user-1", email: "ada@example.com", name: "Ada Lovelace" }
+    const user = {
+      id: "user-1",
+      email: "ada@example.com",
+      name: "Ada Lovelace",
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+    }
     vi.mocked(fetch).mockImplementation((input) => {
       const url = String(input)
       if (url.includes("/auth/login")) {
@@ -78,7 +83,12 @@ describe("useAuth", () => {
   })
 
   it("logout revokes the session and clears the user", async () => {
-    const user = { id: "user-1", email: "ada@example.com", name: "Ada Lovelace" }
+    const user = {
+      id: "user-1",
+      email: "ada@example.com",
+      name: "Ada Lovelace",
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+    }
     vi.mocked(fetch).mockImplementation((input) => {
       const url = String(input)
       if (url.includes("/auth/login")) {
