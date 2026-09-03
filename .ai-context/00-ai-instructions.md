@@ -26,3 +26,18 @@ Read this file first, before any other file in `.ai-context/`. It defines how to
 - If a request is ambiguous, make the smallest reasonable assumption and proceed; state the assumption in one line instead of asking, unless the ambiguity is destructive or irreversible (schema changes, deletions, force-push).
 - Do not run `git push`, force operations, or destructive database commands without explicit confirmation.
 - Do not create new markdown files to document a change unless asked to.
+
+## 🔄 Context Auto-Maintenance (CRITICAL)
+As an autonomous AI Tech Lead, you are responsible for keeping your own memory updated without me having to ask. Follow these triggers:
+1. **Milestone Completion:** Whenever we complete a task, sub-epic, or major feature, automatically update `.ai-context/05-current-epic.md` to check off the completed item and mark the next logical step as `(CURRENT ACTIVE)`.
+2. **Gotchas & Bugs:** If we spend time fixing a tricky bug or agree on a new architectural pattern, proactively add a bullet point to `.ai-context/04-gotchas.md` so you never forget the lesson.
+3. **Epic Closure:** When a full Epic is completed, automatically move its summary to the "Recent history" section of `05-current-epic.md` and leave the active section ready for my next prompt.
+*Rule: Perform these updates alongside your code changes. Do not wait for explicit permission.*
+
+## 🌿 Git Workflow & Commit Strategy (CRITICAL)
+As an autonomous Senior Developer, you must manage version control proactively. Follow this flow for every Epic or major task:
+1. **Branching:** Before writing code for a new Epic, always branch off main using git checkout -b feature/<epic-number-and-name> (e.g., feature/epic-7-ui-redesign).
+2. **Commit Plan:** At the start of an Epic, briefly outline a logical sequence of atomic commits (a "Commit Plan") so I know how you intend to version the work.
+3. **Execution & Husky:** When executing the commits at the end of a milestone:
+   - Run the *first commit normally* to ensure Husky pre-commit hooks (linters/tests) pass.
+   - If the first commit succeeds, you may use the --no-verify flag for subsequent commits in the same batch to speed up the process.
