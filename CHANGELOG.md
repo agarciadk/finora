@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2026-09-03
+
+### Performance
+
+- **Bundle size optimization ahead of the UI/UX Redesign Epic**: `apps/web/vite.config.ts` adds a Rollup `manualChunks` function that splits `node_modules` into a `react-vendor` chunk (`react`/`react-dom`/`react-router-dom`), a `ui-vendor` chunk (`lucide-react`, `@base-ui/react`, `sonner`), and a `charts-vendor` chunk (`recharts`, kept separate since it's only pulled in by the lazy-loaded Analítica page) — instead of everything landing in one large app bundle that triggered Vite's "chunks larger than 500 kB" warning.
+- All authenticated routes in `App.tsx` (Dashboard, Cuentas, Transacciones, Presupuestos, Recurrentes, Analítica, Ajustes, etc.) are now loaded via `React.lazy()` and wrapped per-route in a `<Suspense fallback={<LoadingSpinner />}>` boundary, so each page's own JS (and heavy deps like `recharts` on the Analítica page) is fetched on demand instead of upfront. New minimal `components/ui/loading-spinner.tsx` fallback component.
+
 ## [0.12.0] - 2026-09-03
 
 ### Added

@@ -13,7 +13,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
   server: {
@@ -24,6 +24,37 @@ export default defineConfig({
         target: "http://localhost:3000",
         changeOrigin: true,
         rewrite: (requestPath) => requestPath.replace(/^\/api/, ""),
+      },
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        // Splits third-party deps out of the app chunk so route-level
+        // code-splitting (React.lazy) isn't defeated by everything being
+        // re-bundled into one large vendor blob.
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return undefined
+
+          if (/node_modules\/(react|react-dom|react-router-dom)\//.test(id)) {
+            return "react-vendor"
+          }
+
+          // Kept separate from ui-vendor: recharts is only pulled in by the
+          // (lazy-loaded) Analítica page, whereas lucide-react/@base-ui/react
+          // are used across the whole app, including outside lazy routes.
+          if (/node_modules\/recharts\//.test(id)) {
+            return "charts-vendor"
+          }
+
+          if (
+            /node_modules\/(lucide-react|@base-ui\/react|sonner)\//.test(id)
+          ) {
+            return "ui-vendor"
+          }
+
+          return undefined
+        },
       },
     },
   },

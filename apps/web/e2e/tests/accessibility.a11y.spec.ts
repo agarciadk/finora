@@ -44,6 +44,10 @@ test.describe("Accessibility", () => {
     }) => {
       await login(page)
       await page.goto(path)
+      // Authenticated routes are React.lazy-loaded: wait past the
+      // <Suspense> fallback (no heading) for the real page to mount before
+      // scanning, or axe flags the transient loading state instead.
+      await expect(page.locator("h1")).toBeVisible()
 
       await expectNoViolations(new AxeBuilder({ page }))
     })
