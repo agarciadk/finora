@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2026-09-03
+
+### Added
+
+- **Advanced idle UX & countdown modal (Epic 6)**: the idle-logout flow is now two-phase. `useIdleTimer` takes a `warningTimeout` and a `logoutTimeout` and exposes a `resetIdleTimer()` function instead of a single fire-and-forget callback. `useIdleLogout` (14 min warning / 15 min logout by default) surfaces `isIdleWarning` and a live `remainingSeconds` countdown, computed each tick from a fixed deadline (`Date.now()` diff) rather than decremented by 1, so it can't drift even under a delayed interval.
+- New `IdleWarningModal` (shadcn `AlertDialog`), mounted once in `DashboardLayout` so it covers every private route: shows "¿Sigues ahí?" with a live "closes in N seconds" countdown, "Sigo aquí" (resets the idle clock) and "Cerrar sesión" (ends the session immediately). If the countdown reaches 0 the session is closed automatically. New `session.idleWarning.*` translations (es/en).
+- **Dynamic frontend-backend session sync**: `POST /auth/login` and `POST /auth/refresh` now return `expiresAt` (ISO8601), derived from the freshly-signed access token's own `exp` claim (`AuthService#signAccessToken`), never a separately hardcoded TTL. `GET /users/me` returns the same `expiresAt`, computed from the current request's JWT via a new `CurrentUserService#getAccessTokenExpiresAt()`, so a page reload (no fresh login) can still learn it. New `AuthSessionResponseDto`/`CurrentUserResponseDto` document the shape in Swagger (`@ApiOkResponse`/`@ApiProperty`), and every `AuthController` handler now has an `@ApiOperation`.
+- New `use-session-heartbeat.ts`: proactively calls `/auth/refresh` ~60s before the backend-reported `expiresAt` elapses, but only while the user has been active in the last 5 minutes (DOM events or an API call), leaving a genuinely idle tab to expire naturally instead of being kept alive forever. Reuses `lib/api.ts`'s existing single-flight refresh guard, so a heartbeat-triggered refresh can never race the reactive 401-retry one (refresh tokens rotate on every use, so two concurrent refresh calls would otherwise look like a stolen/reused token and revoke every session for the user). Mounted in `DashboardLayout` alongside `useIdleLogout`.
+- `lib/session-events.ts` gained a second event, `onSessionRefreshed`, so `AuthProvider` can keep `user.expiresAt` current after ANY successful silent refresh (reactive or heartbeat-driven) without `lib/api.ts` touching React state directly.
+- New e2e suite `apps/web/e2e/tests/session-sync.spec.ts`: verifies `expiresAt` reflects the real ~5 minute access token lifespan, that `/auth/refresh` rotates the access token, the (rotating) refresh token, and its "remember me" expiry strictly forward; and that the frontend proactively rotates the refresh token cookie on its own (via the heartbeat) well before the token would otherwise expire, without ending the session.
+
+### Fixed
+
+- **Active users could get logged out as "idle"**: `useIdleTimer`'s default event list now includes `click` and `scroll` (previously only `mousemove`/`mousedown`/`keydown`/`touchstart`/`wheel`), and `lib/api.ts` now dispatches a `finora:user-activity` window event on every API request, which `useIdleTimer` listens to alongside DOM events. This means any real interaction — including background fetches while the user is otherwise reading the screen — resets both the warning and logout timers, and silently dismisses an already-open warning modal instead of requiring an explicit click.
+- **Critical: the refresh token cookie was never actually sent to `/auth/refresh`.** `refreshTokenCookieOptions()` scoped the cookie to `Path=/auth`, but the browser only ever calls this backend through the frontend's same-origin `/api` proxy/rewrite (Vite dev proxy locally, Vercel rewrite in prod), so every request is actually `/api/auth/refresh` from the browser's point of view - which doesn't match a `Path=/auth` cookie. Every real refresh (proactive or reactive) was silently 401ing, forcing a full logout instead of sliding the session. Found by the new `session-sync.spec.ts` e2e test, which is the first one to exercise a real (non-mocked) `/auth/refresh` round-trip. Fixed by scoping the cookie to `Path=/api/auth` instead.
+
+
 ## [0.11.0] - 2026-08-30
 
 ### Added
