@@ -438,6 +438,8 @@
         "description": "This information helps the Smart Assistant anticipate your finances, like your Vital Margin.",
         "mainIncomeSourceLabel": "Main income source",
         "mainIncomeSourcePlaceholder": "E.g. Payroll from company X",
+        "mainIncomeAmountLabel": "Payroll amount / Main income",
+        "mainIncomeAmountPlaceholder": "E.g. 1500",
         "paydayLabel": "Payday (1-31)",
         "paydayPlaceholder": "E.g. 25"
       },

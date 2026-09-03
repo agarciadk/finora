@@ -32,6 +32,7 @@ export function useCurrentUser() {
       email?: string
       mainIncomeSource?: string
       payday?: number
+      mainIncomeAmount?: number
     }) => {
       const updated = await api.patch<User>("/users/me", input)
       setUser(updated)

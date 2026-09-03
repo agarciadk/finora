@@ -98,6 +98,7 @@ export type User = {
   name: string | null
   mainIncomeSource: string | null
   payday: number | null
+  mainIncomeAmount: string | null
   createdAt: string
 }
 

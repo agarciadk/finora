@@ -16,7 +16,11 @@ import type { User } from "@/lib/types"
 
 type SmartAssistantFormProps = {
   user: User
-  onSave: (input: { mainIncomeSource?: string; payday?: number }) => Promise<unknown>
+  onSave: (input: {
+    mainIncomeSource?: string
+    payday?: number
+    mainIncomeAmount?: number
+  }) => Promise<unknown>
 }
 
 function SmartAssistantForm({ user, onSave }: SmartAssistantFormProps) {
@@ -27,6 +31,9 @@ function SmartAssistantForm({ user, onSave }: SmartAssistantFormProps) {
   const [payday, setPayday] = useState(
     user.payday === null ? "" : String(user.payday)
   )
+  const [mainIncomeAmount, setMainIncomeAmount] = useState(
+    user.mainIncomeAmount === null ? "" : user.mainIncomeAmount
+  )
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -36,8 +43,13 @@ function SmartAssistantForm({ user, onSave }: SmartAssistantFormProps) {
 
     const trimmedSource = mainIncomeSource.trim()
     const parsedPayday = payday === "" ? undefined : Number(payday)
+    const parsedIncomeAmount =
+      mainIncomeAmount === "" ? undefined : Number(mainIncomeAmount)
 
-    if (parsedPayday !== undefined && Number.isNaN(parsedPayday)) {
+    if (
+      (parsedPayday !== undefined && Number.isNaN(parsedPayday)) ||
+      (parsedIncomeAmount !== undefined && Number.isNaN(parsedIncomeAmount))
+    ) {
       setError(t("common.errors.generic"))
       return
     }
@@ -48,6 +60,7 @@ function SmartAssistantForm({ user, onSave }: SmartAssistantFormProps) {
       await onSave({
         mainIncomeSource: trimmedSource,
         payday: parsedPayday,
+        mainIncomeAmount: parsedIncomeAmount,
       })
     } catch {
       setError(t("settings.profile.errors.saveFailed"))
@@ -69,6 +82,22 @@ function SmartAssistantForm({ user, onSave }: SmartAssistantFormProps) {
           )}
           value={mainIncomeSource}
           onChange={(event) => setMainIncomeSource(event.target.value)}
+        />
+      </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="main-income-amount">
+          {t("settings.profile.smartAssistant.mainIncomeAmountLabel")}
+        </Label>
+        <Input
+          id="main-income-amount"
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder={t(
+            "settings.profile.smartAssistant.mainIncomeAmountPlaceholder"
+          )}
+          value={mainIncomeAmount}
+          onChange={(event) => setMainIncomeAmount(event.target.value)}
         />
       </div>
       <div className="flex flex-col gap-2">

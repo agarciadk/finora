@@ -28,6 +28,13 @@ export class CurrentUserResponseDto {
 
   @ApiProperty({
     description:
+      'Actual monthly amount of the main income (e.g. salary), used to compute the "Margen Vital" KPI. Serialized as a string like other Decimal fields (e.g. Account.balance).',
+    nullable: true,
+  })
+  mainIncomeAmount!: string | null;
+
+  @ApiProperty({
+    description:
       "ISO8601 timestamp of when the current access token (and its HttpOnly cookie) expires. The frontend uses this to schedule a silent refresh shortly before it, instead of hardcoding the backend's token lifespan.",
     example: '2026-08-30T12:05:00.000Z',
   })

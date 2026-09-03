@@ -64,6 +64,10 @@ model User {
   // expenses). Range (1-31) is validated at the DTO level, not in Prisma.
   mainIncomeSource String?
   payday           Int?
+  // Actual monthly amount of the user's main income (e.g. salary), used to
+  // compute the "Margen Vital" KPI instead of guessing it from recurring
+  // INCOME payments.
+  mainIncomeAmount Decimal? @db.Decimal(12, 2)
 
   accounts                 Account[]
   categories               Category[]

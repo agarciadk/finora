@@ -438,6 +438,8 @@
         "description": "Estos datos ayudan al Asistente Inteligente a anticipar tus finanzas, como tu Margen Vital.",
         "mainIncomeSourceLabel": "Fuente principal de ingresos",
         "mainIncomeSourcePlaceholder": "Ej. Nómina de la empresa X",
+        "mainIncomeAmountLabel": "Importe de la nómina / Ingreso principal",
+        "mainIncomeAmountPlaceholder": "Ej. 1500",
         "paydayLabel": "Día de cobro (1-31)",
         "paydayPlaceholder": "Ej. 25"
       },

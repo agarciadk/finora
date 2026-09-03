@@ -24,6 +24,7 @@ export class UsersService {
         createdAt: true,
         mainIncomeSource: true,
         payday: true,
+        mainIncomeAmount: true,
       },
     });
 
@@ -46,6 +47,7 @@ export class UsersService {
           createdAt: true,
           mainIncomeSource: true,
           payday: true,
+          mainIncomeAmount: true,
         },
       });
     } catch (error) {

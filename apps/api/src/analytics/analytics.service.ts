@@ -159,32 +159,34 @@ export class AnalyticsService {
     );
   }
 
-  // "Margen Vital": expected income (active recurring INCOME payments,
-  // e.g. salary) minus recurring EXPENSE payments (e.g. rent, subscriptions),
-  // both normalized to a monthly figure. Deliberately simple/heuristic for
-  // now — it does NOT look at one-off transactions, only committed recurring
-  // ones, so the number stays stable regardless of discretionary spending.
+  // "Margen Vital": the user's actual configured main income (Settings >
+  // Profile > mainIncomeAmount, e.g. salary) minus recurring EXPENSE
+  // payments (e.g. rent, subscriptions), normalized to a monthly figure.
+  // Falls back to 0 if the user hasn't configured mainIncomeAmount yet.
+  // Deliberately simple/heuristic — it does NOT look at one-off
+  // transactions, only committed recurring expenses, so the number stays
+  // stable regardless of discretionary spending.
   async getVitalMargin(): Promise<VitalMargin> {
     const userId = await this.currentUser.getUserId();
 
-    const recurringPayments = await this.prisma.recurringPayment.findMany({
-      where: { userId, isActive: true },
-      select: { amount: true, type: true, frequency: true },
-    });
+    const [user, recurringExpensePayments] = await Promise.all([
+      this.prisma.user.findUniqueOrThrow({
+        where: { id: userId },
+        select: { mainIncomeAmount: true },
+      }),
+      this.prisma.recurringPayment.findMany({
+        where: { userId, isActive: true, type: 'EXPENSE' },
+        select: { amount: true, frequency: true },
+      }),
+    ]);
 
-    let expectedIncome = 0;
-    let recurringExpenses = 0;
+    const expectedIncome = Number(user.mainIncomeAmount ?? 0);
 
-    for (const payment of recurringPayments) {
-      const monthlyAmount =
-        Number(payment.amount) * MONTHLY_MULTIPLIER[payment.frequency];
-
-      if (payment.type === 'INCOME') {
-        expectedIncome += monthlyAmount;
-      } else {
-        recurringExpenses += monthlyAmount;
-      }
-    }
+    const recurringExpenses = recurringExpensePayments.reduce(
+      (total, payment) =>
+        total + Number(payment.amount) * MONTHLY_MULTIPLIER[payment.frequency],
+      0,
+    );
 
     return {
       expectedIncome: Math.round(expectedIncome),

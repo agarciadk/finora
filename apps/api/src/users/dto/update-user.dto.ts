@@ -1,6 +1,7 @@
 import {
   IsEmail,
   IsInt,
+  IsNumber,
   IsOptional,
   IsString,
   Max,
@@ -31,4 +32,9 @@ export class UpdateUserDto {
   @Min(1)
   @Max(31)
   payday?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  mainIncomeAmount?: number;
 }
