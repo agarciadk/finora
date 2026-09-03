@@ -17,16 +17,19 @@
     },
     "errors": {
       "generic": "Ha ocurrido un error. Inténtalo de nuevo."
-    }
+    },
+    "comingSoon": "Esta sección está en construcción."
   },
   "sidebar": {
     "ariaLabel": "Navegación principal",
     "brand": "Finora",
     "nav": {
       "dashboard": "Resumen",
+      "wealth": "Patrimonio",
       "accounts": "Cuentas",
       "categories": "Categorías",
       "transactions": "Transacciones",
+      "planning": "Planificación",
       "budgets": "Presupuestos",
       "recurringPayments": "Recurrentes",
       "analytics": "Analítica",
@@ -86,8 +89,20 @@
         "description": "{{rate}}% de tus ingresos"
       }
     },
+    "vitalMargin": {
+      "title": "Margen Vital",
+      "description": "Ingresos recurrentes esperados ({{income}}) menos gastos fijos recurrentes ({{expenses}})."
+    },
     "errors": {
       "loadFailed": "No se han podido cargar los datos del resumen."
+    }
+  },
+  "wealth": {
+    "title": "Patrimonio",
+    "description": "Consulta tus cuentas y movimientos en un único lugar.",
+    "tabs": {
+      "accounts": "Cuentas",
+      "transactions": "Movimientos"
     }
   },
   "accounts": {
@@ -114,7 +129,9 @@
       "interestBearingDescription": "Actívalo si esta cuenta genera intereses (ej. una cuenta de ahorro remunerada).",
       "interestRateLabel": "TAE (%)",
       "taxRateLabel": "Retención (%)",
-      "interestPaymentDayLabel": "Día de pago (1-31)"
+      "interestPaymentDayLabel": "Día de pago (1-31)",
+      "ibanLabel": "IBAN",
+      "ibanPlaceholder": "ES91 2100 0418 4502 0005 1332"
     },
     "detail": {
       "backButton": "Volver a cuentas",
@@ -177,6 +194,7 @@
     },
     "addButton": "Añadir transacción",
     "empty": "Aún no hay transacciones.",
+    "transferBadge": "Transferencia",
     "types": {
       "INCOME": "Ingreso",
       "EXPENSE": "Gasto"
@@ -190,7 +208,9 @@
       "typeLabel": "Tipo",
       "dateLabel": "Fecha",
       "accountLabel": "Cuenta",
-      "categoryLabel": "Categoría"
+      "categoryLabel": "Categoría",
+      "isTransferLabel": "Es una transferencia interna",
+      "isTransferDescription": "Actívalo si es un movimiento entre tus propias cuentas (no cuenta como ingreso ni gasto real)."
     },
     "errors": {
       "loadFailed": "No se han podido cargar las transacciones.",
@@ -301,6 +321,14 @@
       "closeButton": "Cerrar"
     }
   },
+  "planning": {
+    "title": "Planificación",
+    "description": "Controla tus presupuestos y pagos recurrentes.",
+    "tabs": {
+      "budgets": "Presupuestos",
+      "recurring": "Recurrentes"
+    }
+  },
   "budgets": {
     "title": "Presupuestos",
     "description": "Controla tus límites de gasto por categoría este mes.",
@@ -394,12 +422,27 @@
   "settings": {
     "title": "Ajustes",
     "description": "Gestiona tu perfil, preferencias y notificaciones.",
+    "tabs": {
+      "profile": "Perfil",
+      "categories": "Categorías",
+      "preferences": "Preferencias"
+    },
     "profile": {
       "title": "Perfil",
       "description": "Actualiza tu información personal.",
       "nameLabel": "Nombre",
       "emailLabel": "Correo electrónico",
       "saveButton": "Guardar cambios",
+      "smartAssistant": {
+        "title": "Asistente Inteligente",
+        "description": "Estos datos ayudan al Asistente Inteligente a anticipar tus finanzas, como tu Margen Vital.",
+        "mainIncomeSourceLabel": "Fuente principal de ingresos",
+        "mainIncomeSourcePlaceholder": "Ej. Nómina de la empresa X",
+        "mainIncomeAmountLabel": "Importe de la nómina / Ingreso principal",
+        "mainIncomeAmountPlaceholder": "Ej. 1500",
+        "paydayLabel": "Día de cobro (1-31)",
+        "paydayPlaceholder": "Ej. 25"
+      },
       "errors": {
         "loadFailed": "No se ha podido cargar tu perfil.",
         "saveFailed": "No se han podido guardar los cambios."

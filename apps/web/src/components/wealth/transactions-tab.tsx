@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
@@ -89,10 +90,11 @@ function emptyForm() {
     date: todayIsoDate(),
     accountId: "",
     categoryId: "",
+    isTransfer: false,
   }
 }
 
-export function TransactionsPage() {
+export function TransactionsTab() {
   const { t, i18n } = useTranslation()
   const { accounts, refresh: refreshAccounts } = useAccounts()
   const { categories, createCategory } = useCategories()
@@ -175,6 +177,7 @@ export function TransactionsPage() {
       date: transaction.date.slice(0, 10),
       accountId: transaction.accountId,
       categoryId: transaction.categoryId,
+      isTransfer: transaction.isTransfer,
     })
     setFormError(null)
     setSheetOpen(true)
@@ -191,6 +194,7 @@ export function TransactionsPage() {
       date: form.date,
       accountId: form.accountId,
       categoryId: form.categoryId,
+      isTransfer: form.isTransfer,
     }
 
     if (
@@ -312,14 +316,9 @@ export function TransactionsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="font-heading text-2xl font-semibold">
-            {t("transactions.title")}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {t("transactions.description")}
-          </p>
-        </div>
+        <p className="text-sm text-muted-foreground">
+          {t("transactions.description")}
+        </p>
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -433,7 +432,10 @@ export function TransactionsPage() {
               </TableHeader>
               <TableBody>
                 {transactions.map((transaction) => (
-                  <TableRow key={transaction.id}>
+                  <TableRow
+                    key={transaction.id}
+                    className={transaction.isTransfer ? "text-muted-foreground" : ""}
+                  >
                     <TableCell>
                       <Checkbox
                         checked={selectedIds.has(transaction.id)}
@@ -449,7 +451,14 @@ export function TransactionsPage() {
                       )}
                     </TableCell>
                     <TableCell className="font-medium">
-                      {transaction.description}
+                      <div className="flex items-center gap-2">
+                        <span>{transaction.description}</span>
+                        {transaction.isTransfer && (
+                          <Badge variant="outline">
+                            {t("transactions.transferBadge")}
+                          </Badge>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <TransactionCategorySelect
@@ -469,9 +478,11 @@ export function TransactionsPage() {
                     <TableCell
                       className={
                         "text-right font-medium " +
-                        (transaction.type === "INCOME"
-                          ? "text-emerald-700 dark:text-emerald-400"
-                          : "text-foreground")
+                        (transaction.isTransfer
+                          ? "text-muted-foreground"
+                          : transaction.type === "INCOME"
+                            ? "text-emerald-700 dark:text-emerald-400"
+                            : "text-foreground")
                       }
                     >
                       {transaction.type === "INCOME" ? "+" : "-"}
@@ -672,6 +683,26 @@ export function TransactionsPage() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="flex items-center justify-between gap-2 rounded-lg border p-3">
+                <div className="flex flex-col gap-0.5">
+                  <Label htmlFor="transaction-is-transfer">
+                    {t("transactions.form.isTransferLabel")}
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {t("transactions.form.isTransferDescription")}
+                  </p>
+                </div>
+                <Checkbox
+                  id="transaction-is-transfer"
+                  checked={form.isTransfer}
+                  onCheckedChange={(checked) =>
+                    setForm((current) => ({
+                      ...current,
+                      isTransfer: checked,
+                    }))
+                  }
+                />
               </div>
               {formError && (
                 <p className="text-sm text-destructive">{formError}</p>

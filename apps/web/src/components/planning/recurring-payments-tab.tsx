@@ -105,7 +105,7 @@ function getDueStatus(nextPaymentDate: string): DueStatus {
   return "upcoming"
 }
 
-export function RecurringPaymentsPage() {
+export function RecurringPaymentsTab() {
   const { t, i18n } = useTranslation()
   const { accounts } = useAccounts()
   const { categories } = useCategories()
@@ -241,14 +241,9 @@ export function RecurringPaymentsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="font-heading text-2xl font-semibold">
-            {t("recurringPayments.title")}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {t("recurringPayments.description")}
-          </p>
-        </div>
+        <p className="text-sm text-muted-foreground">
+          {t("recurringPayments.description")}
+        </p>
         <Button onClick={openCreateSheet}>
           <Plus />
           {t("recurringPayments.addButton")}

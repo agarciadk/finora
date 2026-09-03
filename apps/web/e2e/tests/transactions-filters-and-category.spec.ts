@@ -78,7 +78,8 @@ test.describe("Transactions filters, pagination and inline recategorization", ()
       categoryId: alimentacion.id,
     })
 
-    await page.goto("/transacciones")
+    await page.goto("/patrimonio")
+    await page.getByRole("tab", { name: "Movimientos" }).click()
 
     // --- Pagination: 14 transactions, 10 per page -> 2 pages ---
     await expect(page.getByText("14 transacciones recientes")).toBeVisible()
@@ -111,6 +112,7 @@ test.describe("Transactions filters, pagination and inline recategorization", ()
     await expect(row.getByLabel("Categoría")).toContainText("Transporte")
 
     await page.reload()
+    await page.getByRole("tab", { name: "Movimientos" }).click()
     const reloadedRow = page.getByRole("row", { name: /Movimiento enero 13/ })
     await expect(reloadedRow.getByLabel("Categoría")).toContainText(
       transporte.name

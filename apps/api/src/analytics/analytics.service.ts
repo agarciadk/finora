@@ -16,6 +16,21 @@ export type MonthlyEvolution = {
   savingsRate: number;
 };
 
+export type VitalMargin = {
+  expectedIncome: number;
+  recurringExpenses: number;
+  vitalMargin: number;
+};
+
+// Normalizes a recurring-payment amount to its monthly equivalent (same
+// multipliers used by the "Gastos fijos mensuales" card on the frontend:
+// 52/12 for weekly instead of a flat x4, so the yearly sum still adds up).
+const MONTHLY_MULTIPLIER: Record<'WEEKLY' | 'MONTHLY' | 'YEARLY', number> = {
+  WEEKLY: 52 / 12,
+  MONTHLY: 1,
+  YEARLY: 1 / 12,
+};
+
 @Injectable()
 export class AnalyticsService {
   constructor(
@@ -42,6 +57,7 @@ export class AnalyticsService {
       where: {
         userId,
         type: 'EXPENSE',
+        isTransfer: false,
         date: { gte: periodStart, lt: periodEnd },
       },
       _sum: { amount: true },
@@ -96,8 +112,14 @@ export class AnalyticsService {
 
     // Single query for the whole window, aggregated in memory per month
     // bucket, instead of running two aggregate queries per month (N+1).
+    // `isTransfer: false` excludes internal transfers between the user's own
+    // accounts so they don't inflate income/expenses.
     const transactions = await this.prisma.transaction.findMany({
-      where: { userId, date: { gte: rangeStart, lt: rangeEnd } },
+      where: {
+        userId,
+        isTransfer: false,
+        date: { gte: rangeStart, lt: rangeEnd },
+      },
       select: { amount: true, type: true, date: true },
     });
 
@@ -137,6 +159,42 @@ export class AnalyticsService {
     );
   }
 
+  // "Margen Vital": the user's actual configured main income (Settings >
+  // Profile > mainIncomeAmount, e.g. salary) minus recurring EXPENSE
+  // payments (e.g. rent, subscriptions), normalized to a monthly figure.
+  // Falls back to 0 if the user hasn't configured mainIncomeAmount yet.
+  // Deliberately simple/heuristic — it does NOT look at one-off
+  // transactions, only committed recurring expenses, so the number stays
+  // stable regardless of discretionary spending.
+  async getVitalMargin(): Promise<VitalMargin> {
+    const userId = await this.currentUser.getUserId();
+
+    const [user, recurringExpensePayments] = await Promise.all([
+      this.prisma.user.findUniqueOrThrow({
+        where: { id: userId },
+        select: { mainIncomeAmount: true },
+      }),
+      this.prisma.recurringPayment.findMany({
+        where: { userId, isActive: true, type: 'EXPENSE' },
+        select: { amount: true, frequency: true },
+      }),
+    ]);
+
+    const expectedIncome = Number(user.mainIncomeAmount ?? 0);
+
+    const recurringExpenses = recurringExpensePayments.reduce(
+      (total, payment) =>
+        total + Number(payment.amount) * MONTHLY_MULTIPLIER[payment.frequency],
+      0,
+    );
+
+    return {
+      expectedIncome: Math.round(expectedIncome),
+      recurringExpenses: Math.round(recurringExpenses),
+      vitalMargin: Math.round(expectedIncome - recurringExpenses),
+    };
+  }
+
   private formatMonthKey(date: Date): string {
     return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
   }
@@ -154,6 +212,7 @@ export class AnalyticsService {
         where: {
           userId,
           type: 'INCOME',
+          isTransfer: false,
           date: { gte: periodStart, lt: periodEnd },
         },
         _sum: { amount: true },
@@ -162,6 +221,7 @@ export class AnalyticsService {
         where: {
           userId,
           type: 'EXPENSE',
+          isTransfer: false,
           date: { gte: periodStart, lt: periodEnd },
         },
         _sum: { amount: true },

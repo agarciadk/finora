@@ -1,4 +1,5 @@
 import {
+  IsIBAN,
   IsIn,
   IsInt,
   IsNotEmpty,
@@ -33,6 +34,15 @@ export class CreateAccountDto {
   @IsString()
   @IsNotEmpty()
   currency?: string;
+
+  @ApiPropertyOptional({
+    description:
+      "IBAN of the account, used by the Smart Assistant to recognize transfers between the user's own accounts",
+    example: 'ES9121000418450200051332',
+  })
+  @IsOptional()
+  @IsIBAN()
+  iban?: string;
 
   @ApiPropertyOptional({
     description:

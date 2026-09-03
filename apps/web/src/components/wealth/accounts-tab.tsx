@@ -53,7 +53,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useAccounts, type AccountInput } from "@/hooks/use-accounts"
-import { formatCurrency } from "@/lib/utils"
+import { formatCurrency, formatIban } from "@/lib/utils"
 import type { Account, AccountType } from "@/lib/types"
 
 const ACCOUNT_TYPES: AccountType[] = [
@@ -75,13 +75,14 @@ const EMPTY_FORM = {
   bank: "",
   type: "CHECKING" as AccountType,
   balance: "",
+  iban: "",
   isInterestBearing: false,
   interestRate: "",
   taxRate: "",
   interestPaymentDay: "",
 }
 
-export function AccountsPage() {
+export function AccountsTab() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { accounts, createAccount, updateAccount, deleteAccount } =
@@ -108,6 +109,7 @@ export function AccountsPage() {
       bank: account.bank,
       type: account.type,
       balance: account.balance,
+      iban: account.iban ?? "",
       isInterestBearing: account.interestRate !== null,
       interestRate: account.interestRate ?? "",
       taxRate: account.taxRate ?? "",
@@ -129,6 +131,7 @@ export function AccountsPage() {
       bank: form.bank.trim(),
       type: form.type,
       balance: Number(form.balance),
+      iban: form.iban.trim() || undefined,
       interestRate: form.isInterestBearing ? Number(form.interestRate) : null,
       taxRate: form.isInterestBearing ? Number(form.taxRate) : null,
       interestPaymentDay: form.isInterestBearing
@@ -178,14 +181,9 @@ export function AccountsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="font-heading text-2xl font-semibold">
-            {t("accounts.title")}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {t("accounts.description")}
-          </p>
-        </div>
+        <p className="text-sm text-muted-foreground">
+          {t("accounts.description")}
+        </p>
         <Button onClick={openCreateSheet}>
           <Plus />
           {t("accounts.addButton")}
@@ -205,11 +203,11 @@ export function AccountsPage() {
                 role="link"
                 tabIndex={0}
                 className="cursor-pointer transition-colors hover:bg-accent/50"
-                onClick={() => navigate(`/cuentas/${account.id}`)}
+                onClick={() => navigate(`/patrimonio/cuentas/${account.id}`)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault()
-                    navigate(`/cuentas/${account.id}`)
+                    navigate(`/patrimonio/cuentas/${account.id}`)
                   }
                 }}
               >
@@ -261,6 +259,11 @@ export function AccountsPage() {
                   <p className="text-sm text-muted-foreground">
                     {account.bank}
                   </p>
+                  {account.iban && (
+                    <p className="font-mono text-xs text-muted-foreground">
+                      {formatIban(account.iban)}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             )
@@ -361,6 +364,22 @@ export function AccountsPage() {
                     }))
                   }
                   required
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="account-iban">
+                  {t("accounts.form.ibanLabel")}
+                </Label>
+                <Input
+                  id="account-iban"
+                  placeholder={t("accounts.form.ibanPlaceholder")}
+                  value={form.iban}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      iban: event.target.value,
+                    }))
+                  }
                 />
               </div>
               <div className="flex items-center justify-between gap-2 rounded-lg border p-3">

@@ -3,13 +3,9 @@
 // preloading (see dashboard-layout.tsx) share the exact same module
 // specifiers - the browser's module cache dedupes them into a single fetch.
 export const dashboardPage = () => import("@/pages/dashboard-page")
-export const accountsPage = () => import("@/pages/accounts-page")
+export const wealthPage = () => import("@/pages/wealth-page")
 export const accountDetailPage = () => import("@/pages/account-detail-page")
-export const categoriesPage = () => import("@/pages/categories-page")
-export const transactionsPage = () => import("@/pages/transactions-page")
-export const budgetsPage = () => import("@/pages/budgets-page")
-export const recurringPaymentsPage = () =>
-  import("@/pages/recurring-payments-page")
+export const planningPage = () => import("@/pages/planning-page")
 export const analyticsPage = () => import("@/pages/analytics-page")
 export const settingsPage = () => import("@/pages/settings-page")
 export const notFoundPage = () => import("@/pages/not-found-page")
@@ -19,11 +15,8 @@ export const notFoundPage = () => import("@/pages/not-found-page")
 // to suspend for a Sidebar click (see DashboardLayout#navigateWithPendingState).
 export const ROUTE_PRELOADERS: Record<string, () => Promise<unknown>> = {
   "/": dashboardPage,
-  "/cuentas": accountsPage,
-  "/categorias": categoriesPage,
-  "/transacciones": transactionsPage,
-  "/presupuestos": budgetsPage,
-  "/recurrentes": recurringPaymentsPage,
+  "/patrimonio": wealthPage,
+  "/planificacion": planningPage,
   "/analitica": analyticsPage,
   "/ajustes": settingsPage,
 }

@@ -8,7 +8,7 @@ test.describe("Recurring payments", () => {
   }) => {
     await login(page)
 
-    await page.getByRole("link", { name: "Cuentas" }).click()
+    await page.getByRole("link", { name: "Patrimonio" }).click()
     await page.getByRole("button", { name: "Añadir cuenta" }).click()
     await page.getByLabel("Nombre").fill("Cuenta Corriente")
     await page.getByLabel("Banco").fill("BBVA")
@@ -16,9 +16,10 @@ test.describe("Recurring payments", () => {
     await page.getByRole("button", { name: "Guardar" }).click()
     await expect(page.getByText("Cuenta Corriente")).toBeVisible()
 
-    await page.getByRole("link", { name: "Recurrentes" }).click()
+    await page.getByRole("link", { name: "Planificación" }).click()
+    await page.getByRole("tab", { name: "Recurrentes" }).click()
     await expect(
-      page.getByRole("heading", { name: "Pagos recurrentes" })
+      page.getByRole("button", { name: "Añadir pago recurrente" })
     ).toBeVisible()
 
     await page.getByRole("button", { name: "Añadir pago recurrente" }).click()
@@ -48,7 +49,8 @@ test.describe("Recurring payments", () => {
       page.getByRole("heading", { name: 'Marcar "Netflix" como pagado?' })
     ).not.toBeVisible()
 
-    await page.getByRole("link", { name: "Transacciones" }).click()
+    await page.getByRole("link", { name: "Patrimonio" }).click()
+    await page.getByRole("tab", { name: "Movimientos" }).click()
     await page
       .getByPlaceholder("Buscar por descripción…")
       .fill("Netflix")

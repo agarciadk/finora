@@ -56,7 +56,7 @@ function emptyForm(month: number, year: number) {
   return { categoryId: "", limit: "", month, year }
 }
 
-export function BudgetsPage() {
+export function BudgetsTab() {
   const { t } = useTranslation()
   const [month] = useState(now.getMonth() + 1)
   const [year] = useState(now.getFullYear())
@@ -142,14 +142,9 @@ export function BudgetsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="font-heading text-2xl font-semibold">
-            {t("budgets.title")}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {t("budgets.description")}
-          </p>
-        </div>
+        <p className="text-sm text-muted-foreground">
+          {t("budgets.description")}
+        </p>
         <Button onClick={openCreateSheet}>
           <Plus />
           {t("budgets.addButton")}

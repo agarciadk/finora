@@ -1,8 +1,10 @@
 import {
+  IsBoolean,
   IsDateString,
   IsIn,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
   IsUUID,
@@ -31,4 +33,8 @@ export class CreateTransactionDto {
 
   @IsUUID()
   categoryId!: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isTransfer?: boolean;
 }

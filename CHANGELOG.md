@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0] - 2026-09-03
+
+### Added
+
+- **UI/UX Redesign & Smart Assistant (Epic 7)**: consolidated 8 scattered pages into 5 core sections (`/`, `/patrimonio`, `/planificacion`, `/analitica`, `/ajustes`) using shadcn Tabs, and introduced the first "Smart Assistant" predictive features:
+  - Settings > Profile tab now collects `mainIncomeSource` and `payday` (1-31), connected to `PATCH /users/me`.
+  - Accounts gained an optional `iban` field (validated as a real IBAN), shown masked (e.g. `ES91 •••• •••• •••• 1332`) on the account card.
+  - Transactions gained an `isTransfer` toggle to mark internal transfers between the user's own accounts; the table shows a "Transferencia" badge and grays out those rows. Internal transfers are excluded from all analytics (income/expenses/category breakdown).
+  - Dashboard now shows a prominent "Margen Vital" KPI card: expected recurring income minus recurring fixed expenses (new `GET /analytics/vital-margin`).
+  - New `User.mainIncomeSource`/`payday`, `Account.iban`, `Transaction.isTransfer` Prisma fields.
+
+## [0.15.0] - 2026-09-03
+
+### Added
+
+- **AI Context**: add new memory, skills and instructions files to improve IA
+
 ## [0.14.0] - 2026-09-03
 
 ### Fixed

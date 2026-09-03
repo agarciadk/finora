@@ -59,7 +59,7 @@ const CATEGORY_TYPES: TransactionType[] = ["EXPENSE", "INCOME"]
 
 const EMPTY_FORM = { name: "", type: "EXPENSE" as TransactionType }
 
-export function CategoriesPage() {
+export function CategoriesTab() {
   const { t } = useTranslation()
   const { categories, createCategory, updateCategory, deleteCategory } =
     useCategories()
@@ -144,15 +144,7 @@ export function CategoriesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="font-heading text-2xl font-semibold">
-            {t("categories.title")}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {t("categories.description")}
-          </p>
-        </div>
+      <div className="flex items-center justify-end">
         <Button onClick={openCreateSheet}>
           <Plus />
           {t("categories.addButton")}

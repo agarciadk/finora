@@ -8,6 +8,7 @@ export type AccountInput = {
   type: AccountType
   balance: number
   currency?: string
+  iban?: string
   interestRate?: number | null
   taxRate?: number | null
   interestPaymentDay?: number | null

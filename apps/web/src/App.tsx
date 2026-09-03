@@ -8,15 +8,12 @@ import { DashboardLayout } from "@/components/dashboard-layout"
 import { Toaster } from "@/components/ui/sonner"
 import {
   accountDetailPage,
-  accountsPage,
   analyticsPage,
-  budgetsPage,
-  categoriesPage,
   dashboardPage,
   notFoundPage,
-  recurringPaymentsPage,
+  planningPage,
   settingsPage,
-  transactionsPage,
+  wealthPage,
 } from "@/lib/lazy-pages"
 import { LoginPage } from "@/pages/login-page"
 import { RegisterPage } from "@/pages/register-page"
@@ -29,31 +26,16 @@ import { ResetPasswordPage } from "@/pages/reset-password-page"
 const DashboardPage = lazy(() =>
   dashboardPage().then((m) => ({ default: m.DashboardPage }))
 )
-const AccountsPage = lazy(() =>
-  accountsPage().then((m) => ({ default: m.AccountsPage }))
+const WealthPage = lazy(() =>
+  wealthPage().then((m) => ({ default: m.WealthPage }))
 )
 const AccountDetailPage = lazy(() =>
   accountDetailPage().then((m) => ({
     default: m.AccountDetailPage,
   }))
 )
-const CategoriesPage = lazy(() =>
-  categoriesPage().then((m) => ({
-    default: m.CategoriesPage,
-  }))
-)
-const TransactionsPage = lazy(() =>
-  transactionsPage().then((m) => ({
-    default: m.TransactionsPage,
-  }))
-)
-const BudgetsPage = lazy(() =>
-  budgetsPage().then((m) => ({ default: m.BudgetsPage }))
-)
-const RecurringPaymentsPage = lazy(() =>
-  recurringPaymentsPage().then((m) => ({
-    default: m.RecurringPaymentsPage,
-  }))
+const PlanningPage = lazy(() =>
+  planningPage().then((m) => ({ default: m.PlanningPage }))
 )
 const AnalyticsPage = lazy(() =>
   analyticsPage().then((m) => ({ default: m.AnalyticsPage }))
@@ -90,15 +72,12 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route element={<DashboardLayout />}>
                 <Route index element={<DashboardPage />} />
-                <Route path="cuentas" element={<AccountsPage />} />
-                <Route path="cuentas/:id" element={<AccountDetailPage />} />
-                <Route path="categorias" element={<CategoriesPage />} />
-                <Route path="transacciones" element={<TransactionsPage />} />
-                <Route path="presupuestos" element={<BudgetsPage />} />
+                <Route path="patrimonio" element={<WealthPage />} />
                 <Route
-                  path="recurrentes"
-                  element={<RecurringPaymentsPage />}
+                  path="patrimonio/cuentas/:id"
+                  element={<AccountDetailPage />}
                 />
+                <Route path="planificacion" element={<PlanningPage />} />
                 <Route path="analitica" element={<AnalyticsPage />} />
                 <Route path="ajustes" element={<SettingsPage />} />
                 <Route path="*" element={<NotFoundPage />} />

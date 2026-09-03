@@ -1,3 +1,4 @@
+import { Sparkles } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -18,7 +19,7 @@ function formatTrend(trend: number | null) {
 export function DashboardPage() {
   const { t } = useTranslation()
   const { accounts } = useAccounts()
-  const { analytics } = useAnalytics()
+  const { analytics, vitalMargin } = useAnalytics()
 
   const totalBalance = accounts.reduce(
     (sum, account) => sum + Number(account.balance),
@@ -72,6 +73,34 @@ export function DashboardPage() {
           {t("dashboard.description")}
         </p>
       </div>
+      {vitalMargin && (
+        <Card className="border-primary/50">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Sparkles className="size-4 text-primary" />
+              <CardDescription>
+                {t("dashboard.vitalMargin.title")}
+              </CardDescription>
+            </div>
+            <CardTitle
+              className={
+                "text-3xl " +
+                (vitalMargin.vitalMargin >= 0
+                  ? "text-emerald-700 dark:text-emerald-400"
+                  : "text-destructive")
+              }
+            >
+              {formatCurrency(vitalMargin.vitalMargin)}
+            </CardTitle>
+            <CardDescription>
+              {t("dashboard.vitalMargin.description", {
+                income: formatCurrency(vitalMargin.expectedIncome),
+                expenses: formatCurrency(vitalMargin.recurringExpenses),
+              })}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      )}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {summaryCards.map((card) => (
           <Card key={card.key}>

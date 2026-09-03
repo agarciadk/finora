@@ -17,16 +17,19 @@
     },
     "errors": {
       "generic": "Something went wrong. Please try again."
-    }
+    },
+    "comingSoon": "This section is under construction."
   },
   "sidebar": {
     "ariaLabel": "Main navigation",
     "brand": "Finora",
     "nav": {
       "dashboard": "Overview",
+      "wealth": "Wealth",
       "accounts": "Accounts",
       "categories": "Categories",
       "transactions": "Transactions",
+      "planning": "Planning",
       "budgets": "Budgets",
       "recurringPayments": "Recurring",
       "analytics": "Analytics",
@@ -86,8 +89,20 @@
         "description": "{{rate}}% of your income"
       }
     },
+    "vitalMargin": {
+      "title": "Vital Margin",
+      "description": "Expected recurring income ({{income}}) minus recurring fixed expenses ({{expenses}})."
+    },
     "errors": {
       "loadFailed": "Couldn't load your overview data."
+    }
+  },
+  "wealth": {
+    "title": "Wealth",
+    "description": "Check your accounts and transactions in one place.",
+    "tabs": {
+      "accounts": "Accounts",
+      "transactions": "Transactions"
     }
   },
   "accounts": {
@@ -114,7 +129,9 @@
       "interestBearingDescription": "Turn this on if the account earns interest (e.g. a high-yield savings account).",
       "interestRateLabel": "APY (%)",
       "taxRateLabel": "Tax rate (%)",
-      "interestPaymentDayLabel": "Payment day (1-31)"
+      "interestPaymentDayLabel": "Payment day (1-31)",
+      "ibanLabel": "IBAN",
+      "ibanPlaceholder": "ES91 2100 0418 4502 0005 1332"
     },
     "detail": {
       "backButton": "Back to accounts",
@@ -177,6 +194,7 @@
     },
     "addButton": "Add transaction",
     "empty": "There are no transactions yet.",
+    "transferBadge": "Transfer",
     "types": {
       "INCOME": "Income",
       "EXPENSE": "Expense"
@@ -190,7 +208,9 @@
       "typeLabel": "Type",
       "dateLabel": "Date",
       "accountLabel": "Account",
-      "categoryLabel": "Category"
+      "categoryLabel": "Category",
+      "isTransferLabel": "This is an internal transfer",
+      "isTransferDescription": "Turn this on for movements between your own accounts (it won't count as real income or expense)."
     },
     "errors": {
       "loadFailed": "Couldn't load your transactions.",
@@ -301,6 +321,14 @@
       "closeButton": "Close"
     }
   },
+  "planning": {
+    "title": "Planning",
+    "description": "Manage your budgets and recurring payments.",
+    "tabs": {
+      "budgets": "Budgets",
+      "recurring": "Recurring"
+    }
+  },
   "budgets": {
     "title": "Budgets",
     "description": "Keep track of your spending limits by category this month.",
@@ -394,12 +422,27 @@
   "settings": {
     "title": "Settings",
     "description": "Manage your profile, preferences and notifications.",
+    "tabs": {
+      "profile": "Profile",
+      "categories": "Categories",
+      "preferences": "Preferences"
+    },
     "profile": {
       "title": "Profile",
       "description": "Update your personal information.",
       "nameLabel": "Name",
       "emailLabel": "Email address",
       "saveButton": "Save changes",
+      "smartAssistant": {
+        "title": "Smart Assistant",
+        "description": "This information helps the Smart Assistant anticipate your finances, like your Vital Margin.",
+        "mainIncomeSourceLabel": "Main income source",
+        "mainIncomeSourcePlaceholder": "E.g. Payroll from company X",
+        "mainIncomeAmountLabel": "Payroll amount / Main income",
+        "mainIncomeAmountPlaceholder": "E.g. 1500",
+        "paydayLabel": "Payday (1-31)",
+        "paydayPlaceholder": "E.g. 25"
+      },
       "errors": {
         "loadFailed": "Couldn't load your profile.",
         "saveFailed": "Couldn't save your changes."

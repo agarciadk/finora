@@ -87,6 +87,7 @@ describe('AnalyticsService', () => {
       expect(prisma.transaction.findMany).toHaveBeenCalledWith({
         where: {
           userId,
+          isTransfer: false,
           date: {
             gte: new Date(Date.UTC(2026, 2, 1)),
             lt: new Date(Date.UTC(2026, 8, 1)),

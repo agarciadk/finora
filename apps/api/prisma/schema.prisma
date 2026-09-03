@@ -59,6 +59,16 @@ model User {
   resetPasswordToken   String?   @unique
   resetPasswordExpires DateTime?
 
+  // Smart Assistant profile data (Epic 7.3.1): used to project expected
+  // income and compute the "Margen Vital" (expected income - recurring
+  // expenses). Range (1-31) is validated at the DTO level, not in Prisma.
+  mainIncomeSource String?
+  payday           Int?
+  // Actual monthly amount of the user's main income (e.g. salary), used to
+  // compute the "Margen Vital" KPI instead of guessing it from recurring
+  // INCOME payments.
+  mainIncomeAmount Decimal? @db.Decimal(12, 2)
+
   accounts                 Account[]
   categories               Category[]
   transactions             Transaction[]
@@ -114,6 +124,9 @@ model Account {
   type      AccountType
   balance   Decimal     @default(0) @db.Decimal(12, 2)
   currency  String      @default("EUR")
+  // IBAN (Smart Assistant, Epic 7.3.1): optional, used to help the assistant
+  // recognize internal transfers between the user's own accounts.
+  iban      String?
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   deletedAt DateTime?
@@ -158,6 +171,10 @@ model Transaction {
   amount      Decimal         @db.Decimal(12, 2)
   type        TransactionType
   date        DateTime
+  // Marks internal transfers between the user's own accounts (Epic 7.3.1):
+  // MUST be excluded from analytics (income/expenses/category breakdown) so
+  // moving money between accounts doesn't inflate the user's real cashflow.
+  isTransfer  Boolean         @default(false)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   deletedAt   DateTime?

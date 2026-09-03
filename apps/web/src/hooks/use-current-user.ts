@@ -27,7 +27,13 @@ export function useCurrentUser() {
   }, [refresh])
 
   const updateUser = useCallback(
-    async (input: { name?: string; email?: string }) => {
+    async (input: {
+      name?: string
+      email?: string
+      mainIncomeSource?: string
+      payday?: number
+      mainIncomeAmount?: number
+    }) => {
       const updated = await api.patch<User>("/users/me", input)
       setUser(updated)
       return updated

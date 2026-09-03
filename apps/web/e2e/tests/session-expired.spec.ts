@@ -25,7 +25,7 @@ test.describe("Session expiration", () => {
       })
     )
 
-    await page.getByRole("link", { name: "Cuentas" }).click()
+    await page.getByRole("link", { name: "Patrimonio" }).click()
 
     await expect(page).toHaveURL(/\/login$/)
     await expect(
