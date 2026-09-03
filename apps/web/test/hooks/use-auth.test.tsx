@@ -28,10 +28,12 @@ describe("useAuth", () => {
   it("starts loading then unauthenticated when there is no session cookie", async () => {
     const { result } = renderHook(() => useAuth(), { wrapper })
 
-    expect(result.current.isLoading).toBe(true)
+    // AuthProvider itself renders a full-screen fallback (not `children`)
+    // while the initial /users/me check is in flight, so the hook harness
+    // only mounts (and `result.current` stops being null) once it resolves.
+    await waitFor(() => expect(result.current).not.toBeNull())
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false))
-
+    expect(result.current.isLoading).toBe(false)
     expect(result.current.isAuthenticated).toBe(false)
     expect(result.current.user).toBeNull()
   })

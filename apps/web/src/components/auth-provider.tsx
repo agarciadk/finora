@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { AuthProviderContext } from "@/contexts/auth-context"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { api } from "@/lib/api"
 import {
   onSessionEnded,
@@ -109,7 +110,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   return (
     <AuthProviderContext.Provider value={value}>
-      {children}
+      {isLoading ? (
+        // Full-screen fallback while the initial /users/me check is in
+        // flight, so routes (and the login page) never flash before we know
+        // whether there's already a valid session.
+        <div className="flex min-h-svh w-full items-center justify-center">
+          <LoadingSpinner />
+        </div>
+      ) : (
+        children
+      )}
     </AuthProviderContext.Provider>
   )
 }

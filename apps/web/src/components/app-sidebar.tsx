@@ -67,9 +67,31 @@ const navItems = [
   },
 ] as const
 
-export function AppSidebar() {
+export function AppSidebar({ onNavigate }: { onNavigate: (to: string) => void }) {
   const { pathname } = useLocation()
   const { t } = useTranslation()
+
+  // NavLink's own click handler navigates outside of any transition, which
+  // makes React hide the freshly-clicked route's already-mounted <Suspense>
+  // fallback (see DashboardLayout) - so plain left-clicks are routed through
+  // onNavigate instead, while modifier-key/middle clicks keep the browser's
+  // native "open in new tab" behavior.
+  function handleClick(to: string) {
+    return (event: React.MouseEvent<HTMLAnchorElement>) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.shiftKey
+      ) {
+        return
+      }
+      event.preventDefault()
+      onNavigate(to)
+    }
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -82,7 +104,13 @@ export function AppSidebar() {
                 {navItems.map((item) => (
                   <SidebarMenuItem key={item.key}>
                     <SidebarMenuButton
-                      render={<NavLink to={item.url} end={item.end} />}
+                      render={
+                        <NavLink
+                          to={item.url}
+                          end={item.end}
+                          onClick={handleClick(item.url)}
+                        />
+                      }
                       isActive={
                         item.end
                           ? pathname === item.url
@@ -103,7 +131,12 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  render={<NavLink to="/ajustes" />}
+                  render={
+                    <NavLink
+                      to="/ajustes"
+                      onClick={handleClick("/ajustes")}
+                    />
+                  }
                   isActive={pathname === "/ajustes"}
                 >
                   <Settings />

@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.0] - 2026-09-03
+
+### Fixed
+
+- **Sidebar navigation between lazy-loaded routes froze instead of showing the spinner**: clicking a Sidebar link to a route whose chunk hadn't downloaded yet silently froze the current page instead of showing a loading state. Root cause: React Router wraps every `Link`/`NavLink` navigation in `React.startTransition`, and React deliberately keeps an already-revealed `<Suspense>` boundary's old content on screen during a transition instead of showing its fallback - there's no supported way to opt a classic (non data-router) navigation out of that behavior. Fixed by having the Sidebar drive navigation itself (`components/app-sidebar.tsx`'s `onNavigate`, wired from `DashboardLayout`): a plain click now *preloads* the target route's chunk (new `lib/lazy-pages.ts`, shared between `App.tsx`'s `React.lazy()` definitions and this preloader so the import specifiers - and the browser's module cache - line up) while showing a spinner overlay over the content area via ordinary (non-transition) state, then only navigates once the chunk is already resolved - so `<Suspense>` never actually has anything left to suspend on. The Sidebar/header stay mounted and visible throughout, and the clicked link is highlighted immediately.
+- **Initial blank-screen / login-flash on load**: covers both phases before the dashboard is visible for an already-authenticated user.
+  - React phase: `AuthProvider` now renders a full-screen `LoadingSpinner` instead of `children` while its initial `GET /users/me` check (`isLoading`) is in flight, instead of only gating access further down in `ProtectedRoute`. This prevents the `/login` route from ever mounting momentarily before the session check resolves.
+  - Pre-hydration phase: `apps/web/index.html` now ships a pure HTML/CSS spinner inside `<div id="root">`, mimicking `components/ui/loading-spinner.tsx`, so there's already a loading indicator on screen while the JS bundle downloads/parses, before React mounts and replaces it.
+
 ## [0.13.0] - 2026-09-03
 
 ### Performance

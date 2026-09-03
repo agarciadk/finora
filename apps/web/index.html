@@ -9,9 +9,38 @@
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Finora</title>
+    <style>
+      /* Mirrors components/ui/loading-spinner.tsx in plain CSS so there's
+         something on screen before the JS bundle downloads/hydrates. React
+         replaces this markup on mount, it never has to be cleaned up. */
+      .initial-loading {
+        display: flex;
+        height: 100svh;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+      }
+      .initial-loading__spinner {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 9999px;
+        border: 3px solid var(--muted-foreground, #71717a);
+        border-top-color: transparent;
+        animation: initial-loading-spin 0.75s linear infinite;
+      }
+      @keyframes initial-loading-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="initial-loading" role="status" aria-label="Cargando">
+        <span class="initial-loading__spinner"></span>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
