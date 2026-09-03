@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react"
 
 import { useAuth } from "@/hooks/use-auth"
 import { triggerSilentRefresh, USER_ACTIVITY_EVENT } from "@/lib/api"
+import { IDLE_WARNING_TIMEOUT_MS } from "@/lib/idle-config"
 
 // DOM signals of real user activity. Deliberately independent from
 // use-idle-timer.ts's own listeners (this hook is meant to be usable on its
@@ -20,12 +21,22 @@ const ACTIVITY_EVENTS = [
 // refresh. A UX heuristic, NOT the token lifespan itself (that always comes
 // from the backend's `expiresAt`), so hardcoding it here is fine.
 const REFRESH_LEAD_MS = 60 * 1000
-// Only refresh if there was real activity within this window; an idle tab
-// should be left to expire naturally instead of being kept alive forever.
-const ACTIVITY_FRESHNESS_MS = 5 * 60 * 1000
 // Guards against scheduling a timer with a zero/negative delay (e.g. right
 // after mount if `expiresAt` is already very close, or clock skew).
 const MIN_SCHEDULE_DELAY_MS = 1000
+
+type UseSessionHeartbeatOptions = {
+  /**
+   * Only refresh if there was real activity within this window; otherwise
+   * the tab is left to expire naturally so the idle-warning modal can take
+   * over. Defaults to the SAME threshold as `useIdleLogout`'s
+   * `warningTimeoutMs` (see lib/idle-config.ts) - the heartbeat must never
+   * consider the user "active" for longer than the idle-warning system
+   * does, or it keeps the session alive well past the point the user
+   * should be considered away and the modal never gets a chance to appear.
+   */
+  activityTimeoutMs?: number
+}
 
 // Proactively slides the session shortly before the backend's access token
 // expires - but only while the user is genuinely active - so someone reading
@@ -33,7 +44,9 @@ const MIN_SCHEDULE_DELAY_MS = 1000
 // 401 on their next action. The actual lifespan is entirely derived from
 // `user.expiresAt` (set by the backend on login/refresh/`GET /users/me`),
 // never hardcoded here.
-export function useSessionHeartbeat() {
+export function useSessionHeartbeat({
+  activityTimeoutMs = IDLE_WARNING_TIMEOUT_MS,
+}: UseSessionHeartbeatOptions = {}) {
   const { isAuthenticated, user } = useAuth()
   const expiresAt = user?.expiresAt
   // 0 (not Date.now()) so the initial render stays pure; the activity
@@ -73,15 +86,17 @@ export function useSessionHeartbeat() {
 
     const timeoutId = setTimeout(
       () => {
-        const isActive =
-          Date.now() - lastActivityAtRef.current < ACTIVITY_FRESHNESS_MS
+        const isUserActive =
+          Date.now() - lastActivityAtRef.current < activityTimeoutMs
 
-        if (isActive) {
+        if (isUserActive) {
+          // The user is actually doing things: keep the backend session alive.
           void triggerSilentRefresh()
         }
-        // If inactive: do nothing. Either the idle-warning modal will show
-        // up first, or the token expires and the next real request 401s
-        // into the regular reactive refresh - both already handled.
+        // If NOT active: do nothing and let the token expire naturally. The
+        // idle-warning system (same activityTimeoutMs) takes over from here -
+        // refreshing anyway would silently keep resetting the access token
+        // without ever letting the warning modal appear.
       },
       Math.max(msUntilRefresh, MIN_SCHEDULE_DELAY_MS)
     )
@@ -89,5 +104,5 @@ export function useSessionHeartbeat() {
     return () => clearTimeout(timeoutId)
     // Re-schedules automatically whenever `expiresAt` changes (i.e. after
     // every refresh, proactive or reactive), forming a self-sustaining loop.
-  }, [isAuthenticated, expiresAt])
+  }, [isAuthenticated, expiresAt, activityTimeoutMs])
 }
