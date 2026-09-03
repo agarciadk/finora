@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { api } from "@/lib/api"
-import type { Analytics, MonthlyEvolution } from "@/lib/types"
+import type { Analytics, MonthlyEvolution, VitalMargin } from "@/lib/types"
 
 const EVOLUTION_MONTHS = 6
 
@@ -19,6 +19,7 @@ export function useAnalytics() {
   const [period, setPeriod] = useState(currentPeriod)
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [evolution, setEvolution] = useState<MonthlyEvolution[]>([])
+  const [vitalMargin, setVitalMargin] = useState<VitalMargin | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -60,6 +61,21 @@ export function useAnalytics() {
     void refreshEvolution()
   }, [refreshEvolution])
 
+  const refreshVitalMargin = useCallback(async () => {
+    try {
+      const data = await api.get<VitalMargin>("/analytics/vital-margin")
+      setVitalMargin(data)
+    } catch {
+      // The KPI card just stays empty; the summary cards above already
+      // surface a load error for the same underlying analytics failure.
+    }
+  }, [])
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount, doesn't depend on the selected month
+    void refreshVitalMargin()
+  }, [refreshVitalMargin])
+
   const goToPreviousMonth = useCallback(() => {
     setPeriod(({ month, year }) => shiftPeriod(month, year, -1))
   }, [])
@@ -79,6 +95,7 @@ export function useAnalytics() {
   return {
     analytics,
     evolution,
+    vitalMargin,
     isLoading,
     error,
     month,

@@ -13,6 +13,7 @@ export type Account = {
   type: AccountType
   balance: string
   currency: string
+  iban: string | null
   interestRate: string | null
   taxRate: string | null
   interestPaymentDay: number | null
@@ -44,6 +45,7 @@ export type Transaction = {
   date: string
   accountId: string
   categoryId: string
+  isTransfer: boolean
   account: Account
   category: Category
   createdAt: string
@@ -94,6 +96,8 @@ export type User = {
   id: string
   email: string
   name: string | null
+  mainIncomeSource: string | null
+  payday: number | null
   createdAt: string
 }
 
@@ -161,6 +165,12 @@ export type MonthlyEvolution = {
   income: number
   expenses: number
   savingsRate: number
+}
+
+export type VitalMargin = {
+  expectedIncome: number
+  recurringExpenses: number
+  vitalMargin: number
 }
 
 export type AuditAction = "CREATE" | "UPDATE" | "DELETE" | "LOGIN"

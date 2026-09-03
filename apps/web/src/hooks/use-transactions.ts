@@ -14,6 +14,7 @@ export type TransactionInput = {
   date: string
   accountId: string
   categoryId: string
+  isTransfer?: boolean
 }
 
 export type TransactionsQuery = {
