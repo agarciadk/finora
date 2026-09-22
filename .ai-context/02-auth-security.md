@@ -20,7 +20,7 @@
 ## Email verification + password recovery
 - `User` +4 fields: `emailVerified`, `verificationToken`/`resetPasswordToken` (unique hash, never plaintext), `resetPasswordExpires`.
 - `token.util.ts`: `hashToken()` (HMAC-SHA256, reuses `REFRESH_TOKEN_HASH_SECRET`), `generateRawToken()` (32 bytes, distinct from the 64-byte refresh token).
-- `MailService`: if `SMTP_HOST` is unset, sends NOTHING — only logs the link (`Logger.log`). Links use `FRONTEND_URL` (separate from `CORS_ORIGIN`).
+- `MailService` (`ResendMailService`, Resend SDK): if `RESEND_API_KEY` is unset, sends NOTHING — only logs the link (`Logger.log`). Links use `FRONTEND_URL` (separate from `CORS_ORIGIN`).
 - `POST /auth/forgot-password` ALWAYS returns the same generic message regardless of whether the email exists (anti-enumeration); only adds `resetToken` in the test env.
 - `reset-password` validates expiration (15min) and revokes ALL active `RefreshToken`s on reset (same handling as detected refresh theft).
 - Specific throttling: `verify-email` 5/min (same as auth), `forgot-password`/`reset-password` 3/min (stricter).
