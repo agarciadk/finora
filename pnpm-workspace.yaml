@@ -4,6 +4,7 @@ packages:
   - "apps/*/e2e"
   - "eslint-config"
 allowBuilds:
+  '@parcel/watcher': true
   '@prisma/engines': true
   '@scarf/scarf': false
   prisma: true
