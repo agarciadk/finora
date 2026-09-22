@@ -9,6 +9,8 @@ For what the backlog contains and how it is organized (task types, statuses, pri
 
 This file covers agent behavior: how to select, refine and scope backlog work.
 
+When the user explicitly asks to run a full or targeted refinement pass (e.g. "Haz el refinamiento", "Refina el backlog"), follow the step-by-step process in the [`backlog-refinement` Skill](../skills/backlog-refinement/SKILL.md) — it executes the rules below, it doesn't replace them.
+
 Refining inbox ideas, creating or updating Epics, writing specifications, and reviewing the backlog never create a Git branch.
 
 Branches are created only when actual implementation begins. Follow `git.instructions.md` and `implementation.instructions.md` for Git and implementation workflow rules.
@@ -21,12 +23,14 @@ When the user invokes the autonomous "next task" trigger, follow the implementat
 
 1. Read `.ai-context/` before anything else.
 2. Read `backlog/README.md`, then `backlog/inbox.md`.
+   - If `backlog/README.md` or `backlog/inbox.md` cannot be found or read, stop and report the error to the user rather than proceeding.
 3. Inspect `backlog/tasks/*/task.md` and check each task's `status`, `priority`, `epic`, and `depends_on`.
    - If a `task.md` is missing required fields or references a non-existent epic or dependency, flag it and skip it rather than guessing its intent.
    - If a skipped or flagged task is a dependency of another task, treat that dependency as unresolved when evaluating readiness.
    - If all tasks are flagged or skipped and no inbox item exists, report the situation and ask the user how to proceed rather than inventing work.
 4. Prefer a `ready` task. If more than one task is `ready`, apply the tie-break order below.
 5. If no task is `ready`, refine an `inbox` or `refinement` item instead of inventing unrelated work.
+6. If implementation is already in progress on another task, do not switch tasks; finish or explicitly pause current work first. This also applies to refinement requests that arrive mid-implementation.
 
 ### Tie-break order
 
@@ -56,6 +60,7 @@ Never turn an inbox line directly into a `ready` task without working through th
 - [ ] 3. Check for related tasks and Epics.
 - [ ] 4. Determine scope — decide whether the idea needs to be decomposed into multiple tasks.
 - [ ] 5. Determine `type`: `feature`, `bug`, `improvement`, `refactor`, `technical`, `documentation`, or `chore`.
+  - If the idea's type cannot be determined confidently, flag it and ask the user for clarification rather than guessing.
 - [ ] 6. Determine Epic membership, if any.
 - [ ] 7. Determine `depends_on` and `related_to`.
 - [ ] 8. Write acceptance criteria and fill `specification.md`.
@@ -73,7 +78,14 @@ Creating `task.md` or `specification.md` files is not, by itself, a reason to ma
 | 4. Determine scope | Idea needs decomposition | Split into multiple tasks and group them under an Epic if warranted |
 | | Idea is a single coherent unit | Continue to step 5 |
 
-If decomposition produces sub-ideas that are themselves duplicates or extensions of existing work, apply the duplicate detection rules to each sub-idea individually before creating new tasks.
+If decomposition produces sub-ideas, apply the duplicate detection rules to each sub-idea individually, one at a time, before creating any new task:
+
+1. Take the next sub-idea.
+2. Classify it using the "Duplicate detection" rules below.
+3. If it is a duplicate, already implemented, already tracked, or an extension of existing work, resolve it per those rules and do not create a new task for it.
+4. Otherwise, continue refining that sub-idea from step 5 onward.
+5. Repeat from step 1 for the next sub-idea until all sub-ideas are processed.
+
 | 9. Set `status: ready` | All checklist items resolved | Mark the task `ready` |
 | | Any checklist item unresolved | Leave the task in `refinement` |
 
@@ -108,13 +120,13 @@ A single inbox idea may become several tasks.
 
 For example, "add loans, credit cards and interest calculation" should become separate tasks for credit card accounts, loan accounts, interest calculation, and amortization rather than one giant task.
 
-Group tasks into an Epic only if they share a common deliverable or milestone, AND at least one task depends_on or blocks another task in the group.
+Group tasks into an Epic only if they share a common deliverable or milestone, AND at least one task depends_on or blocks another task in the group. Tasks share a common deliverable or milestone if completing them together produces a single user-facing feature or release artifact.
 
 Unrelated tasks that merely share a topic area do not qualify.
 
 When an Epic is justified:
 
-- Create `backlog/epics/<slug>.md`.
+- Create `backlog/epics/<slug>.md`. If the Epic already exists, update its task list instead of creating a duplicate Epic file.
 - Set `epic: <slug>` on each task belonging to it.
 - Do not create an Epic for a single task.
 - Do not force topically adjacent ideas into the same Epic without real justification.
