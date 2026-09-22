@@ -13,4 +13,4 @@ Run the relevant commands for what you touched before considering a frontend cha
 
 - `pnpm --filter @finora/web typecheck` and `pnpm lint`
 - `pnpm test` (Vitest unit tests, `apps/web/test/`)
-- `pnpm test:e2e` / `pnpm test:a11y` (Playwright, when the change affects a full user flow or a new page — both require PostgreSQL running via `pnpm db:up`)
+- `pnpm test:e2e` / `pnpm test:a11y` (Playwright — run when you add or modify a route, page component, or multi-step interaction such as a form or navigation flow; skip for isolated component styling or copy changes. Both require PostgreSQL running via `pnpm db:up`; if `pnpm db:up` fails or PostgreSQL is unavailable, report this blocker before skipping e2e/a11y tests.)
