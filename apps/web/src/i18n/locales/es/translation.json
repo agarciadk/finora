@@ -131,7 +131,8 @@
       "taxRateLabel": "Retención (%)",
       "interestPaymentDayLabel": "Día de pago (1-31)",
       "ibanLabel": "IBAN",
-      "ibanPlaceholder": "ES91 2100 0418 4502 0005 1332"
+      "ibanPlaceholder": "ES91 2100 0418 4502 0005 1332",
+      "ibanEditHint": "Déjalo en blanco para mantener el IBAN actual ({{iban}})."
     },
     "detail": {
       "backButton": "Volver a cuentas",

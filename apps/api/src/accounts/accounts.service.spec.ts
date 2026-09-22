@@ -3,11 +3,17 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AccountsService } from './accounts.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CurrentUserService } from '../common/current-user/current-user.service';
+import type { CreateAccountDto } from './dto/create-account.dto';
 
 describe('AccountsService', () => {
   let service: AccountsService;
   let prisma: {
-    account: { findMany: jest.Mock; findUnique: jest.Mock; update: jest.Mock };
+    account: {
+      findMany: jest.Mock;
+      findUnique: jest.Mock;
+      create: jest.Mock;
+      update: jest.Mock;
+    };
     transaction: { findMany: jest.Mock };
   };
   let currentUser: { getUserId: jest.Mock };
@@ -24,6 +30,7 @@ describe('AccountsService', () => {
       account: {
         findMany: jest.fn().mockResolvedValue([]),
         findUnique: jest.fn(),
+        create: jest.fn(),
         update: jest.fn(),
       },
       transaction: { findMany: jest.fn().mockResolvedValue([]) },
@@ -153,6 +160,79 @@ describe('AccountsService', () => {
       const result = await service.findOne(accountId);
 
       expect(result.stats.nextInterestPaymentDate).toBe('2026-02-28');
+    });
+  });
+
+  describe('IBAN masking', () => {
+    const rawIban = 'ES9121000418450200051332';
+    const maskedIban = 'ES91 •••• •••• •••• 1332';
+
+    it('masks the IBAN returned by findAll', async () => {
+      prisma.account.findMany.mockResolvedValue([
+        { id: accountId, userId, iban: rawIban },
+      ]);
+
+      const [account] = await service.findAll();
+
+      expect(account.iban).toBe(maskedIban);
+    });
+
+    it('masks the IBAN returned by findOne', async () => {
+      prisma.account.findUnique.mockResolvedValue({
+        id: accountId,
+        userId,
+        balance: '1000.00',
+        interestRate: null,
+        taxRate: null,
+        interestPaymentDay: null,
+        iban: rawIban,
+      });
+
+      const result = await service.findOne(accountId);
+
+      expect(result.iban).toBe(maskedIban);
+    });
+
+    it('masks the IBAN returned by create', async () => {
+      prisma.account.create.mockResolvedValue({
+        id: accountId,
+        userId,
+        iban: rawIban,
+      });
+      const dto: CreateAccountDto = {
+        name: 'Main',
+        bank: 'Bank',
+        type: 'CHECKING',
+        balance: 100,
+        iban: rawIban,
+      };
+
+      const result = await service.create(dto);
+
+      expect(result.iban).toBe(maskedIban);
+    });
+
+    it('masks the IBAN returned by update', async () => {
+      prisma.account.findUnique.mockResolvedValue({ id: accountId, userId });
+      prisma.account.update.mockResolvedValue({
+        id: accountId,
+        userId,
+        iban: rawIban,
+      });
+
+      const result = await service.update(accountId, { iban: rawIban });
+
+      expect(result.iban).toBe(maskedIban);
+    });
+
+    it('leaves a null IBAN unchanged', async () => {
+      prisma.account.findMany.mockResolvedValue([
+        { id: accountId, userId, iban: null },
+      ]);
+
+      const [account] = await service.findAll();
+
+      expect(account.iban).toBeNull();
     });
   });
 });

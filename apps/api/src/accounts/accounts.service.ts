@@ -40,6 +40,22 @@ function getNextInterestPaymentDate(paymentDay: number, from: Date): Date {
   return clampToMonth(year, month + 1, paymentDay);
 }
 
+// Displays an IBAN with only the country code and last 4 digits visible
+// (e.g. "ES91 •••• •••• •••• 1332"), so the raw value never reaches the
+// client for a field the UI only ever displays masked.
+function maskIban(iban: string): string {
+  const clean = iban.replace(/\s+/g, '').toUpperCase();
+  if (clean.length <= 8) return clean;
+
+  const country = clean.slice(0, 4);
+  const last = clean.slice(-4);
+  return `${country} •••• •••• •••• ${last}`;
+}
+
+function maskAccount<T extends { iban: string | null }>(account: T): T {
+  return account.iban ? { ...account, iban: maskIban(account.iban) } : account;
+}
+
 @Injectable()
 export class AccountsService {
   constructor(
@@ -50,34 +66,40 @@ export class AccountsService {
   async findAll() {
     const userId = await this.currentUser.getUserId();
 
-    return this.prisma.account.findMany({
+    const accounts = await this.prisma.account.findMany({
       where: { userId },
       orderBy: { createdAt: 'asc' },
     });
+
+    return accounts.map(maskAccount);
   }
 
   async findOne(id: string) {
     const account = await this.ensureOwnership(id);
     const stats = await this.calculateStats(account);
 
-    return { ...account, stats };
+    return { ...maskAccount(account), stats };
   }
 
   async create(dto: CreateAccountDto) {
     const userId = await this.currentUser.getUserId();
 
-    return this.prisma.account.create({
+    const account = await this.prisma.account.create({
       data: { ...dto, userId },
     });
+
+    return maskAccount(account);
   }
 
   async update(id: string, dto: UpdateAccountDto) {
     await this.ensureOwnership(id);
 
-    return this.prisma.account.update({
+    const account = await this.prisma.account.update({
       where: { id },
       data: dto,
     });
+
+    return maskAccount(account);
   }
 
   async remove(id: string) {

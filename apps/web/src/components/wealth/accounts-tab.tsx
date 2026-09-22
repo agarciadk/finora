@@ -53,7 +53,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useAccounts, type AccountInput } from "@/hooks/use-accounts"
-import { formatCurrency, formatIban } from "@/lib/utils"
+import { formatCurrency } from "@/lib/utils"
 import type { Account, AccountType } from "@/lib/types"
 
 const ACCOUNT_TYPES: AccountType[] = [
@@ -109,7 +109,10 @@ export function AccountsTab() {
       bank: account.bank,
       type: account.type,
       balance: account.balance,
-      iban: account.iban ?? "",
+      // The API only ever returns a masked IBAN, so the field starts empty
+      // here — re-enter the full value to change it, leave it blank to keep
+      // the current one (see the placeholder for its masked reminder).
+      iban: "",
       isInterestBearing: account.interestRate !== null,
       interestRate: account.interestRate ?? "",
       taxRate: account.taxRate ?? "",
@@ -261,7 +264,7 @@ export function AccountsTab() {
                   </p>
                   {account.iban && (
                     <p className="font-mono text-xs text-muted-foreground">
-                      {formatIban(account.iban)}
+                      {account.iban}
                     </p>
                   )}
                 </CardContent>
@@ -381,6 +384,13 @@ export function AccountsTab() {
                     }))
                   }
                 />
+                {editingAccount?.iban && (
+                  <p className="text-sm text-muted-foreground">
+                    {t("accounts.form.ibanEditHint", {
+                      iban: editingAccount.iban,
+                    })}
+                  </p>
+                )}
               </div>
               <div className="flex items-center justify-between gap-2 rounded-lg border p-3">
                 <div className="flex flex-col gap-0.5">
