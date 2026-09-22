@@ -56,4 +56,32 @@ test.describe("Interest-bearing accounts", () => {
     ).toBeVisible()
     await expect(page.getByText("Cuenta remunerada")).not.toBeVisible()
   })
+
+  test("edits the account fields from the detail page", async ({ page }) => {
+    await login(page)
+
+    await page.getByRole("link", { name: "Patrimonio" }).click()
+    await page.getByRole("button", { name: "Añadir cuenta" }).click()
+
+    await page.getByLabel("Nombre").fill("Cuenta Corriente")
+    await page.getByLabel("Banco").fill("BBVA")
+    await page.getByLabel("Saldo").fill("500")
+    await page.getByRole("button", { name: "Guardar" }).click()
+
+    await page.getByText("Cuenta Corriente").click()
+    await expect(page).toHaveURL(/\/patrimonio\/cuentas\/[^/]+$/)
+
+    await page.getByRole("button", { name: "Editar" }).click()
+    await page.getByLabel("Nombre").fill("Cuenta Corriente Renombrada")
+    await page.getByRole("switch", { name: "Cuenta remunerada" }).click()
+    await page.getByLabel("TAE (%)").fill("2")
+    await page.getByLabel("Retención (%)").fill("19")
+    await page.getByLabel("Día de pago (1-31)").fill("1")
+    await page.getByRole("button", { name: "Guardar" }).click()
+
+    await expect(
+      page.getByRole("heading", { name: "Cuenta Corriente Renombrada" })
+    ).toBeVisible()
+    await expect(page.getByText("Cuenta remunerada")).toBeVisible()
+  })
 })

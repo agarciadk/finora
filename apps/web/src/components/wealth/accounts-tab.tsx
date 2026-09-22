@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import {
   Landmark,
@@ -18,24 +18,6 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,34 +34,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { AccountFormSheet } from "@/components/account-form-sheet"
 import { useAccounts, type AccountInput } from "@/hooks/use-accounts"
 import { formatCurrency } from "@/lib/utils"
 import type { Account, AccountType } from "@/lib/types"
-
-const ACCOUNT_TYPES: AccountType[] = [
-  "CHECKING",
-  "SAVINGS",
-  "CREDIT_CARD",
-  "CASH",
-]
 
 const ACCOUNT_ICONS: Record<AccountType, typeof Landmark> = {
   CHECKING: Landmark,
   SAVINGS: PiggyBankIcon,
   CREDIT_CARD: Wallet,
   CASH: Wallet,
-}
-
-const EMPTY_FORM = {
-  name: "",
-  bank: "",
-  type: "CHECKING" as AccountType,
-  balance: "",
-  iban: "",
-  isInterestBearing: false,
-  interestRate: "",
-  taxRate: "",
-  interestPaymentDay: "",
 }
 
 export function AccountsTab() {
@@ -90,84 +54,23 @@ export function AccountsTab() {
 
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editingAccount, setEditingAccount] = useState<Account | null>(null)
-  const [form, setForm] = useState(EMPTY_FORM)
-  const [isSaving, setIsSaving] = useState(false)
-  const [formError, setFormError] = useState<string | null>(null)
   const [deletingAccount, setDeletingAccount] = useState<Account | null>(null)
 
   function openCreateSheet() {
     setEditingAccount(null)
-    setForm(EMPTY_FORM)
-    setFormError(null)
     setSheetOpen(true)
   }
 
   function openEditSheet(account: Account) {
     setEditingAccount(account)
-    setForm({
-      name: account.name,
-      bank: account.bank,
-      type: account.type,
-      balance: account.balance,
-      // The API only ever returns a masked IBAN, so the field starts empty
-      // here — re-enter the full value to change it, leave it blank to keep
-      // the current one (see the placeholder for its masked reminder).
-      iban: "",
-      isInterestBearing: account.interestRate !== null,
-      interestRate: account.interestRate ?? "",
-      taxRate: account.taxRate ?? "",
-      interestPaymentDay:
-        account.interestPaymentDay === null
-          ? ""
-          : String(account.interestPaymentDay),
-    })
-    setFormError(null)
     setSheetOpen(true)
   }
 
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault()
-    setFormError(null)
-
-    const input: AccountInput = {
-      name: form.name.trim(),
-      bank: form.bank.trim(),
-      type: form.type,
-      balance: Number(form.balance),
-      iban: form.iban.trim() || undefined,
-      interestRate: form.isInterestBearing ? Number(form.interestRate) : null,
-      taxRate: form.isInterestBearing ? Number(form.taxRate) : null,
-      interestPaymentDay: form.isInterestBearing
-        ? Number(form.interestPaymentDay)
-        : null,
-    }
-
-    if (
-      !input.name ||
-      !input.bank ||
-      Number.isNaN(input.balance) ||
-      (form.isInterestBearing &&
-        (Number.isNaN(input.interestRate) ||
-          Number.isNaN(input.taxRate) ||
-          Number.isNaN(input.interestPaymentDay)))
-    ) {
-      setFormError(t("common.errors.generic"))
-      return
-    }
-
-    setIsSaving(true)
-
-    try {
-      if (editingAccount) {
-        await updateAccount(editingAccount.id, input)
-      } else {
-        await createAccount(input)
-      }
-      setSheetOpen(false)
-    } catch {
-      setFormError(t("accounts.errors.saveFailed"))
-    } finally {
-      setIsSaving(false)
+  async function handleFormSubmit(input: AccountInput): Promise<void> {
+    if (editingAccount) {
+      await updateAccount(editingAccount.id, input)
+    } else {
+      await createAccount(input)
     }
   }
 
@@ -274,222 +177,12 @@ export function AccountsTab() {
         </div>
       )}
 
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent>
-          <form onSubmit={handleSubmit} className="flex h-full flex-col">
-            <SheetHeader>
-              <SheetTitle>
-                {editingAccount
-                  ? t("accounts.form.editTitle")
-                  : t("accounts.form.createTitle")}
-              </SheetTitle>
-              <SheetDescription>
-                {t("accounts.form.description")}
-              </SheetDescription>
-            </SheetHeader>
-            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-6">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="account-name">
-                  {t("accounts.form.nameLabel")}
-                </Label>
-                <Input
-                  id="account-name"
-                  value={form.name}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      name: event.target.value,
-                    }))
-                  }
-                  required
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="account-bank">
-                  {t("accounts.form.bankLabel")}
-                </Label>
-                <Input
-                  id="account-bank"
-                  value={form.bank}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      bank: event.target.value,
-                    }))
-                  }
-                  required
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="account-type">
-                  {t("accounts.form.typeLabel")}
-                </Label>
-                <Select
-                  value={form.type}
-                  onValueChange={(value) =>
-                    setForm((current) => ({
-                      ...current,
-                      type: value as AccountType,
-                    }))
-                  }
-                  items={Object.fromEntries(
-                    ACCOUNT_TYPES.map((type) => [
-                      type,
-                      t(`accounts.types.${type}`),
-                    ])
-                  )}
-                >
-                  <SelectTrigger id="account-type">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ACCOUNT_TYPES.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {t(`accounts.types.${type}`)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="account-balance">
-                  {t("accounts.form.balanceLabel")}
-                </Label>
-                <Input
-                  id="account-balance"
-                  type="number"
-                  step="0.01"
-                  value={form.balance}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      balance: event.target.value,
-                    }))
-                  }
-                  required
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="account-iban">
-                  {t("accounts.form.ibanLabel")}
-                </Label>
-                <Input
-                  id="account-iban"
-                  placeholder={t("accounts.form.ibanPlaceholder")}
-                  value={form.iban}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      iban: event.target.value,
-                    }))
-                  }
-                />
-                {editingAccount?.iban && (
-                  <p className="text-sm text-muted-foreground">
-                    {t("accounts.form.ibanEditHint", {
-                      iban: editingAccount.iban,
-                    })}
-                  </p>
-                )}
-              </div>
-              <div className="flex items-center justify-between gap-2 rounded-lg border p-3">
-                <div className="flex flex-col gap-0.5">
-                  <Label htmlFor="account-interest-bearing">
-                    {t("accounts.form.interestBearingLabel")}
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    {t("accounts.form.interestBearingDescription")}
-                  </p>
-                </div>
-                <Switch
-                  id="account-interest-bearing"
-                  checked={form.isInterestBearing}
-                  onCheckedChange={(checked) =>
-                    setForm((current) => ({
-                      ...current,
-                      isInterestBearing: checked,
-                    }))
-                  }
-                />
-              </div>
-              {form.isInterestBearing && (
-                <>
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="account-interest-rate">
-                      {t("accounts.form.interestRateLabel")}
-                    </Label>
-                    <Input
-                      id="account-interest-rate"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="100"
-                      value={form.interestRate}
-                      onChange={(event) =>
-                        setForm((current) => ({
-                          ...current,
-                          interestRate: event.target.value,
-                        }))
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="account-tax-rate">
-                      {t("accounts.form.taxRateLabel")}
-                    </Label>
-                    <Input
-                      id="account-tax-rate"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="100"
-                      value={form.taxRate}
-                      onChange={(event) =>
-                        setForm((current) => ({
-                          ...current,
-                          taxRate: event.target.value,
-                        }))
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="account-interest-payment-day">
-                      {t("accounts.form.interestPaymentDayLabel")}
-                    </Label>
-                    <Input
-                      id="account-interest-payment-day"
-                      type="number"
-                      step="1"
-                      min="1"
-                      max="31"
-                      value={form.interestPaymentDay}
-                      onChange={(event) =>
-                        setForm((current) => ({
-                          ...current,
-                          interestPaymentDay: event.target.value,
-                        }))
-                      }
-                      required
-                    />
-                  </div>
-                </>
-              )}
-              {formError && (
-                <p className="text-sm text-destructive">{formError}</p>
-              )}
-            </div>
-            <SheetFooter>
-              <Button type="submit" disabled={isSaving}>
-                {isSaving
-                  ? t("common.actions.saving")
-                  : t("common.actions.save")}
-              </Button>
-            </SheetFooter>
-          </form>
-        </SheetContent>
-      </Sheet>
+      <AccountFormSheet
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        account={editingAccount}
+        onSubmit={handleFormSubmit}
+      />
 
       <AlertDialog
         open={deletingAccount !== null}

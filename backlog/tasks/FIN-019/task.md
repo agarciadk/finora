@@ -1,7 +1,7 @@
 ---
 id: FIN-019
 type: improvement
-status: ready
+status: done
 priority: medium
 epic:
 labels: []
@@ -25,9 +25,9 @@ so that I don't have to go back to the list just to make a change.
 
 ## Acceptance Criteria
 
-- [ ] The account detail page allows editing every field currently editable from the accounts list Sheet (name, bank, type, currency, iban, interest fields, etc.).
-- [ ] Editing from the detail page uses the same validation/behavior as editing from the list (no divergent rules).
-- [ ] Saving from the detail page updates the displayed data in place without requiring a full page reload.
+- [x] The account detail page allows editing every field currently editable from the accounts list Sheet (name, bank, type, currency, iban, interest fields, etc.).
+- [x] Editing from the detail page uses the same validation/behavior as editing from the list (no divergent rules).
+- [x] Saving from the detail page updates the displayed data in place without requiring a full page reload.
 
 ## Definition of Ready
 
@@ -39,9 +39,9 @@ so that I don't have to go back to the list just to make a change.
 
 ## Definition of Done
 
-- [ ] The implementation is complete.
-- [ ] Acceptance criteria are satisfied.
-- [ ] Relevant tests have been added or updated.
-- [ ] Relevant validation has been performed.
-- [ ] Documentation has been updated when necessary.
-- [ ] No known task-specific issues remain.
+- [x] The implementation is complete.
+- [x] Acceptance criteria are satisfied.
+- [x] Relevant tests have been added or updated.
+- [x] Relevant validation has been performed.
+- [x] Documentation has been updated when necessary.
+- [x] No known task-specific issues remain.

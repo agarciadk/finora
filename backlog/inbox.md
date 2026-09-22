@@ -48,5 +48,6 @@ Quick-capture list for ideas about Finora. This is **not** a task list — an id
 - Añadir estado global a la App con Zustand. → converted to FIN-020
 - Enfocar la app a Mobile First para tener más facilidades a la migración a móvil. → converted to FIN-029
 - En el detalle de las cuentas se debería poder editar los mismos datos que en la lista de cuentas. → converted to FIN-019
+- El botón "Volver a cuentas" de `account-detail-page.tsx` (usa `render={<Link .../>}` con `nativeButton`) genera un warning de Base UI en consola ("A component that acts as a button expected a native `<button>`..."); revisar el patrón `render` de `Button` en esa página. Detectado durante FIN-019.
 - El selector de importe en pagos recurrentes podría ser un range selector. → converted to FIN-023
 - Crear capa de pago, añadir anuncios. → converted to FIN-039, FIN-040
