@@ -1,7 +1,7 @@
 ---
 id: FIN-018
 type: feature
-status: ready
+status: done
 priority: medium
 epic:
 labels: []
@@ -25,10 +25,10 @@ so that I can visually recognize categories consistently across the app.
 
 ## Acceptance Criteria
 
-- [ ] A category can have an optional color (e.g. hex value) set/edited from the category management page.
-- [ ] The category's color is shown consistently wherever categories appear: transaction rows/badges, category list, budget cards, `AnalyticsCategoryChart` (currently uses its own palette per `.ai-context/03-ui-ux.md`).
-- [ ] Categories without an explicitly-set color fall back to the current default behavior (e.g. existing chart palette / neutral badge).
-- [ ] Existing categories are unaffected until a color is explicitly set.
+- [x] A category can have an optional color (e.g. hex value) set/edited from the category management page.
+- [x] The category's color is shown consistently wherever categories appear: transaction rows/badges, category list, budget cards, `AnalyticsCategoryChart` (currently uses its own palette per `.ai-context/03-ui-ux.md`).
+- [x] Categories without an explicitly-set color fall back to the current default behavior (e.g. existing chart palette / neutral badge).
+- [x] Existing categories are unaffected until a color is explicitly set.
 
 ## Definition of Ready
 
@@ -40,9 +40,9 @@ so that I can visually recognize categories consistently across the app.
 
 ## Definition of Done
 
-- [ ] The implementation is complete.
-- [ ] Acceptance criteria are satisfied.
-- [ ] Relevant tests have been added or updated.
-- [ ] Relevant validation has been performed.
-- [ ] Documentation has been updated when necessary.
-- [ ] No known task-specific issues remain.
+- [x] The implementation is complete.
+- [x] Acceptance criteria are satisfied.
+- [x] Relevant tests have been added or updated.
+- [x] Relevant validation has been performed.
+- [x] Documentation has been updated when necessary.
+- [x] No known task-specific issues remain.

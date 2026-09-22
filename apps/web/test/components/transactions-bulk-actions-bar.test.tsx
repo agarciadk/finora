@@ -10,6 +10,7 @@ const categories: Category[] = [
     id: "category-1",
     name: "Alimentación",
     type: "EXPENSE",
+    color: null,
     createdAt: "2026-01-01T00:00:00.000Z",
     updatedAt: "2026-01-01T00:00:00.000Z",
   },

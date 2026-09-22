@@ -52,12 +52,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { CategoryColorDot } from "@/components/category-color-dot"
 import { useCategories, type CategoryInput } from "@/hooks/use-categories"
+import { CATEGORY_COLORS } from "@/lib/category-colors"
 import type { Category, TransactionType } from "@/lib/types"
+import { cn } from "@/lib/utils"
 
 const CATEGORY_TYPES: TransactionType[] = ["EXPENSE", "INCOME"]
 
-const EMPTY_FORM = { name: "", type: "EXPENSE" as TransactionType }
+const EMPTY_FORM = {
+  name: "",
+  type: "EXPENSE" as TransactionType,
+  color: null as string | null,
+}
 
 export function CategoriesTab() {
   const { t } = useTranslation()
@@ -86,7 +93,11 @@ export function CategoriesTab() {
 
   function openEditSheet(category: Category) {
     setEditingCategory(category)
-    setForm({ name: category.name, type: category.type })
+    setForm({
+      name: category.name,
+      type: category.type,
+      color: category.color,
+    })
     setFormError(null)
     setSheetOpen(true)
   }
@@ -98,6 +109,7 @@ export function CategoriesTab() {
     const input: CategoryInput = {
       name: form.name.trim(),
       type: form.type,
+      color: form.color ?? undefined,
     }
 
     if (!input.name) {
@@ -178,7 +190,10 @@ export function CategoriesTab() {
                 {categories.map((category) => (
                   <TableRow key={category.id}>
                     <TableCell className="font-medium">
-                      {category.name}
+                      <span className="flex items-center gap-2">
+                        <CategoryColorDot color={category.color} />
+                        {category.name}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <Badge
@@ -285,6 +300,49 @@ export function CategoriesTab() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label>{t("categories.form.colorLabel")}</Label>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setForm((current) => ({ ...current, color: null }))
+                    }
+                    aria-label={t("categories.form.colorNone")}
+                    aria-pressed={form.color === null}
+                    className={cn(
+                      "flex size-7 items-center justify-center rounded-full border-2",
+                      form.color === null
+                        ? "border-foreground"
+                        : "border-transparent"
+                    )}
+                  >
+                    <span className="size-4 rounded-full border border-dashed border-muted-foreground" />
+                  </button>
+                  {CATEGORY_COLORS.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() =>
+                        setForm((current) => ({ ...current, color }))
+                      }
+                      aria-label={color}
+                      aria-pressed={form.color === color}
+                      className={cn(
+                        "flex size-7 items-center justify-center rounded-full border-2",
+                        form.color === color
+                          ? "border-foreground"
+                          : "border-transparent"
+                      )}
+                    >
+                      <span
+                        className="size-4 rounded-full"
+                        style={{ backgroundColor: color }}
+                      />
+                    </button>
+                  ))}
+                </div>
               </div>
               {formError && (
                 <p className="text-sm text-destructive">{formError}</p>

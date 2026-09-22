@@ -77,6 +77,7 @@ export class AnalyticsService {
         return {
           categoryId: entry.categoryId,
           category: category?.name ?? '',
+          color: category?.color ?? null,
           amount,
           percentage:
             current.expenses > 0

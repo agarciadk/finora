@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { CategoryColorDot } from "@/components/category-color-dot"
 import {
   Select,
   SelectContent,
@@ -165,7 +166,10 @@ export function BudgetsTab() {
               <Card key={budget.id}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle>{budget.category.name}</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                      <CategoryColorDot color={budget.category.color} />
+                      {budget.category.name}
+                    </CardTitle>
                     <div className="flex items-center gap-2">
                       <Badge
                         variant={isOverBudget ? "destructive" : "secondary"}

@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { CategoryColorDot } from "@/components/category-color-dot"
 import type { Category, Transaction } from "@/lib/types"
 
 const CREATE_NEW_VALUE = "__create__"
@@ -119,6 +120,7 @@ export function TransactionCategorySelect({
           <SelectContent>
             {availableCategories.map((category) => (
               <SelectItem key={category.id} value={category.id}>
+                <CategoryColorDot color={category.color} />
                 {category.name}
               </SelectItem>
             ))}
