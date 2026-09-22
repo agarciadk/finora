@@ -36,9 +36,10 @@ export class ResendMailService extends MailService {
   }
 
   private async send(to: string, subject: string, text: string) {
-    if (!this.resend) {
-      // No RESEND_API_KEY configured (typical in local dev/CI): log instead
-      // of failing the caller, as if the "inbox" were stdout.
+    if (!this.resend || process.env.NODE_ENV === 'test') {
+      // No RESEND_API_KEY configured, or running tests (Jest/Playwright set
+      // NODE_ENV=test, and Resend rejects @example.com addresses anyway):
+      // log instead of hitting the real API, as if the "inbox" were stdout.
       this.logger.log(`[dev email] to=${to} subject="${subject}" ${text}`);
       return;
     }
