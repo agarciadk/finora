@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { createTransport, type Transporter } from 'nodemailer';
+import { Resend } from 'resend';
 import { MailService } from './mail.service';
 
 function getFrontendUrl(): string {
@@ -7,13 +7,14 @@ function getFrontendUrl(): string {
 }
 
 @Injectable()
-export class NodemailerMailService extends MailService {
-  private readonly logger = new Logger(NodemailerMailService.name);
-  private readonly transporter: Transporter | null;
+export class ResendMailService extends MailService {
+  private readonly logger = new Logger(ResendMailService.name);
+  private readonly resend: Resend | null;
 
   constructor() {
     super();
-    this.transporter = this.buildTransporter();
+    const apiKey = process.env['RESEND_API_KEY'];
+    this.resend = apiKey ? new Resend(apiKey) : null;
   }
 
   async sendVerificationEmail(to: string, token: string): Promise<void> {
@@ -35,35 +36,32 @@ export class NodemailerMailService extends MailService {
   }
 
   private async send(to: string, subject: string, text: string) {
-    if (!this.transporter) {
-      // No SMTP credentials configured (typical in local dev/CI): log the
-      // link instead of failing the request, as if the "inbox" were stdout.
+    if (!this.resend) {
+      // No RESEND_API_KEY configured (typical in local dev/CI): log instead
+      // of failing the caller, as if the "inbox" were stdout.
       this.logger.log(`[dev email] to=${to} subject="${subject}" ${text}`);
       return;
     }
 
-    await this.transporter.sendMail({
-      from: process.env['SMTP_FROM'] ?? 'no-reply@finora.app',
-      to,
-      subject,
-      text,
-    });
-  }
+    try {
+      const { data, error } = await this.resend.emails.send({
+        from: 'Finora <finora@gapaci.dev>',
+        to,
+        subject,
+        text,
+      });
 
-  private buildTransporter(): Transporter | null {
-    const host = process.env['SMTP_HOST'];
+      if (error) {
+        this.logger.error(`Failed to send email to ${to}: ${error.message}`);
+        return;
+      }
 
-    if (!host) {
-      return null;
+      this.logger.log(`Email sent to ${to} (id: ${data?.id})`);
+    } catch (err) {
+      this.logger.error(
+        `Unexpected error sending email to ${to}`,
+        err instanceof Error ? err.stack : String(err),
+      );
     }
-
-    return createTransport({
-      host,
-      port: Number(process.env['SMTP_PORT'] ?? 587),
-      secure: process.env['SMTP_SECURE'] === 'true',
-      auth: process.env['SMTP_USER']
-        ? { user: process.env['SMTP_USER'], pass: process.env['SMTP_PASS'] }
-        : undefined,
-    });
   }
 }
