@@ -1,7 +1,7 @@
 ---
 id: FIN-009
 type: refactor
-status: ready
+status: done
 priority: high
 epic:
 labels: [security]
@@ -25,10 +25,10 @@ so that a compromised frontend/browser extension/network inspection can't expose
 
 ## Acceptance Criteria
 
-- [ ] The API returns already-masked values for fields that are only ever displayed masked in the UI (starting with `Account.iban`).
-- [ ] `apps/web`'s `formatIban` (or equivalent) is removed/simplified since masking no longer happens client-side.
-- [ ] Any endpoint/flow that legitimately needs the raw value (e.g. an edit form pre-fill, if applicable) is explicitly identified and handled — full IBAN must still be enterable/editable where needed.
-- [ ] Existing tests referencing client-side masking are updated.
+- [x] The API returns already-masked values for fields that are only ever displayed masked in the UI (starting with `Account.iban`).
+- [x] `apps/web`'s `formatIban` (or equivalent) is removed/simplified since masking no longer happens client-side.
+- [x] Any endpoint/flow that legitimately needs the raw value (e.g. an edit form pre-fill, if applicable) is explicitly identified and handled — full IBAN must still be enterable/editable where needed.
+- [x] Existing tests referencing client-side masking are updated.
 
 ## Definition of Ready
 
@@ -40,9 +40,9 @@ so that a compromised frontend/browser extension/network inspection can't expose
 
 ## Definition of Done
 
-- [ ] The implementation is complete.
-- [ ] Acceptance criteria are satisfied.
-- [ ] Relevant tests have been added or updated.
-- [ ] Relevant validation has been performed.
-- [ ] Documentation has been updated when necessary.
-- [ ] No known task-specific issues remain.
+- [x] The implementation is complete.
+- [x] Acceptance criteria are satisfied.
+- [x] Relevant tests have been added or updated.
+- [x] Relevant validation has been performed.
+- [x] Documentation has been updated when necessary.
+- [x] No known task-specific issues remain.

@@ -131,7 +131,8 @@
       "taxRateLabel": "Tax rate (%)",
       "interestPaymentDayLabel": "Payment day (1-31)",
       "ibanLabel": "IBAN",
-      "ibanPlaceholder": "ES91 2100 0418 4502 0005 1332"
+      "ibanPlaceholder": "ES91 2100 0418 4502 0005 1332",
+      "ibanEditHint": "Leave blank to keep the current IBAN ({{iban}})."
     },
     "detail": {
       "backButton": "Back to accounts",
