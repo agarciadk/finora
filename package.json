@@ -12,7 +12,7 @@
     "url": "git+https://github.com/agarciadk/finora.git"
   },
   "license": "Apache-2.0",
-  "author": "Alberto Garcia de Paredes Cidoncha <agarciadk@gmail.com>",
+  "author": "Alberto Garcia de Paredes Cidoncha <alberto@gapaci.dev>",
   "scripts": {
     "dev": "pnpm db:up && concurrently \"pnpm dev:web\" \"pnpm dev:api\"",
     "dev:web": "pnpm --filter @finora/web dev",
