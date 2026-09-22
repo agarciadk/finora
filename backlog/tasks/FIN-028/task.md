@@ -1,0 +1,45 @@
+---
+id: FIN-028
+type: feature
+status: refinement
+priority: low
+epic:
+labels: []
+depends_on: []
+related_to: []
+created_at: 2026-09-22
+updated_at: 2026-09-22
+---
+
+# FIN-028 — Net salary calculator
+
+## Summary
+
+The inbox asks to add a net salary calculator ("Añadir calculadora de sueldo neto"). This requires tax/social-security rules for a specific country/jurisdiction, which aren't defined anywhere in the repo.
+
+## User Story
+
+As a user,
+I want to calculate my net salary from a gross amount,
+so that I can understand my actual take-home pay.
+
+## Acceptance Criteria
+
+- [ ] ...to be defined once jurisdiction/tax-rule scope is decided.
+
+## Definition of Ready
+
+- [ ] The objective is clearly defined.
+- [ ] The scope is understood.
+- [ ] Acceptance criteria are testable.
+- [ ] Major functional questions are resolved.
+- [ ] The task contains enough context to begin implementation.
+
+## Definition of Done
+
+- [ ] The implementation is complete.
+- [ ] Acceptance criteria are satisfied.
+- [ ] Relevant tests have been added or updated.
+- [ ] Relevant validation has been performed.
+- [ ] Documentation has been updated when necessary.
+- [ ] No known task-specific issues remain.

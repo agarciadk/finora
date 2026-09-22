@@ -169,6 +169,10 @@ The UI copy lives in `apps/web/src/i18n/locales/<lang>/translation.json` (curren
 - To add a new language, create a new folder under `apps/web/src/i18n/locales/<lang>/translation.json` mirroring the existing keys and register it in the `resources` object in `apps/web/src/i18n/config.ts`.
 - Only UI copy (headings, labels, buttons, messages, table headers, accessible names) is translated; user data (accounts, transactions, budgets, category names) is stored and displayed as entered.
 
+## Backlog
+
+Ideas and tasks for this project are tracked as Markdown files under [`backlog/`](./backlog/README.md) — see [`backlog/README.md`](./backlog/README.md) for the full system (inbox, `FIN-XXX` tasks, epics, lifecycle) and [`.github/copilot-instructions.md`](./.github/copilot-instructions.md) for how AI agents should pick up work. Permanent project context lives in [`.ai-context/`](./.ai-context/README.md) instead.
+
 ## CI/CD
 
 Workflows live in `.github/workflows/`:
