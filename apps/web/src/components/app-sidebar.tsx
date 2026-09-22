@@ -17,6 +17,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar"
 
 const navItems = [
@@ -49,6 +50,7 @@ const navItems = [
 export function AppSidebar({ onNavigate }: { onNavigate: (to: string) => void }) {
   const { pathname } = useLocation()
   const { t } = useTranslation()
+  const { isMobile, setOpenMobile } = useSidebar()
 
   // NavLink's own click handler navigates outside of any transition, which
   // makes React hide the freshly-clicked route's already-mounted <Suspense>
@@ -69,6 +71,9 @@ export function AppSidebar({ onNavigate }: { onNavigate: (to: string) => void })
       }
       event.preventDefault()
       onNavigate(to)
+      if (isMobile) {
+        setOpenMobile(false)
+      }
     }
   }
 

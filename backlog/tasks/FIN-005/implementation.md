@@ -7,22 +7,23 @@ Call `setOpenMobile(false)` (from `useSidebar()`) inside `AppSidebar`'s `handleC
 ## Files / Areas Affected
 
 - `apps/web/src/components/app-sidebar.tsx`
-- Possibly `apps/web/src/components/ui/sidebar.tsx` if `setOpenMobile` needs to be consumed differently.
+- `apps/web/test/components/app-sidebar.test.tsx` (new)
 
 ## Implementation Steps
 
-- [ ] Read `use-sidebar`/`SidebarProvider` implementation in `sidebar.tsx` to confirm `setOpenMobile`'s exact contract.
-- [ ] Call `setOpenMobile(false)` from `AppSidebar#handleClick` after `onNavigate(to)`.
-- [ ] Manually verify on a mobile viewport (devtools responsive mode) that the overlay closes on tap, and that desktop is unaffected.
+- [x] Read `use-sidebar`/`SidebarProvider` implementation in `sidebar.tsx` to confirm `setOpenMobile`'s exact contract.
+- [x] Call `setOpenMobile(false)` from `AppSidebar#handleClick` after `onNavigate(to)`, guarded by `isMobile`.
+- [x] Verified the mobile-close/desktop-unaffected behavior via the automated component test below (no manual devtools check was performed).
 
 ## Testing
 
-- [ ] Add/extend a component test for `AppSidebar` (or an e2e test) covering the mobile-close behavior, per repo convention (`apps/web/test/components/`).
+- [x] Added `apps/web/test/components/app-sidebar.test.tsx`: mocks `window.matchMedia`/`window.innerWidth` to simulate mobile vs. desktop, opens the `Sheet` via `SidebarTrigger`, clicks a nav link, and asserts the dialog closes on mobile while the desktop sidebar is unaffected.
 
 ## Validation
 
-- [ ] `pnpm --filter web test` (or the equivalent Vitest command for this repo).
-- [ ] Manual check in responsive/mobile emulation.
+- [x] `pnpm test` (root, runs `@finora/test` → Vitest for `apps/web`): 15 files, 55 tests passed.
+- [x] `pnpm --filter web exec tsc --noEmit`: clean.
+- [x] `pnpm --filter web exec eslint .`: clean.
 
 ## Discovered Work (out of scope)
 
@@ -30,4 +31,4 @@ Call `setOpenMobile(false)` (from `useSidebar()`) inside `AppSidebar`'s `handleC
 
 ## Notes
 
-—
+`isMobile` guard is not strictly required since `setOpenMobile` is a no-op on desktop (its value is simply unused when `Sidebar` renders the non-mobile branch), but it keeps the intent explicit and matches the acceptance criteria wording.

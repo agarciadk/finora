@@ -1,7 +1,7 @@
 ---
 id: FIN-005
 type: bug
-status: ready
+status: done
 priority: medium
 epic: mobile-application
 labels: [mobile]
@@ -27,9 +27,9 @@ so that I immediately see the page I navigated to instead of the sidebar coverin
 
 ## Acceptance Criteria
 
-- [ ] Tapping a sidebar navigation link on a mobile viewport closes the sidebar overlay.
-- [ ] Desktop behavior (persistent/collapsible sidebar, not an overlay) is unchanged.
-- [ ] Works for all nav items in `AppSidebar` (Dashboard/Patrimonio/Planificación/Analítica).
+- [x] Tapping a sidebar navigation link on a mobile viewport closes the sidebar overlay.
+- [x] Desktop behavior (persistent/collapsible sidebar, not an overlay) is unchanged.
+- [x] Works for all nav items in `AppSidebar` (Dashboard/Patrimonio/Planificación/Analítica) — they share the same `handleClick`.
 
 ## Definition of Ready
 
@@ -41,9 +41,9 @@ so that I immediately see the page I navigated to instead of the sidebar coverin
 
 ## Definition of Done
 
-- [ ] The implementation is complete.
-- [ ] Acceptance criteria are satisfied.
-- [ ] Relevant tests have been added or updated.
-- [ ] Relevant validation has been performed.
-- [ ] Documentation has been updated when necessary.
-- [ ] No known task-specific issues remain.
+- [x] The implementation is complete.
+- [x] Acceptance criteria are satisfied.
+- [x] Relevant tests have been added or updated.
+- [x] Relevant validation has been performed.
+- [x] Documentation has been updated when necessary.
+- [x] No known task-specific issues remain.
