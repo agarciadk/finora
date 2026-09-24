@@ -33,6 +33,7 @@ export type Category = {
   id: string
   name: string
   type: TransactionType
+  color: string | null
   createdAt: string
   updatedAt: string
 }
@@ -147,6 +148,7 @@ export type BulkDeleteResult = { deleted: number }
 export type SpendingByCategory = {
   categoryId: string
   category: string
+  color: string | null
   amount: number
   percentage: number
 }

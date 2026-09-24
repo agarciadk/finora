@@ -29,13 +29,16 @@ export function AnalyticsCategoryChart({ data }: AnalyticsCategoryChartProps) {
 
   const chartData = data.map((item, index) => ({
     ...item,
-    fill: CHART_COLORS[index % CHART_COLORS.length],
+    fill: item.color ?? CHART_COLORS[index % CHART_COLORS.length],
   }))
 
   const chartConfig: ChartConfig = Object.fromEntries(
     chartData.map((item, index) => [
       item.categoryId,
-      { label: item.category, color: CHART_COLORS[index % CHART_COLORS.length] },
+      {
+        label: item.category,
+        color: item.color ?? CHART_COLORS[index % CHART_COLORS.length],
+      },
     ])
   )
 

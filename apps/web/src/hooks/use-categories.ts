@@ -5,6 +5,7 @@ import type { Category, TransactionType } from "@/lib/types"
 export type CategoryInput = {
   name: string
   type: TransactionType
+  color?: string
 }
 
 export function useCategories() {

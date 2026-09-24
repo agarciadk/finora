@@ -168,7 +168,9 @@
       "editTitle": "Edit category",
       "description": "Enter the category details.",
       "nameLabel": "Name",
-      "typeLabel": "Type"
+      "typeLabel": "Type",
+      "colorLabel": "Color",
+      "colorNone": "No color"
     },
     "deleteDialog": {
       "title": "Delete \"{{name}}\"?",

@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { CategoryColorDot } from "@/components/category-color-dot"
 import {
   Select,
   SelectContent,
@@ -312,7 +313,10 @@ export function RecurringPaymentsTab() {
                 </CardHeader>
                 <CardContent className="flex flex-col gap-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="secondary">{payment.category.name}</Badge>
+                    <Badge variant="secondary">
+                      <CategoryColorDot color={payment.category.color} />
+                      {payment.category.name}
+                    </Badge>
                     <Badge variant="secondary">{payment.account.name}</Badge>
                     <Badge variant="outline">
                       {t(`recurringPayments.frequency.${payment.frequency}`)}

@@ -149,6 +149,7 @@ model Category {
   userId    String
   name      String
   type      TransactionType
+  color     String?
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
   deletedAt DateTime?
