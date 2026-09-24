@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CurrentUserService } from '../common/current-user/current-user.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { hasRecurringPaymentEnded } from '../recurring-payments/recurring-payment-status.util';
 
 type MonthStats = {
   income: number;
@@ -177,17 +178,25 @@ export class AnalyticsService {
       }),
       this.prisma.recurringPayment.findMany({
         where: { userId, isActive: true, type: 'EXPENSE' },
-        select: { amount: true, frequency: true },
+        select: {
+          amount: true,
+          frequency: true,
+          nextPaymentDate: true,
+          endDate: true,
+        },
       }),
     ]);
 
     const expectedIncome = Number(user.mainIncomeAmount ?? 0);
 
-    const recurringExpenses = recurringExpensePayments.reduce(
-      (total, payment) =>
-        total + Number(payment.amount) * MONTHLY_MULTIPLIER[payment.frequency],
-      0,
-    );
+    const recurringExpenses = recurringExpensePayments
+      .filter((payment) => !hasRecurringPaymentEnded(payment))
+      .reduce(
+        (total, payment) =>
+          total +
+          Number(payment.amount) * MONTHLY_MULTIPLIER[payment.frequency],
+        0,
+      );
 
     return {
       expectedIncome: Math.round(expectedIncome),

@@ -80,6 +80,7 @@ export type RecurringPayment = {
   type: TransactionType
   frequency: RecurringFrequency
   startDate: string
+  endDate: string | null
   nextPaymentDate: string
   isActive: boolean
   account: Account

@@ -362,9 +362,11 @@
       "description": "Sum of your active recurring expenses, normalized to a monthly amount."
     },
     "status": {
-      "paused": "Paused"
+      "paused": "Paused",
+      "ended": "Ended"
     },
     "nextPayment": "Next payment: {{date}}",
+    "endedOn": "Ended on {{date}}",
     "frequency": {
       "WEEKLY": "Weekly",
       "MONTHLY": "Monthly",
@@ -385,6 +387,7 @@
       "typeLabel": "Type",
       "frequencyLabel": "Frequency",
       "startDateLabel": "Start date",
+      "endDateLabel": "End date (optional)",
       "accountLabel": "Account",
       "categoryLabel": "Category",
       "activeLabel": "Active",

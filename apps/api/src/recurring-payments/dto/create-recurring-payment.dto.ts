@@ -52,6 +52,15 @@ export class CreateRecurringPaymentDto {
   startDate!: string;
 
   @ApiPropertyOptional({
+    description:
+      'Optional date after which the payment stops being due (e.g. a fixed-term contract). Must not be before startDate.',
+    nullable: true,
+  })
+  @IsOptional()
+  @IsDateString()
+  endDate?: string | null;
+
+  @ApiPropertyOptional({
     description: 'Whether the payment is active on creation. Defaults to true.',
   })
   @IsOptional()

@@ -101,6 +101,105 @@ describe('RecurringPaymentsService', () => {
       ];
       expect(data.nextPaymentDate).toEqual(data.startDate);
     });
+
+    it('rejects an endDate before startDate', async () => {
+      prisma.account.findUnique.mockResolvedValue({
+        id: 'account-1',
+        userId,
+      });
+      prisma.category.findUnique.mockResolvedValue({
+        id: 'category-1',
+        userId,
+      });
+
+      await expect(
+        service.create({
+          accountId: 'account-1',
+          categoryId: 'category-1',
+          name: 'Netflix',
+          amount: 15.99,
+          type: 'EXPENSE',
+          frequency: 'MONTHLY',
+          startDate: '2026-01-15',
+          endDate: '2026-01-10',
+        }),
+      ).rejects.toThrow(BadRequestException);
+      expect(prisma.recurringPayment.create).not.toHaveBeenCalled();
+    });
+
+    it('stores a provided endDate', async () => {
+      prisma.account.findUnique.mockResolvedValue({
+        id: 'account-1',
+        userId,
+      });
+      prisma.category.findUnique.mockResolvedValue({
+        id: 'category-1',
+        userId,
+      });
+      prisma.recurringPayment.create.mockResolvedValue({ id: 'new-id' });
+
+      await service.create({
+        accountId: 'account-1',
+        categoryId: 'category-1',
+        name: 'Gym contract',
+        amount: 40,
+        type: 'EXPENSE',
+        frequency: 'MONTHLY',
+        startDate: '2026-01-15',
+        endDate: '2027-01-15',
+      });
+
+      const [{ data }] = prisma.recurringPayment.create.mock.calls[0] as [
+        { data: { endDate: Date } },
+      ];
+      expect(data.endDate).toEqual(new Date('2027-01-15'));
+    });
+  });
+
+  describe('update', () => {
+    const existingRecurringPayment = {
+      id: recurringPaymentId,
+      userId,
+      accountId: 'account-1',
+      categoryId: 'category-1',
+      name: 'Gym contract',
+      amount: '40',
+      type: 'EXPENSE' as const,
+      frequency: 'MONTHLY' as const,
+      startDate: new Date('2026-01-15T00:00:00.000Z'),
+      endDate: new Date('2027-01-15T00:00:00.000Z'),
+      nextPaymentDate: new Date('2026-01-15T00:00:00.000Z'),
+      isActive: true,
+    };
+
+    it('rejects a new endDate before the existing startDate', async () => {
+      prisma.recurringPayment.findUnique.mockResolvedValue(
+        existingRecurringPayment,
+      );
+
+      await expect(
+        service.update(recurringPaymentId, { endDate: '2025-01-01' }),
+      ).rejects.toThrow(BadRequestException);
+      expect(prisma.recurringPayment.update).not.toHaveBeenCalled();
+    });
+
+    it('clears an existing endDate when null is sent', async () => {
+      prisma.recurringPayment.findUnique.mockResolvedValue(
+        existingRecurringPayment,
+      );
+      prisma.recurringPayment.update.mockResolvedValue({
+        ...existingRecurringPayment,
+        endDate: null,
+      });
+
+      await service.update(recurringPaymentId, { endDate: null });
+
+      expect(prisma.recurringPayment.update).toHaveBeenCalledWith({
+        where: { id: recurringPaymentId },
+        data: { endDate: null },
+        include: { account: true, category: true },
+      });
+    });
   });
 
   describe('execute', () => {
@@ -138,6 +237,32 @@ describe('RecurringPaymentsService', () => {
       await expect(service.execute(recurringPaymentId, {})).rejects.toThrow(
         BadRequestException,
       );
+    });
+
+    it('throws BadRequestException when the recurring payment has ended', async () => {
+      prisma.recurringPayment.findUnique.mockResolvedValue({
+        ...baseRecurringPayment,
+        endDate: new Date('2026-01-10T00:00:00.000Z'),
+      });
+
+      await expect(service.execute(recurringPaymentId, {})).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('allows execution when nextPaymentDate is exactly on endDate', async () => {
+      prisma.recurringPayment.findUnique.mockResolvedValue({
+        ...baseRecurringPayment,
+        endDate: new Date('2026-01-15T00:00:00.000Z'),
+      });
+      prisma.recurringPayment.update.mockResolvedValue({
+        ...baseRecurringPayment,
+        nextPaymentDate: new Date('2026-02-15T00:00:00.000Z'),
+      });
+
+      await expect(
+        service.execute(recurringPaymentId, {}),
+      ).resolves.toBeDefined();
     });
 
     it('creates a transaction from the recurring payment and advances nextPaymentDate', async () => {
