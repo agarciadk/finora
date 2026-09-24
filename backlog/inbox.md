@@ -52,3 +52,4 @@ Quick-capture list for ideas about Finora. This is **not** a task list — an id
 - El botón "Volver a cuentas" de `account-detail-page.tsx` (usa `render={<Link .../>}` con `nativeButton`) genera un warning de Base UI en consola ("A component that acts as a button expected a native `<button>`..."); revisar el patrón `render` de `Button` en esa página. Detectado durante FIN-019.
 - El selector de importe en pagos recurrentes podría ser un range selector. → converted to FIN-023
 - Crear capa de pago, añadir anuncios. → converted to FIN-039, FIN-040
+- Añadir una captura de pantalla real del dashboard al README (`README.md`) — no existe ningún screenshot en el repo hoy y el navegador integrado no pudo conectarse (`ERR_FAILED`/timeout CDP) durante FIN-001, así que de momento el README solo usa el logo existente, badges y un diagrama Mermaid.
