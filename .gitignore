@@ -17,6 +17,8 @@ dist-ssr
 
 # Tests
 /coverage
+apps/api/coverage
+apps/web/test/coverage
 /.nyc_output
 
 # Playwright

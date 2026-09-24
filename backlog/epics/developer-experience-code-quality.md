@@ -14,8 +14,8 @@ Groups engineering-quality/tooling additions to the CI pipeline and backend obse
 
 ## Tasks
 
-- [ ] FIN-031 — HTTP request logging in the backend
-- [ ] FIN-032 — Integrate SonarQube/SonarCloud in CI
+- [x] FIN-031 — HTTP request logging in the backend
+- [x] FIN-032 — Integrate SonarQube/SonarCloud in CI
 - [ ] FIN-033 — Integrate Semgrep into the Husky pre-commit hook
 - [ ] FIN-034 — Enable CodeQL on GitHub
 

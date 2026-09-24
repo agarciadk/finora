@@ -3,6 +3,7 @@ import { defineConfig } from "vitest/config"
 import react from "@vitejs/plugin-react"
 
 export default defineConfig({
+  root: path.resolve(import.meta.dirname, ".."),
   plugins: [react()],
   resolve: {
     alias: {
@@ -11,7 +12,13 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
-    setupFiles: ["./setup.ts"],
-    include: ["**/*.test.{ts,tsx}"],
+    setupFiles: [path.resolve(import.meta.dirname, "./setup.ts")],
+    include: ["test/**/*.test.{ts,tsx}"],
+    coverage: {
+      provider: "v8",
+      reporter: ["lcov", "text"],
+      reportsDirectory: path.resolve(import.meta.dirname, "./coverage"),
+      all: false,
+    },
   },
 })

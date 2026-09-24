@@ -1,14 +1,14 @@
 ---
 id: FIN-032
 type: technical
-status: ready
+status: done
 priority: medium
 epic: developer-experience-code-quality
 labels: [ci]
 depends_on: []
 related_to: []
 created_at: 2026-09-22
-updated_at: 2026-09-22
+updated_at: 2026-09-24
 ---
 
 # FIN-032 — Integrate SonarQube/SonarCloud in CI
@@ -25,10 +25,10 @@ so that quality regressions are caught before merge.
 
 ## Acceptance Criteria
 
-- [ ] A new (or extended) GitHub Actions workflow runs a SonarCloud scan on push/PR to `main`, consistent with the existing `ci.yml` conventions (`pnpm/action-setup@v4`, `actions/setup-node@v4` node 22, `pnpm install --frozen-lockfile`).
-- [ ] Scan covers both `apps/api` and `apps/web`.
-- [ ] Analysis results are visible on the PR (SonarCloud PR decoration).
-- [ ] Required secrets (`SONAR_TOKEN`, project key) are documented as a manual setup step, since account/token creation can't be done by an agent.
+- [x] A new (or extended) GitHub Actions workflow runs a SonarCloud scan on push/PR to `main`, consistent with the existing `ci.yml` conventions (`pnpm/action-setup@v4`, `actions/setup-node@v4` node 22, `pnpm install --frozen-lockfile`).
+- [x] Scan covers both `apps/api` and `apps/web`.
+- [x] Analysis results are visible on the PR (SonarCloud PR decoration) — wired via `SonarSource/sonarcloud-github-action@v3` on the `pull_request` trigger; actual PR comments only appear once `SONAR_TOKEN`/project are provisioned (see below).
+- [x] Required secrets (`SONAR_TOKEN`, project key) are documented as a manual setup step, since account/token creation can't be done by an agent.
 
 ## Definition of Ready
 
@@ -40,9 +40,9 @@ so that quality regressions are caught before merge.
 
 ## Definition of Done
 
-- [ ] The implementation is complete.
-- [ ] Acceptance criteria are satisfied.
-- [ ] Relevant tests have been added or updated.
-- [ ] Relevant validation has been performed.
-- [ ] Documentation has been updated when necessary.
-- [ ] No known task-specific issues remain.
+- [x] The implementation is complete.
+- [x] Acceptance criteria are satisfied.
+- [x] Relevant tests have been added or updated.
+- [x] Relevant validation has been performed.
+- [x] Documentation has been updated when necessary.
+- [x] No known task-specific issues remain.
