@@ -1,14 +1,14 @@
 ---
 id: FIN-031
 type: technical
-status: ready
+status: done
 priority: medium
 epic: developer-experience-code-quality
 labels: [observability]
 depends_on: []
 related_to: []
 created_at: 2026-09-22
-updated_at: 2026-09-22
+updated_at: 2026-09-24
 ---
 
 # FIN-031 — HTTP request logging in the backend
@@ -25,10 +25,10 @@ so that I can debug production issues and understand traffic patterns.
 
 ## Acceptance Criteria
 
-- [ ] Every incoming HTTP request is logged with at least: method, path, status code, response time.
-- [ ] Logging does not log sensitive data (passwords, tokens, full request bodies for auth endpoints) — consistent with the existing sanitization/security posture in `.ai-context/02-auth-security.md`.
-- [ ] Logging is implemented as a single cross-cutting piece (interceptor or middleware), not duplicated per-controller.
-- [ ] Works consistently with the existing `ThrottlerModule`/`helmet()` global setup without conflicting.
+- [x] Every incoming HTTP request is logged with at least: method, path, status code, response time.
+- [x] Logging does not log sensitive data (passwords, tokens, full request bodies for auth endpoints) — consistent with the existing sanitization/security posture in `.ai-context/02-auth-security.md`.
+- [x] Logging is implemented as a single cross-cutting piece (interceptor or middleware), not duplicated per-controller.
+- [x] Works consistently with the existing `ThrottlerModule`/`helmet()` global setup without conflicting.
 
 ## Definition of Ready
 
@@ -40,9 +40,9 @@ so that I can debug production issues and understand traffic patterns.
 
 ## Definition of Done
 
-- [ ] The implementation is complete.
-- [ ] Acceptance criteria are satisfied.
-- [ ] Relevant tests have been added or updated.
-- [ ] Relevant validation has been performed.
-- [ ] Documentation has been updated when necessary.
-- [ ] No known task-specific issues remain.
+- [x] The implementation is complete.
+- [x] Acceptance criteria are satisfied.
+- [x] Relevant tests have been added or updated.
+- [x] Relevant validation has been performed (lint, unit tests, build; `test:e2e` attempted but blocked by a pre-existing, unrelated environment issue — see `implementation.md`).
+- [x] Documentation has been updated when necessary (n/a — no user-facing or API-contract docs affected).
+- [x] No known task-specific issues remain (the discovered `test:e2e` tooling issue is unrelated and logged separately in `backlog/inbox.md`).

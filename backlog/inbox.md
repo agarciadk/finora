@@ -48,6 +48,7 @@ Quick-capture list for ideas about Finora. This is **not** a task list — an id
 - Añadir estado global a la App con Zustand. → converted to FIN-020
 - Enfocar la app a Mobile First para tener más facilidades a la migración a móvil. → converted to FIN-029
 - En el detalle de las cuentas se debería poder editar los mismos datos que en la lista de cuentas. → converted to FIN-019
+- `apps/api/test/jest-e2e.json` no incluye el `moduleNameMapper` de `.js`→`.ts` que sí tiene la config de tests unitarios (`apps/api/package.json`'s `jest` field); con Prisma 7.10's cliente generado en estilo ESM (imports con extensión `.js`), `pnpm --filter @finora/api test:e2e` falla siempre con `Cannot find module './internal/class.js'` antes de arrancar ningún test, independientemente de los cambios (descubierto durante FIN-031).
 - El botón "Volver a cuentas" de `account-detail-page.tsx` (usa `render={<Link .../>}` con `nativeButton`) genera un warning de Base UI en consola ("A component that acts as a button expected a native `<button>`..."); revisar el patrón `render` de `Button` en esa página. Detectado durante FIN-019.
 - El selector de importe en pagos recurrentes podría ser un range selector. → converted to FIN-023
 - Crear capa de pago, añadir anuncios. → converted to FIN-039, FIN-040
