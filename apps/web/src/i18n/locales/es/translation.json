@@ -362,9 +362,11 @@
       "description": "Suma de tus gastos recurrentes activos, normalizada a un importe mensual."
     },
     "status": {
-      "paused": "Pausado"
+      "paused": "Pausado",
+      "ended": "Finalizado"
     },
     "nextPayment": "Próximo pago: {{date}}",
+    "endedOn": "Finalizado el {{date}}",
     "frequency": {
       "WEEKLY": "Semanal",
       "MONTHLY": "Mensual",
@@ -385,6 +387,7 @@
       "typeLabel": "Tipo",
       "frequencyLabel": "Frecuencia",
       "startDateLabel": "Fecha de inicio",
+      "endDateLabel": "Fecha de fin (opcional)",
       "accountLabel": "Cuenta",
       "categoryLabel": "Categoría",
       "activeLabel": "Activo",

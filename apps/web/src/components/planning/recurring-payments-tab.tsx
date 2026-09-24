@@ -89,6 +89,7 @@ function emptyForm() {
     type: "EXPENSE" as TransactionType,
     frequency: "MONTHLY" as RecurringFrequency,
     startDate: todayIsoDate(),
+    endDate: "",
     isActive: true,
   }
 }
@@ -104,6 +105,15 @@ function getDueStatus(nextPaymentDate: string): DueStatus {
   if (diffDays < 0) return "overdue"
   if (diffDays <= DUE_SOON_DAYS) return "dueSoon"
   return "upcoming"
+}
+
+// A payment has ended once its pending occurrence falls strictly after its
+// optional end date (the occurrence due exactly on endDate is still valid).
+function hasEnded(payment: RecurringPayment): boolean {
+  return (
+    payment.endDate !== null &&
+    new Date(payment.nextPaymentDate) > new Date(payment.endDate)
+  )
 }
 
 export function RecurringPaymentsTab() {
@@ -139,7 +149,10 @@ export function RecurringPaymentsTab() {
   const totalMonthlyExpenses = useMemo(
     () =>
       recurringPayments
-        .filter((payment) => payment.isActive && payment.type === "EXPENSE")
+        .filter(
+          (payment) =>
+            payment.isActive && payment.type === "EXPENSE" && !hasEnded(payment)
+        )
         .reduce(
           (sum, payment) =>
             sum + Number(payment.amount) * MONTHLY_MULTIPLIER[payment.frequency],
@@ -165,6 +178,7 @@ export function RecurringPaymentsTab() {
       type: payment.type,
       frequency: payment.frequency,
       startDate: payment.startDate.slice(0, 10),
+      endDate: payment.endDate ? payment.endDate.slice(0, 10) : "",
       isActive: payment.isActive,
     })
     setFormError(null)
@@ -183,6 +197,7 @@ export function RecurringPaymentsTab() {
       type: form.type,
       frequency: form.frequency,
       startDate: form.startDate,
+      endDate: form.endDate || null,
       isActive: form.isActive,
     }
 
@@ -193,6 +208,11 @@ export function RecurringPaymentsTab() {
       !(input.amount > 0) ||
       !input.startDate
     ) {
+      setFormError(t("common.errors.generic"))
+      return
+    }
+
+    if (input.endDate && input.endDate < input.startDate) {
       setFormError(t("common.errors.generic"))
       return
     }
@@ -273,6 +293,7 @@ export function RecurringPaymentsTab() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {recurringPayments.map((payment) => {
             const dueStatus = getDueStatus(payment.nextPaymentDate)
+            const ended = hasEnded(payment)
 
             return (
               <Card key={payment.id}>
@@ -326,32 +347,50 @@ export function RecurringPaymentsTab() {
                         {t("recurringPayments.status.paused")}
                       </Badge>
                     )}
+                    {ended && (
+                      <Badge variant="outline">
+                        {t("recurringPayments.status.ended")}
+                      </Badge>
+                    )}
                   </div>
                   <p
                     className={
-                      dueStatus === "overdue"
-                        ? "text-sm font-medium text-destructive"
-                        : dueStatus === "dueSoon"
-                          ? "text-sm font-medium text-amber-600 dark:text-amber-400"
-                          : "text-sm text-muted-foreground"
+                      ended
+                        ? "text-sm text-muted-foreground"
+                        : dueStatus === "overdue"
+                          ? "text-sm font-medium text-destructive"
+                          : dueStatus === "dueSoon"
+                            ? "text-sm font-medium text-amber-600 dark:text-amber-400"
+                            : "text-sm text-muted-foreground"
                     }
                   >
-                    {t("recurringPayments.nextPayment", {
-                      date: new Date(
-                        payment.nextPaymentDate
-                      ).toLocaleDateString(i18n.language, {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                        timeZone: "UTC",
-                      }),
-                    })}
+                    {ended
+                      ? t("recurringPayments.endedOn", {
+                          date: new Date(
+                            payment.endDate as string
+                          ).toLocaleDateString(i18n.language, {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                            timeZone: "UTC",
+                          }),
+                        })
+                      : t("recurringPayments.nextPayment", {
+                          date: new Date(
+                            payment.nextPaymentDate
+                          ).toLocaleDateString(i18n.language, {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                            timeZone: "UTC",
+                          }),
+                        })}
                   </p>
                 </CardContent>
                 <CardFooter>
                   <Button
                     className="w-full"
-                    disabled={!payment.isActive}
+                    disabled={!payment.isActive || ended}
                     onClick={() => {
                       setExecuteError(null)
                       setExecutingPayment(payment)
@@ -493,6 +532,23 @@ export function RecurringPaymentsTab() {
                     }))
                   }
                   required
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="recurring-end-date">
+                  {t("recurringPayments.form.endDateLabel")}
+                </Label>
+                <Input
+                  id="recurring-end-date"
+                  type="date"
+                  value={form.endDate}
+                  min={form.startDate || undefined}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      endDate: event.target.value,
+                    }))
+                  }
                 />
               </div>
               <div className="flex flex-col gap-2">

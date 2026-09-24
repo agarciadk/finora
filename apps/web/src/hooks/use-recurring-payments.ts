@@ -15,6 +15,7 @@ export type RecurringPaymentInput = {
   type: TransactionType
   frequency: RecurringFrequency
   startDate: string
+  endDate?: string | null
   isActive?: boolean
 }
 

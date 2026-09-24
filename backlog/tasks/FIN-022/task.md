@@ -1,14 +1,14 @@
 ---
 id: FIN-022
 type: feature
-status: ready
+status: review
 priority: medium
 epic: recurring-payments-enhancements
 labels: []
 depends_on: []
 related_to: [loans-and-credit]
 created_at: 2026-09-22
-updated_at: 2026-09-22
+updated_at: 2026-09-24
 ---
 
 # FIN-022 — Optional end date for recurring payments
@@ -25,11 +25,11 @@ so that Finora stops expecting/showing it as due after that date.
 
 ## Acceptance Criteria
 
-- [ ] `RecurringPayment` gains an optional `endDate`.
-- [ ] The create/edit form lets the user set/clear an end date.
-- [ ] A recurring payment past its `endDate` no longer appears as due/upcoming (e.g. excluded from "next payment" widgets, or shown as ended — exact list of affected surfaces determined during implementation from `RecurringPayment`'s current usages).
-- [ ] `endDate` is optional — existing recurring payments without one are unaffected.
-- [ ] `endDate` must not be before `startDate` (validated).
+- [x] `RecurringPayment` gains an optional `endDate`.
+- [x] The create/edit form lets the user set/clear an end date.
+- [x] A recurring payment past its `endDate` no longer appears as due/upcoming (e.g. excluded from "next payment" widgets, or shown as ended — exact list of affected surfaces determined during implementation from `RecurringPayment`'s current usages).
+- [x] `endDate` is optional — existing recurring payments without one are unaffected.
+- [x] `endDate` must not be before `startDate` (validated).
 
 ## Definition of Ready
 
@@ -41,9 +41,9 @@ so that Finora stops expecting/showing it as due after that date.
 
 ## Definition of Done
 
-- [ ] The implementation is complete.
-- [ ] Acceptance criteria are satisfied.
-- [ ] Relevant tests have been added or updated.
-- [ ] Relevant validation has been performed.
-- [ ] Documentation has been updated when necessary.
-- [ ] No known task-specific issues remain.
+- [x] The implementation is complete.
+- [x] Acceptance criteria are satisfied.
+- [x] Relevant tests have been added or updated.
+- [x] Relevant validation has been performed.
+- [x] Documentation has been updated when necessary.
+- [x] No known task-specific issues remain.

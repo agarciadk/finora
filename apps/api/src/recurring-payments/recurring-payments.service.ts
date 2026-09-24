@@ -9,6 +9,7 @@ import { CreateRecurringPaymentDto } from './dto/create-recurring-payment.dto';
 import { UpdateRecurringPaymentDto } from './dto/update-recurring-payment.dto';
 import { ExecuteRecurringPaymentDto } from './dto/execute-recurring-payment.dto';
 import { getNextOccurrence } from './date-frequency.util';
+import { hasRecurringPaymentEnded } from './recurring-payment-status.util';
 
 const INCLUDE_RELATIONS = { account: true, category: true } as const;
 
@@ -37,6 +38,10 @@ export class RecurringPaymentsService {
       dto.categoryId,
     );
 
+    const startDate = new Date(dto.startDate);
+    const endDate = dto.endDate ? new Date(dto.endDate) : undefined;
+    this.ensureEndDateNotBeforeStartDate(startDate, endDate);
+
     return this.prisma.recurringPayment.create({
       data: {
         userId,
@@ -46,10 +51,11 @@ export class RecurringPaymentsService {
         amount: dto.amount,
         type: dto.type,
         frequency: dto.frequency,
-        startDate: new Date(dto.startDate),
+        startDate,
+        endDate,
         // The first occurrence is due on `startDate` itself; `execute()`
         // is what advances it from there on.
-        nextPaymentDate: new Date(dto.startDate),
+        nextPaymentDate: startDate,
         ...(dto.isActive !== undefined && { isActive: dto.isActive }),
       },
       include: INCLUDE_RELATIONS,
@@ -57,7 +63,7 @@ export class RecurringPaymentsService {
   }
 
   async update(id: string, dto: UpdateRecurringPaymentDto) {
-    const userId = await this.ensureOwnership(id);
+    const { userId, recurringPayment } = await this.ensureOwnership(id);
 
     if (dto.accountId || dto.categoryId) {
       await this.ensureRelationsBelongToUser(
@@ -67,13 +73,29 @@ export class RecurringPaymentsService {
       );
     }
 
-    const { startDate, ...rest } = dto;
+    const { startDate, endDate, ...rest } = dto;
+    const effectiveStartDate = startDate
+      ? new Date(startDate)
+      : recurringPayment.startDate;
+    const effectiveEndDate =
+      endDate !== undefined
+        ? endDate === null
+          ? null
+          : new Date(endDate)
+        : recurringPayment.endDate;
+    this.ensureEndDateNotBeforeStartDate(
+      effectiveStartDate,
+      effectiveEndDate ?? undefined,
+    );
 
     return this.prisma.recurringPayment.update({
       where: { id },
       data: {
         ...rest,
         ...(startDate !== undefined && { startDate: new Date(startDate) }),
+        ...(endDate !== undefined && {
+          endDate: endDate === null ? null : new Date(endDate),
+        }),
       },
       include: INCLUDE_RELATIONS,
     });
@@ -101,6 +123,10 @@ export class RecurringPaymentsService {
 
       if (!recurringPayment.isActive) {
         throw new BadRequestException('Recurring payment is not active');
+      }
+
+      if (hasRecurringPaymentEnded(recurringPayment)) {
+        throw new BadRequestException('Recurring payment has ended');
       }
 
       const transaction = await tx.transaction.create({
@@ -168,6 +194,12 @@ export class RecurringPaymentsService {
       throw new NotFoundException('Recurring payment not found');
     }
 
-    return userId;
+    return { userId, recurringPayment };
+  }
+
+  private ensureEndDateNotBeforeStartDate(startDate: Date, endDate?: Date) {
+    if (endDate && endDate < startDate) {
+      throw new BadRequestException('endDate must not be before startDate');
+    }
   }
 }

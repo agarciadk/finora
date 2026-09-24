@@ -217,6 +217,7 @@ model RecurringPayment {
   type            TransactionType
   frequency       RecurringFrequency
   startDate       DateTime
+  endDate         DateTime?
   nextPaymentDate DateTime
   isActive        Boolean            @default(true)
   createdAt       DateTime           @default(now())
