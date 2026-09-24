@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom"
 import {
   ArrowLeft,
   Landmark,
+  Pencil,
   PiggyBank as PiggyBankIcon,
   TrendingUp,
   Wallet,
@@ -27,6 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { AccountFormSheet } from "@/components/account-form-sheet"
 import { TransactionCategorySelect } from "@/components/transaction-category-select"
 import { TransactionsBulkActionsBar } from "@/components/transactions-bulk-actions-bar"
 import { TransactionsPagination } from "@/components/transactions-pagination"
@@ -58,7 +60,8 @@ export function AccountDetailPage() {
   const { id } = useParams<{ id: string }>()
   const accountId = id ?? ""
 
-  const { account, isLoading, error } = useAccountDetail(accountId)
+  const { account, isLoading, error, updateAccount } =
+    useAccountDetail(accountId)
   const { accounts } = useAccounts()
   const { categories, createCategory } = useCategories()
 
@@ -67,6 +70,7 @@ export function AccountDetailPage() {
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [editSheetOpen, setEditSheetOpen] = useState(false)
 
   const {
     transactions,
@@ -218,10 +222,27 @@ export function AccountDetailPage() {
             <p className="text-sm text-muted-foreground">{account.bank}</p>
           </div>
         </div>
-        <p className="font-heading text-3xl font-semibold">
-          {formatCurrency(account.balance)}
-        </p>
+        <div className="flex flex-col items-end gap-2">
+          <p className="font-heading text-3xl font-semibold">
+            {formatCurrency(account.balance)}
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setEditSheetOpen(true)}
+          >
+            <Pencil />
+            {t("common.actions.edit")}
+          </Button>
+        </div>
       </div>
+
+      <AccountFormSheet
+        open={editSheetOpen}
+        onOpenChange={setEditSheetOpen}
+        account={account}
+        onSubmit={updateAccount}
+      />
 
       {isInterestBearing && (
         <Card>

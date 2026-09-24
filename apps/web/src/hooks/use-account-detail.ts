@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { api } from "@/lib/api"
+import type { AccountInput } from "@/hooks/use-accounts"
 import type { AccountDetail } from "@/lib/types"
 
 export function useAccountDetail(id: string) {
@@ -26,5 +27,13 @@ export function useAccountDetail(id: string) {
     void refresh()
   }, [refresh])
 
-  return { account, isLoading, error, refresh }
+  const updateAccount = useCallback(
+    async (input: Partial<AccountInput>) => {
+      await api.patch(`/accounts/${id}`, input)
+      await refresh()
+    },
+    [id, refresh]
+  )
+
+  return { account, isLoading, error, refresh, updateAccount }
 }
