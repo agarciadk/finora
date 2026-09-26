@@ -25,7 +25,10 @@ export class HealthController {
       () => this.memory.checkHeap('memory_heap', 300 * 1024 * 1024),
       () => this.memory.checkRSS('memory_rss', 300 * 1024 * 1024),
       () =>
-        this.disk.checkStorage('disk', { path: '/', thresholdPercent: 0.9 }),
+        this.disk.checkStorage('disk', {
+          path: process.platform === 'win32' ? 'C:\\' : '/',
+          thresholdPercent: 0.9,
+        }),
     ]);
   }
 }
