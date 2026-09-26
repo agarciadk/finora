@@ -1,5 +1,6 @@
 import { lazy } from "react"
 import { BrowserRouter, Route, Routes } from "react-router-dom"
+import { Analytics } from "@vercel/analytics/react";
 
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
@@ -86,6 +87,7 @@ function App() {
           </Routes>
         </AuthProvider>
       </BrowserRouter>
+      <Analytics />
       <Toaster />
     </ThemeProvider>
   )
